@@ -67,12 +67,12 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Liste des sources actives (slug, name, url, kind). Schéma Pydantic de réponse séparé du modèle SQLAlchemy (évite d'exposer etag, erreurs, etc.).
 
 **Critères d'acceptation :**
-- [ ] Ne renvoie que les sources actives, triées par nom
-- [ ] Les champs internes (etag, last_error…) n'apparaissent pas
+- [x] Ne renvoie que les sources actives, triées par nom
+- [x] Les champs internes (etag, last_error…) n'apparaissent pas
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `curl localhost:8000/v1/sources`
+- [x] Lint + tests passent
+- [x] Manuel : `curl localhost:8000/v1/sources`
 
 **Dépendances :** T3
 **Fichiers :** `backend/app/api/v1/sources.py`, `backend/app/main.py`, `backend/tests/test_api_sources.py`
