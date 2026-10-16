@@ -1,0 +1,20 @@
+# Fixed source catalog. Apply changes with: python -m app.cli sync-sources
+# Removing a source deactivates it (its articles are kept until purged).
+# kind: rss (RSS or Atom) | youtube (channel feed: youtube.com/feeds/videos.xml?channel_id=...)
+sources:
+  - slug: le-monde
+    name: Le Monde — À la une
+    url: https://www.lemonde.fr/rss/une.xml
+    kind: rss
+  - slug: hacker-news
+    name: Hacker News
+    url: https://hnrss.org/frontpage
+    kind: rss
+  - slug: ars-technica
+    name: Ars Technica
+    url: https://feeds.arstechnica.com/arstechnica/index
+    kind: rss
+  - slug: kurzgesagt
+    name: Kurzgesagt – In a Nutshell
+    url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q
+    kind: youtube

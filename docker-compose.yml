@@ -21,6 +21,8 @@ services:
       DATABASE_URL: postgresql+psycopg://butine:butine@db:5432/butine
     ports:
       - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend/sources.yaml:/app/sources.yaml:ro  # edit the catalog without rebuilding
     depends_on:
       db:
         condition: service_healthy
