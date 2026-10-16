@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: butine
       POSTGRES_DB: butine
     ports:
-      - "5432:5432"  # exposed so tests can run from the host
+      - "127.0.0.1:5432:5432"  # host-only: tests run from the host, not reachable from the LAN
     volumes:
       - db-data:/var/lib/postgresql
     healthcheck:
@@ -20,7 +20,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://butine:butine@db:5432/butine
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       db:
         condition: service_healthy
