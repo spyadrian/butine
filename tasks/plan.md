@@ -54,11 +54,11 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T2 : CI GitHub Actions (ruff + pytest)
 
 ### Checkpoint 1
-- [ ] `docker compose up` démarre api + db, `/v1/health` répond `ok`
-- [ ] CI verte sur GitHub
+- [x] `docker compose up` démarre api + db, `/v1/health` répond `ok`
+- [x] CI verte sur GitHub
 
 ### Phase 2 : catalogue
-- [ ] T3 : modèle `Source`, première migration, commande `sync-sources`
+- [x] T3 : modèle `Source`, première migration, commande `sync-sources`
 - [ ] T4 : `GET /v1/sources`
 
 ### Checkpoint 2

@@ -1,4 +1,8 @@
+from pathlib import Path
+
 import pytest
+from alembic import command
+from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, make_url, text
 from sqlalchemy.orm import Session
@@ -21,10 +25,20 @@ def _ensure_database(url: str) -> None:
     admin.dispose()
 
 
+def alembic_config() -> Config:
+    config = Config(Path(__file__).parent.parent / "alembic.ini")
+    config.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
+    return config
+
+
 @pytest.fixture(scope="session")
 def engine():
+    """Test database rebuilt from scratch with the migrations, once per run."""
     _ensure_database(TEST_DATABASE_URL)
     engine = create_engine(TEST_DATABASE_URL)
+    with engine.begin() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public"))
+    command.upgrade(alembic_config(), "head")
     yield engine
     engine.dispose()
 

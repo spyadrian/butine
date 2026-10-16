@@ -39,9 +39,9 @@ Commandes de vérification communes (depuis `backend/`) :
 **Taille :** XS
 
 ### Checkpoint 1
-- [ ] `docker compose up` OK, `/v1/health` OK
-- [ ] CI verte
-- [ ] Revue humaine
+- [x] `docker compose up` OK, `/v1/health` OK
+- [x] CI verte
+- [x] Revue humaine
 
 ---
 
@@ -51,13 +51,13 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Configurer Alembic. Modèle `Source` (id, slug unique, name, url, kind `rss|youtube`, active, etag, last_modified, next_fetch_at, consecutive_failures, last_error). Fichier `sources.yaml` avec quelques sources. Commande `python -m app.cli sync-sources` : ajoute les nouvelles (clé = slug), met à jour nom/url, **désactive** celles retirées du YAML, réactive celles qui y reviennent. Valide le YAML (champs requis, slugs uniques) avant d'écrire.
 
 **Critères d'acceptation :**
-- [ ] `alembic upgrade head` crée la table sur une base vide
-- [ ] Ajout, modification, retrait et réapparition d'une source testés
-- [ ] Un YAML invalide échoue avec un message clair, sans rien modifier en base
+- [x] `alembic upgrade head` crée la table sur une base vide
+- [x] Ajout, modification, retrait et réapparition d'une source testés
+- [x] Un YAML invalide échoue avec un message clair, sans rien modifier en base
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `docker compose run --rm api python -m app.cli sync-sources`
+- [x] Lint + tests passent
+- [x] Manuel : `docker compose run --rm api python -m app.cli sync-sources`
 
 **Dépendances :** T1
 **Fichiers :** `backend/alembic.ini`, `backend/migrations/`, `backend/app/models.py`, `backend/app/services/catalog.py`, `backend/app/cli.py`, `backend/sources.yaml`, `backend/tests/test_catalog.py`
