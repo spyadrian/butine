@@ -72,7 +72,7 @@ Projet d'apprentissage mené jusqu'à « prêt pour les stores » (iOS + Android
 - **M1** : catalogue `sources.yaml` + worker de récupération + API (sources, articles) + Compose + CI.
 - **M2** : utilisateurs, sujets, abonnements, matching par embeddings, `GET /v1/feed`.
 - **M3** : app Flutter minimale qui affiche le fil (+ client généré depuis OpenAPI).
-- **Ensuite** : compte anonyme, puis email, suppression de compte, résumés IA, déploiement Infomaniak, compilation iOS en CI, Kubernetes.
+- **Ensuite** : compte anonyme, puis email, suppression de compte, résumés IA, déploiement Infomaniak (images Docker avec utilisateur non-root), compilation iOS en CI, Kubernetes.
 
 ## À vérifier plus tard
 - Compatibilité de torch / sentence-transformers avec Python 3.14 (sinon 3.13 dans l'image Docker) — M2.

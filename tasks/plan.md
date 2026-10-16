@@ -10,7 +10,7 @@ Référence : [docs/DECISIONS.md](../docs/DECISIONS.md). Ce plan n'y ajoute que 
 | `uv` pour les dépendances (`pyproject.toml` + `uv.lock`) | Déjà installé ; un seul outil pour venv, lock et exécution (`uv run pytest`). |
 | SQLAlchemy **synchrone** + `psycopg` 3 | Plus simple à apprendre que l'async ; FastAPI exécute les routes `def` dans un pool de threads, suffisant ici. |
 | `feedparser` pour lire les flux | Gère RSS 0.9x/1.0/2.0, Atom et les flux mal formés ; écrire son parseur serait long et fragile. |
-| `httpx` pour télécharger | Client HTTP moderne ; son `MockTransport` permet de tester le worker sans réseau. |
+| `httpx` pour télécharger | Client HTTP moderne ; son `MockTransport` permet de tester le worker sans réseau. À revoir en T6 : Starlette pousse désormais vers `httpx2` (déjà utilisé pour le `TestClient`). |
 | Colonne `next_fetch_at` par source | Un seul champ gère à la fois l'intervalle de 30 min et le backoff. Le worker se réveille chaque minute et traite les sources « dues ». |
 | Table `fetch_cycles` (une ligne par cycle) | Le worker et l'API sont deux processus : `GET /v1/stats` lit la base au lieu de partager de la mémoire. |
 | Config par variables d'environnement (`os.environ` + valeurs par défaut) | Trois ou quatre réglages ; pas besoin de `pydantic-settings` pour l'instant. |
@@ -50,7 +50,7 @@ T7, T8, T9 sont indépendants entre eux une fois T6 fait. T10 vient en dernier c
 Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 
 ### Phase 1 : fondations
-- [ ] T1 : squelette backend + Compose + `GET /v1/health` testé sur Postgres
+- [x] T1 : squelette backend + Compose + `GET /v1/health` testé sur Postgres
 - [ ] T2 : CI GitHub Actions (ruff + pytest)
 
 ### Checkpoint 1
