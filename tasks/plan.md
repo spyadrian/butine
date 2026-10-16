@@ -51,7 +51,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 
 ### Phase 1 : fondations
 - [x] T1 : squelette backend + Compose + `GET /v1/health` testé sur Postgres
-- [ ] T2 : CI GitHub Actions (ruff + pytest)
+- [x] T2 : CI GitHub Actions (ruff + pytest)
 
 ### Checkpoint 1
 - [ ] `docker compose up` démarre api + db, `/v1/health` répond `ok`
