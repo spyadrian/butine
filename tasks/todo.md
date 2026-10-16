@@ -28,11 +28,11 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Workflow sur push/PR : installe `uv`, lance ruff puis pytest avec un service Postgres.
 
 **Critères d'acceptation :**
-- [ ] Le workflow tourne sur chaque push et PR vers `main`
-- [ ] Un test volontairement cassé fait échouer la CI (vérifié une fois puis annulé)
+- [x] Le workflow tourne sur chaque push et PR vers `main`
+- [x] Un test volontairement cassé fait échouer la CI (vérifié une fois puis annulé)
 
 **Vérification :**
-- [ ] Manuel : run vert visible dans l'onglet Actions de `spyadrian/butine`
+- [x] Manuel : run vert visible dans l'onglet Actions de `spyadrian/butine`
 
 **Dépendances :** T1
 **Fichiers :** `.github/workflows/ci.yml`
