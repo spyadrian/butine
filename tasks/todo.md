@@ -12,13 +12,13 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Créer `backend/` (projet `uv`, FastAPI, SQLAlchemy, psycopg, ruff, pytest), un `Dockerfile`, un `docker-compose.yml` (services `api` et `db` Postgres avec volume), et une route `GET /v1/health` qui exécute `SELECT 1`. Mettre en place la fixture pytest qui se connecte à une base de test Postgres et annule chaque test dans une transaction.
 
 **Critères d'acceptation :**
-- [ ] `docker compose up` démarre `api` et `db` ; `curl localhost:8000/v1/health` → `{"status": "ok"}`
-- [ ] Un test appelle `/v1/health` via `TestClient` sur le vrai Postgres et passe
-- [ ] `/docs` (OpenAPI) liste la route sous `/v1`
+- [x] `docker compose up` démarre `api` et `db` ; `curl localhost:8000/v1/health` → `{"status": "ok"}`
+- [x] Un test appelle `/v1/health` via `TestClient` sur le vrai Postgres et passe
+- [x] `/docs` (OpenAPI) liste la route sous `/v1`
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `docker compose up --build` puis `curl`
+- [x] Lint + tests passent
+- [x] Manuel : `docker compose up --build` puis `curl`
 
 **Dépendances :** aucune
 **Fichiers :** `backend/pyproject.toml`, `backend/Dockerfile`, `backend/app/{main,config,db}.py`, `backend/app/api/v1/health.py`, `backend/tests/{conftest,test_health}.py`, `docker-compose.yml`, `.gitignore`

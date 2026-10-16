@@ -1,2 +1,8 @@
 # Local Claude Code settings (personal)
 .claude/settings.local.json
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
