@@ -4,8 +4,11 @@ Résultat de la session de cadrage du 2026-10-15. Idée d'origine : [IDEE.md](ID
 Chaque décision a sa raison ; si la raison ne tient plus, la décision peut changer.
 
 ## Objectif
-Projet d'apprentissage mené jusqu'à « prêt pour les stores » (iOS + Android), sans publication ni monétisation.
+Vrai produit, publié sur les stores (iOS + Android) et monétisé (gratuit : 1 feed ; payant : 10 feeds ou plus). Il doit être **rentable, sans plus** : les revenus couvrent les coûts (hébergement, comptes développeur, frais des stores).
+Le projet reste aussi un terrain d'apprentissage d'outils de gros projets.
 → Tout ce que les stores exigent doit exister (comptes supprimables, backend public HTTPS, respect du contenu).
+
+_Révisé le 2026-10-27 : à l'origine, projet d'apprentissage sans publication ni monétisation, recentré depuis sur les papiers scientifiques (voir [IDEE.md](IDEE.md))._
 
 ## Stack
 | Choix | Raison |
@@ -21,13 +24,15 @@ Projet d'apprentissage mené jusqu'à « prêt pour les stores » (iOS + Android
 
 ## Plateformes
 - Développement et tests sur Android (Linux). iOS compilé uniquement via CI macOS au jalon « prêt stores ».
-- Pas de compte Apple Developer (99 $/an) tant qu'on ne publie pas.
+- Compte Apple Developer (99 $/an) seulement quand la publication approche : c'est un coût récurrent à couvrir.
 
 ## Sources et contenu
-- Uniquement RSS/Atom. YouTube via son flux natif (`youtube.com/feeds/videos.xml?channel_id=…`). Pas d'Instagram (pas de RSS, scraping interdit).
+- Uniquement des papiers scientifiques, via RSS/Atom. Pas de presse, de YouTube ni de réseaux sociaux.
+- Pour commencer : arXiv + bioRxiv. bioRxiv est choisi parce qu'il pose d'autres problèmes qu'arXiv : format RSS 1.0 (RDF), identifiants DOI au lieu d'identifiants arXiv, versions (`v1`, `v2`), données parfois mal formées.
 - **Catalogue fixe** dans `backend/sources.yaml`, synchronisé en base par une commande `sync-sources` : ajoute les nouvelles, **désactive** (ne supprime pas) les retirées. Pas d'endpoint d'ajout de source.
-- Sources personnelles (visibles par leur seul propriétaire) : version future, rien de prévu dans le schéma maintenant.
-- Sources globales, récupérées une seule fois ; l'utilisateur s'abonne à des sources du catalogue.
+- **Sources imposées** : l'utilisateur ne choisit pas ses sources (pas d'abonnement, rien à cocher) et ne peut pas en ajouter. Chaque prompt est comparé à tous les papiers du catalogue.
+- Sources globales, récupérées une seule fois pour tout le monde.
+- Rétention : 30 jours, à revoir plus tard.
 - On ne stocke que ce que fournit le flux (titre, source, extrait, lien). Pas d'aspiration des articles (droit d'auteur, rejet store). Les futurs résumés IA partent du contenu du flux.
 
 ## Récupération (worker)
@@ -70,7 +75,7 @@ Projet d'apprentissage mené jusqu'à « prêt pour les stores » (iOS + Android
 
 ## Jalons
 - **M1** : catalogue `sources.yaml` + worker de récupération + API (sources, articles) + Compose + CI.
-- **M2** : utilisateurs, sujets, abonnements, matching par embeddings, `GET /v1/feed`.
+- **M2** : utilisateurs, sujets, matching par embeddings, `GET /v1/feed`.
 - **M3** : app Flutter minimale qui affiche le fil (+ client généré depuis OpenAPI).
 - **Ensuite** : compte anonyme, puis email, suppression de compte, résumés IA, déploiement Infomaniak (images Docker avec utilisateur non-root), compilation iOS en CI, Kubernetes.
 

@@ -24,6 +24,8 @@ global regroupe en plus les papiers de tous les prompts.
   utilisateurs, mais ils paient rarement.
 
 ## La monétisation
+L'application sera publiée sur les stores. Elle doit être rentable,
+sans plus : couvrir ses coûts.
 - Gratuit : 1 feed.
 - Payant : 10 feeds ou plus.
 
@@ -31,9 +33,12 @@ global regroupe en plus les papiers de tous les prompts.
 On reste uniquement sur les papiers scientifiques, via RSS : pas
 d'autre technologie et rien d'illégal pour le moment.
 
-Pour commencer : arXiv et une deuxième source, justement pour avoir
-plusieurs sources et voir les problèmes que ça pose (le même papier
-publié à deux endroits, des formats différents…).
+Pour commencer : arXiv et bioRxiv, justement pour avoir plusieurs
+sources et voir les problèmes que ça pose (le même papier publié à
+deux endroits, des formats différents…).
+
+Les sources sont imposées : l'utilisateur ne peut ni les choisir
+(rien à cocher ou décocher) ni en ajouter.
 
 On ne garde les papiers que 30 jours pour le moment, on verra après.
 
