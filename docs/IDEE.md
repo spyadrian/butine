@@ -26,14 +26,18 @@ global regroupe en plus les papiers de tous les prompts.
 ## La monétisation
 L'application sera publiée sur les stores. Elle doit être rentable,
 sans plus : couvrir ses coûts.
-- Gratuit : 1 feed.
-- Payant : 10 feeds ou plus.
+- Gratuit : 1 feed (1 prompt).
+- Payant : 10 feeds pour 5 CHF par mois.
+
+Le feed global ne compte pas : il regroupe simplement les tiroirs.
+Si un abonné arrête de payer, il garde tous ses prompts mais un seul
+continue de recevoir des papiers.
 
 ## Les sources
 On reste uniquement sur les papiers scientifiques, via RSS : pas
 d'autre technologie et rien d'illégal pour le moment.
 
-Pour commencer : arXiv et bioRxiv, justement pour avoir plusieurs
+Pour commencer : tout arXiv et bioRxiv, justement pour avoir plusieurs
 sources et voir les problèmes que ça pose (le même papier publié à
 deux endroits, des formats différents…).
 
@@ -43,9 +47,9 @@ Les sources sont imposées : l'utilisateur ne peut ni les choisir
 On ne garde les papiers que 30 jours pour le moment, on verra après.
 
 ## Parcours utilisateur
-1. L'utilisateur crée des prompts en les écrivant librement
-   (ex : « détection d'anomalies sur séries temporelles
-   industrielles », « batteries à électrolyte solide »).
+1. L'utilisateur crée des prompts en les écrivant librement, en
+   anglais comme les papiers (ex : « anomaly detection on industrial
+   time series », « solid-state electrolyte batteries »).
 2. L'application récupère régulièrement les nouveaux papiers des
    sources du catalogue.
 3. Quand un papier correspond à un prompt, il apparaît dans le

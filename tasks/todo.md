@@ -78,6 +78,22 @@ Commandes de vérification communes (depuis `backend/`) :
 **Fichiers :** `backend/app/api/v1/sources.py`, `backend/app/main.py`, `backend/tests/test_api_sources.py`
 **Taille :** S
 
+### T5 : catalogue arXiv + bioRxiv
+**Description :** Recentrage sur les papiers scientifiques. Remplacer les kinds `rss|youtube` par `arxiv|biorxiv` (le kind choisit l'extracteur en T6). `sources.yaml` : une source par archive arXiv (`https://rss.arxiv.org/rss/<archive>`, ~20 archives : `cs`, `math`, `physics`, `astro-ph`, `cond-mat`, `quant-ph`, `stat`, `eess`, `q-bio`…) + bioRxiv. Trouver l'URL du flux bioRxiv qui marche (les anciennes `connect.biorxiv.org/biorxiv_xml/…` renvoient 404). Les anciennes sources (presse, YouTube) sont retirées du YAML, donc désactivées par `sync-sources`.
+
+**Critères d'acceptation :**
+- [ ] `kind` hors `arxiv|biorxiv` → YAML refusé avec un message clair
+- [ ] Toutes les URLs du YAML répondent 200 avec du XML (vérifié une fois à la main)
+- [ ] Après `sync-sources`, `/v1/sources` ne liste que les sources arXiv et bioRxiv
+
+**Vérification :**
+- [ ] Lint + tests passent
+- [ ] Manuel : `sync-sources` puis `curl localhost:8000/v1/sources`
+
+**Dépendances :** T3
+**Fichiers :** `backend/app/services/catalog.py`, `backend/sources.yaml`, `backend/tests/test_catalog.py`
+**Taille :** S
+
 ### Checkpoint 2
 - [ ] Modifier `sources.yaml` → `sync-sources` → visible dans `/v1/sources`
 - [ ] Revue humaine
@@ -86,39 +102,41 @@ Commandes de vérification communes (depuis `backend/`) :
 
 ## Phase 3 : récupération
 
-### T5 : parsing des flux
-**Description :** Fonction pure `parse_feed(content: bytes) -> list[Entry]` (guid, link, title, summary, published_at) basée sur `feedparser`. Clé de dédoublonnage : guid, sinon lien. Entrée sans guid ni lien → ignorée. Extrait nettoyé du HTML et tronqué.
+### T6 : parsing des flux
+**Description :** Fonctions pures `parse_feed(kind, content: bytes) -> list[PaperEntry]` basées sur `feedparser`, un extracteur par kind. `PaperEntry` : `external_id` (`arxiv:2410.12345` / `doi:10.1101/…`, **sans** la version), `version`, title, authors (liste), abstract **complet** nettoyé du HTML (pas tronqué), categories (liste), link, published_at. Entrée sans identifiant → ignorée.
 
 **Critères d'acceptation :**
-- [ ] Fixtures RSS 2.0, Atom et YouTube parsées correctement
-- [ ] Entrée sans guid → clé = lien ; sans les deux → ignorée
-- [ ] Flux mal formé → liste vide ou erreur explicite, jamais de crash non géré
+- [ ] Fixtures réelles arXiv et bioRxiv (RSS 1.0 / RDF) parsées correctement
+- [ ] La version est séparée de l'identifiant (`2410.12345v2` → `arxiv:2410.12345`, version 2)
+- [ ] Entrée sans identifiant → ignorée ; flux mal formé → liste vide ou erreur explicite, jamais de crash non géré
 
 **Vérification :**
 - [ ] Lint + tests passent
 
-**Dépendances :** T1 (parallélisable avec T3/T4)
+**Dépendances :** T5
 **Fichiers :** `backend/app/services/feeds.py`, `backend/tests/fixtures/*.xml`, `backend/tests/test_feeds.py`
-**Taille :** S
+**Taille :** M
 
-### T6 : Article, cycle du worker, conteneur worker
-**Description :** Modèle `Article` (source_id, dedup_key, title, summary, link, published_at, fetched_at) avec contrainte unique `(source_id, dedup_key)` + migration. `run_cycle(session, client)` : pour chaque source active dont `next_fetch_at <= now`, GET avec `If-None-Match`/`If-Modified-Since`, 304 → rien, 200 → parse + insert en ignorant les doublons (`ON CONFLICT DO NOTHING`), stocke etag/last_modified, `next_fetch_at = now + 30 min`. `worker.py` boucle : `run_cycle` puis dort 60 s. Service `worker` dans Compose.
+### T7 : Paper, cycle du worker, conteneur worker
+**Description :** Modèle `Paper` (external_id **unique**, source_id = première source, version, title, authors, abstract, categories, link, published_at, fetched_at) + migration. `run_cycle(session, client)` : pour chaque source active dont `next_fetch_at <= now`, GET avec `If-None-Match`/`If-Modified-Since`, 304 → rien, 200 → parse + upsert par `external_id` : nouveau papier inséré, version plus récente → mise à jour, sinon rien. Stocke etag/last_modified, `next_fetch_at = now + 30 min`. `worker.py` boucle : `run_cycle` puis dort 60 s. Service `worker` dans Compose.
 
 **Critères d'acceptation :**
 - [ ] Deux cycles sur le même flux → aucun doublon
+- [ ] Un papier présent dans deux archives → une seule ligne
+- [ ] Une `v2` met à jour la ligne de la `v1` ; une `v1` arrivée après la `v2` ne l'écrase pas
 - [ ] Les en-têtes conditionnels sont envoyés, un 304 n'insère rien
 - [ ] Une source pas encore due n'est pas interrogée
 
 **Vérification :**
 - [ ] Lint + tests passent (httpx `MockTransport` servant les fixtures, aucun réseau)
-- [ ] Manuel : `docker compose up` → articles en base après une minute
+- [ ] Manuel : `docker compose up` → papiers en base après une minute
 
-**Dépendances :** T3, T5
+**Dépendances :** T5, T6
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/services/fetcher.py`, `backend/app/worker.py`, `docker-compose.yml`, `backend/tests/test_fetcher.py`
 **Taille :** M
 
-### T7 : `GET /v1/articles`
-**Description :** Articles du plus récent au plus ancien, avec le nom de la source. Pagination `limit` (défaut 50, max 200) + `offset`, filtre optionnel `source` (slug).
+### T8 : `GET /v1/papers`
+**Description :** Papiers du plus récent au plus ancien, avec le nom de la source. Pagination `limit` (défaut 50, max 200) + `offset`, filtre optionnel `source` (slug).
 
 **Critères d'acceptation :**
 - [ ] Tri par date décroissante, pagination respectée, `limit` > 200 refusé (422)
@@ -126,14 +144,14 @@ Commandes de vérification communes (depuis `backend/`) :
 
 **Vérification :**
 - [ ] Lint + tests passent
-- [ ] Manuel : `curl 'localhost:8000/v1/articles?limit=5'`
+- [ ] Manuel : `curl 'localhost:8000/v1/papers?limit=5'`
 
-**Dépendances :** T6
-**Fichiers :** `backend/app/api/v1/articles.py`, `backend/app/main.py`, `backend/tests/test_api_articles.py`
+**Dépendances :** T7
+**Fichiers :** `backend/app/api/v1/papers.py`, `backend/app/main.py`, `backend/tests/test_api_papers.py`
 **Taille :** S
 
 ### Checkpoint 3
-- [ ] `docker compose up` → vrais articles dans `/v1/articles`
+- [ ] `docker compose up` → vrais papiers dans `/v1/papers`
 - [ ] Pas de doublons après plusieurs cycles
 - [ ] Revue humaine
 
@@ -141,7 +159,7 @@ Commandes de vérification communes (depuis `backend/`) :
 
 ## Phase 4 : robustesse et observabilité
 
-### T8 : backoff et désactivation
+### T9 : backoff et désactivation
 **Description :** Sur erreur (réseau, HTTP ≥ 400, flux illisible) : `consecutive_failures += 1`, `last_error` conservé, `next_fetch_at = now + 30 min × 2^(échecs−1)` plafonné (ex. 24 h). À 10 échecs : `active = false`. Un succès remet le compteur à zéro. Une source en erreur n'interrompt pas le cycle des autres.
 
 **Critères d'acceptation :**
@@ -152,29 +170,29 @@ Commandes de vérification communes (depuis `backend/`) :
 **Vérification :**
 - [ ] Lint + tests passent
 
-**Dépendances :** T6
+**Dépendances :** T7
 **Fichiers :** `backend/app/services/fetcher.py`, `backend/tests/test_fetcher.py`
 **Taille :** S
 
-### T9 : purge
-**Description :** Supprimer les articles dont `fetched_at` a plus de `ARTICLE_RETENTION_DAYS` jours (défaut 30), à chaque cycle du worker.
+### T10 : purge
+**Description :** Supprimer les papiers dont `fetched_at` a plus de `PAPER_RETENTION_DAYS` jours (défaut 30), à chaque cycle du worker.
 
 **Critères d'acceptation :**
-- [ ] Articles plus vieux que la rétention supprimés, les autres conservés
+- [ ] Papiers plus vieux que la rétention supprimés, les autres conservés
 - [ ] Rétention réglable par variable d'environnement
 
 **Vérification :**
 - [ ] Lint + tests passent
 
-**Dépendances :** T6
+**Dépendances :** T7
 **Fichiers :** `backend/app/services/purge.py`, `backend/app/worker.py`, `backend/app/config.py`, `backend/tests/test_purge.py`
 **Taille :** XS
 
-### T10 : log de cycle + `GET /v1/stats`
-**Description :** Table `fetch_cycles` (started_at, duration_ms, feeds_polled, new_articles, errors, purged) + migration. Chaque cycle écrit une ligne en base et une ligne de log JSON sur stdout. `GET /v1/stats` renvoie le dernier cycle + le nombre de sources actives/désactivées et d'articles. (Le compteur « en attente d'embedding » arrive en M2 avec les embeddings.)
+### T11 : log de cycle + `GET /v1/stats`
+**Description :** Table `fetch_cycles` (started_at, duration_ms, feeds_polled, new_papers, updated_papers, errors, purged) + migration. Chaque cycle écrit une ligne en base et une ligne de log JSON sur stdout. `GET /v1/stats` renvoie le dernier cycle + le nombre de sources actives/désactivées et de papiers. (Le compteur « en attente d'embedding » arrive en M2 avec les embeddings.)
 
 **Critères d'acceptation :**
-- [ ] Une ligne de log JSON par cycle avec durée, flux interrogés, nouveaux articles, erreurs
+- [ ] Une ligne de log JSON par cycle avec durée, flux interrogés, nouveaux papiers, erreurs
 - [ ] `/v1/stats` renvoie les mêmes chiffres que le dernier log
 - [ ] `/v1/stats` sans aucun cycle → réponse valide (pas d'erreur 500)
 
@@ -182,7 +200,7 @@ Commandes de vérification communes (depuis `backend/`) :
 - [ ] Lint + tests passent
 - [ ] Manuel : `docker compose logs worker` et `curl localhost:8000/v1/stats`
 
-**Dépendances :** T8, T9
+**Dépendances :** T9, T10
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/worker.py`, `backend/app/api/v1/stats.py`, `backend/tests/test_api_stats.py`
 **Taille :** M
 
