@@ -82,13 +82,13 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Recentrage sur les papiers scientifiques. Remplacer les kinds `rss|youtube` par `arxiv|biorxiv` (le kind choisit l'extracteur en T6). `sources.yaml` : une source par archive arXiv (`https://rss.arxiv.org/rss/<archive>`, ~20 archives : `cs`, `math`, `physics`, `astro-ph`, `cond-mat`, `quant-ph`, `stat`, `eess`, `q-bio`…) + bioRxiv. Trouver l'URL du flux bioRxiv qui marche (les anciennes `connect.biorxiv.org/biorxiv_xml/…` renvoient 404). Les anciennes sources (presse, YouTube) sont retirées du YAML, donc désactivées par `sync-sources`.
 
 **Critères d'acceptation :**
-- [ ] `kind` hors `arxiv|biorxiv` → YAML refusé avec un message clair
-- [ ] Toutes les URLs du YAML répondent 200 avec du XML (vérifié une fois à la main)
-- [ ] Après `sync-sources`, `/v1/sources` ne liste que les sources arXiv et bioRxiv
+- [x] `kind` hors `arxiv|biorxiv` → YAML refusé avec un message clair
+- [x] Toutes les URLs du YAML répondent 200 avec du XML (vérifié une fois à la main)
+- [x] Après `sync-sources`, `/v1/sources` ne liste que les sources arXiv et bioRxiv
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `sync-sources` puis `curl localhost:8000/v1/sources`
+- [x] Lint + tests passent
+- [x] Manuel : `sync-sources` puis `curl localhost:8000/v1/sources`
 
 **Dépendances :** T3
 **Fichiers :** `backend/app/services/catalog.py`, `backend/sources.yaml`, `backend/tests/test_catalog.py`

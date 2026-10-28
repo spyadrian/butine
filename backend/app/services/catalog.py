@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import Source
 
 CATALOG_PATH = Path(__file__).parent.parent.parent / "sources.yaml"
-KINDS = {"rss", "youtube"}
+KINDS = {"arxiv", "biorxiv"}
 FIELDS = ("slug", "name", "url", "kind")
 
 

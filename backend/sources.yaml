@@ -1,20 +1,193 @@
 # Fixed source catalog. Apply changes with: python -m app.cli sync-sources
-# Removing a source deactivates it (its articles are kept until purged).
-# kind: rss (RSS or Atom) | youtube (channel feed: youtube.com/feeds/videos.xml?channel_id=...)
+# Removing a source deactivates it (its papers are kept until purged).
+# kind picks the parser: arxiv (one feed per archive) | biorxiv (one feed per subject).
+# bioRxiv feeds only hold the 30 latest papers, hence one source per subject.
 sources:
-  - slug: le-monde
-    name: Le Monde — À la une
-    url: https://www.lemonde.fr/rss/une.xml
-    kind: rss
-  - slug: hacker-news
-    name: Hacker News
-    url: https://hnrss.org/frontpage
-    kind: rss
-  - slug: ars-technica
-    name: Ars Technica
-    url: https://feeds.arstechnica.com/arstechnica/index
-    kind: rss
-  - slug: kurzgesagt
-    name: Kurzgesagt – In a Nutshell
-    url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q
-    kind: youtube
+  - slug: arxiv-astro-ph
+    name: arXiv — Astrophysics
+    url: https://rss.arxiv.org/rss/astro-ph
+    kind: arxiv
+  - slug: arxiv-cond-mat
+    name: arXiv — Condensed Matter
+    url: https://rss.arxiv.org/rss/cond-mat
+    kind: arxiv
+  - slug: arxiv-cs
+    name: arXiv — Computer Science
+    url: https://rss.arxiv.org/rss/cs
+    kind: arxiv
+  - slug: arxiv-econ
+    name: arXiv — Economics
+    url: https://rss.arxiv.org/rss/econ
+    kind: arxiv
+  - slug: arxiv-eess
+    name: arXiv — Electrical Engineering and Systems Science
+    url: https://rss.arxiv.org/rss/eess
+    kind: arxiv
+  - slug: arxiv-gr-qc
+    name: arXiv — General Relativity and Quantum Cosmology
+    url: https://rss.arxiv.org/rss/gr-qc
+    kind: arxiv
+  - slug: arxiv-hep-ex
+    name: arXiv — High Energy Physics - Experiment
+    url: https://rss.arxiv.org/rss/hep-ex
+    kind: arxiv
+  - slug: arxiv-hep-lat
+    name: arXiv — High Energy Physics - Lattice
+    url: https://rss.arxiv.org/rss/hep-lat
+    kind: arxiv
+  - slug: arxiv-hep-ph
+    name: arXiv — High Energy Physics - Phenomenology
+    url: https://rss.arxiv.org/rss/hep-ph
+    kind: arxiv
+  - slug: arxiv-hep-th
+    name: arXiv — High Energy Physics - Theory
+    url: https://rss.arxiv.org/rss/hep-th
+    kind: arxiv
+  - slug: arxiv-math
+    name: arXiv — Mathematics
+    url: https://rss.arxiv.org/rss/math
+    kind: arxiv
+  - slug: arxiv-math-ph
+    name: arXiv — Mathematical Physics
+    url: https://rss.arxiv.org/rss/math-ph
+    kind: arxiv
+  - slug: arxiv-nlin
+    name: arXiv — Nonlinear Sciences
+    url: https://rss.arxiv.org/rss/nlin
+    kind: arxiv
+  - slug: arxiv-nucl-ex
+    name: arXiv — Nuclear Experiment
+    url: https://rss.arxiv.org/rss/nucl-ex
+    kind: arxiv
+  - slug: arxiv-nucl-th
+    name: arXiv — Nuclear Theory
+    url: https://rss.arxiv.org/rss/nucl-th
+    kind: arxiv
+  - slug: arxiv-physics
+    name: arXiv — Physics
+    url: https://rss.arxiv.org/rss/physics
+    kind: arxiv
+  - slug: arxiv-q-bio
+    name: arXiv — Quantitative Biology
+    url: https://rss.arxiv.org/rss/q-bio
+    kind: arxiv
+  - slug: arxiv-q-fin
+    name: arXiv — Quantitative Finance
+    url: https://rss.arxiv.org/rss/q-fin
+    kind: arxiv
+  - slug: arxiv-quant-ph
+    name: arXiv — Quantum Physics
+    url: https://rss.arxiv.org/rss/quant-ph
+    kind: arxiv
+  - slug: arxiv-stat
+    name: arXiv — Statistics
+    url: https://rss.arxiv.org/rss/stat
+    kind: arxiv
+  - slug: biorxiv-animal-behavior-and-cognition
+    name: bioRxiv — Animal behavior and cognition
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=animal_behavior_and_cognition
+    kind: biorxiv
+  - slug: biorxiv-biochemistry
+    name: bioRxiv — Biochemistry
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=biochemistry
+    kind: biorxiv
+  - slug: biorxiv-bioengineering
+    name: bioRxiv — Bioengineering
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=bioengineering
+    kind: biorxiv
+  - slug: biorxiv-bioinformatics
+    name: bioRxiv — Bioinformatics
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=bioinformatics
+    kind: biorxiv
+  - slug: biorxiv-biophysics
+    name: bioRxiv — Biophysics
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=biophysics
+    kind: biorxiv
+  - slug: biorxiv-cancer-biology
+    name: bioRxiv — Cancer biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=cancer_biology
+    kind: biorxiv
+  - slug: biorxiv-cell-biology
+    name: bioRxiv — Cell biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=cell_biology
+    kind: biorxiv
+  - slug: biorxiv-clinical-trials
+    name: bioRxiv — Clinical trials
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=clinical_trials
+    kind: biorxiv
+  - slug: biorxiv-developmental-biology
+    name: bioRxiv — Developmental biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=developmental_biology
+    kind: biorxiv
+  - slug: biorxiv-ecology
+    name: bioRxiv — Ecology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=ecology
+    kind: biorxiv
+  - slug: biorxiv-epidemiology
+    name: bioRxiv — Epidemiology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=epidemiology
+    kind: biorxiv
+  - slug: biorxiv-evolutionary-biology
+    name: bioRxiv — Evolutionary biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=evolutionary_biology
+    kind: biorxiv
+  - slug: biorxiv-genetics
+    name: bioRxiv — Genetics
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=genetics
+    kind: biorxiv
+  - slug: biorxiv-genomics
+    name: bioRxiv — Genomics
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=genomics
+    kind: biorxiv
+  - slug: biorxiv-immunology
+    name: bioRxiv — Immunology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=immunology
+    kind: biorxiv
+  - slug: biorxiv-microbiology
+    name: bioRxiv — Microbiology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=microbiology
+    kind: biorxiv
+  - slug: biorxiv-molecular-biology
+    name: bioRxiv — Molecular biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=molecular_biology
+    kind: biorxiv
+  - slug: biorxiv-neuroscience
+    name: bioRxiv — Neuroscience
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=neuroscience
+    kind: biorxiv
+  - slug: biorxiv-paleontology
+    name: bioRxiv — Paleontology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=paleontology
+    kind: biorxiv
+  - slug: biorxiv-pathology
+    name: bioRxiv — Pathology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=pathology
+    kind: biorxiv
+  - slug: biorxiv-pharmacology-and-toxicology
+    name: bioRxiv — Pharmacology and toxicology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=pharmacology_and_toxicology
+    kind: biorxiv
+  - slug: biorxiv-physiology
+    name: bioRxiv — Physiology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=physiology
+    kind: biorxiv
+  - slug: biorxiv-plant-biology
+    name: bioRxiv — Plant biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=plant_biology
+    kind: biorxiv
+  - slug: biorxiv-scientific-communication-and-education
+    name: bioRxiv — Scientific communication and education
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=scientific_communication_and_education
+    kind: biorxiv
+  - slug: biorxiv-synthetic-biology
+    name: bioRxiv — Synthetic biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=synthetic_biology
+    kind: biorxiv
+  - slug: biorxiv-systems-biology
+    name: bioRxiv — Systems biology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=systems_biology
+    kind: biorxiv
+  - slug: biorxiv-zoology
+    name: bioRxiv — Zoology
+    url: https://connect.biorxiv.org/biorxiv_xml.php?subject=zoology
+    kind: biorxiv
