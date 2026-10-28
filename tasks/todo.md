@@ -106,12 +106,12 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Fonctions pures `parse_feed(kind, content: bytes) -> list[PaperEntry]` basées sur `feedparser`, un extracteur par kind. `PaperEntry` : `external_id` (`arxiv:2410.12345` / `doi:10.1101/…`, **sans** la version), `version`, title, authors (liste), abstract **complet** nettoyé du HTML (pas tronqué), categories (liste), link, published_at. Entrée sans identifiant → ignorée.
 
 **Critères d'acceptation :**
-- [ ] Fixtures réelles arXiv et bioRxiv (RSS 1.0 / RDF) parsées correctement
-- [ ] La version est séparée de l'identifiant (`2410.12345v2` → `arxiv:2410.12345`, version 2)
-- [ ] Entrée sans identifiant → ignorée ; flux mal formé → liste vide ou erreur explicite, jamais de crash non géré
+- [x] Fixtures réelles arXiv (RSS 2.0) et bioRxiv (RSS 1.0 / RDF) parsées correctement
+- [x] La version est séparée de l'identifiant (`2410.12345v2` → `arxiv:2410.12345`, version 2)
+- [x] Entrée sans identifiant → ignorée ; flux mal formé → liste vide ou erreur explicite, jamais de crash non géré
 
 **Vérification :**
-- [ ] Lint + tests passent
+- [x] Lint + tests passent
 
 **Dépendances :** T5
 **Fichiers :** `backend/app/services/feeds.py`, `backend/tests/fixtures/*.xml`, `backend/tests/test_feeds.py`
