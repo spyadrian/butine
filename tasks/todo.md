@@ -178,11 +178,11 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Supprimer les papiers dont `fetched_at` a plus de `PAPER_RETENTION_DAYS` jours (défaut 30), à chaque cycle du worker.
 
 **Critères d'acceptation :**
-- [ ] Papiers plus vieux que la rétention supprimés, les autres conservés
-- [ ] Rétention réglable par variable d'environnement
+- [x] Papiers plus vieux que la rétention supprimés, les autres conservés
+- [x] Rétention réglable par variable d'environnement
 
 **Vérification :**
-- [ ] Lint + tests passent
+- [x] Lint + tests passent
 
 **Dépendances :** T7
 **Fichiers :** `backend/app/services/purge.py`, `backend/app/worker.py`, `backend/app/config.py`, `backend/tests/test_purge.py`

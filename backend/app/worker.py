@@ -3,8 +3,10 @@ import time
 
 import httpx2
 
+from app.config import PAPER_RETENTION_DAYS
 from app.db import SessionLocal
 from app.services.fetcher import run_cycle
+from app.services.purge import purge_papers
 
 CYCLE_PAUSE_SECONDS = 60
 
@@ -18,6 +20,8 @@ def main() -> None:
             try:
                 with SessionLocal() as session:
                     run_cycle(session, client)
+                    purge_papers(session, PAPER_RETENTION_DAYS)
+                    session.commit()
             except Exception:
                 # Keep the worker alive (e.g. tables not migrated yet, a feed down).
                 logging.exception("fetch cycle failed")
