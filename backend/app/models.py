@@ -75,3 +75,14 @@ class User(Base):
     )
     plan: Mapped[str] = mapped_column(String(10), server_default="free")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Prompt(Base):
+    """What a user looks for, in English; each prompt gets its own feed."""
+
+    __tablename__ = "prompts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    text: Mapped[str] = mapped_column(String(500))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
