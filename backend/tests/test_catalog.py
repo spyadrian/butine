@@ -18,7 +18,7 @@ def entry(slug: str, **overrides) -> dict:
         "slug": slug,
         "name": slug.title(),
         "url": f"https://{slug}.example/feed",
-        "kind": "rss",
+        "kind": "arxiv",
     } | overrides
 
 
@@ -31,7 +31,7 @@ def test_shipped_catalog_is_valid():
 
 
 def test_load_rejects_missing_field(tmp_path):
-    path = write_catalog(tmp_path, "sources:\n  - slug: a\n    name: A\n    kind: rss\n")
+    path = write_catalog(tmp_path, "sources:\n  - slug: a\n    name: A\n    kind: arxiv\n")
     with pytest.raises(CatalogError, match="url"):
         load_catalog(path)
 
@@ -41,8 +41,8 @@ def test_load_rejects_duplicate_slugs(tmp_path):
         tmp_path,
         """
 sources:
-  - {slug: a, name: A, url: "https://a.example/feed", kind: rss}
-  - {slug: a, name: B, url: "https://b.example/feed", kind: rss}
+  - {slug: a, name: A, url: "https://a.example/feed", kind: arxiv}
+  - {slug: a, name: B, url: "https://b.example/feed", kind: arxiv}
 """,
     )
     with pytest.raises(CatalogError, match="duplicate"):
@@ -54,7 +54,7 @@ def test_load_rejects_unknown_kind(tmp_path):
         tmp_path,
         """
 sources:
-  - {slug: a, name: A, url: "https://a.example/feed", kind: instagram}
+  - {slug: a, name: A, url: "https://a.example/feed", kind: rss}
 """,
     )
     with pytest.raises(CatalogError, match="kind"):
@@ -66,7 +66,7 @@ def test_load_rejects_non_http_url(tmp_path):
         tmp_path,
         """
 sources:
-  - {slug: a, name: A, url: "file:///etc/passwd", kind: rss}
+  - {slug: a, name: A, url: "file:///etc/passwd", kind: arxiv}
 """,
     )
     with pytest.raises(CatalogError, match="url"):
@@ -74,11 +74,11 @@ sources:
 
 
 def test_sync_adds_new_sources(session):
-    sync_sources(session, [entry("a"), entry("b", kind="youtube")])
+    sync_sources(session, [entry("a"), entry("b", kind="biorxiv")])
 
     sources = sources_by_slug(session)
     assert set(sources) == {"a", "b"}
-    assert sources["b"].kind == "youtube"
+    assert sources["b"].kind == "biorxiv"
     assert sources["a"].active
 
 

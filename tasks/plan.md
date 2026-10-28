@@ -64,7 +64,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 ### Phase 2 : catalogue
 - [x] T3 : modèle `Source`, première migration, commande `sync-sources`
 - [x] T4 : `GET /v1/sources`
-- [ ] T5 : catalogue arXiv + bioRxiv, retrait de YouTube
+- [x] T5 : catalogue arXiv + bioRxiv, retrait de YouTube
 
 ### Checkpoint 2
 - [ ] Modifier `sources.yaml` + `sync-sources` → changement visible dans `/v1/sources`

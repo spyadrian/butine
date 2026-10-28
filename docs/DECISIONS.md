@@ -29,6 +29,7 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 ## Sources et contenu
 - Uniquement des papiers scientifiques, via RSS/Atom. Pas de presse, de YouTube ni de réseaux sociaux.
 - **Tout arXiv + bioRxiv**. Une source par archive arXiv (`cs`, `math`, `physics`…, ~20) : un flux en panne n'affecte que son archive, backoff et stats par archive. bioRxiv est choisi parce qu'il pose d'autres problèmes qu'arXiv : format RSS 1.0 (RDF), DOI au lieu d'identifiants arXiv, versions, données parfois mal formées.
+- bioRxiv : une source par sujet (~27, `connect.biorxiv.org/biorxiv_xml.php?subject=<sujet>`), car chaque flux ne contient que les 30 derniers papiers. Un sujet qui publie plus de 30 papiers entre deux passages en perd ; à surveiller, l'API JSON `api.biorxiv.org` est le recours.
 - Volume mesuré le 2026-10-27 : ~3 000 nouveaux papiers arXiv sur une journée, + ~150–200 bioRxiv ; soit ~50–60 k papiers par mois. Coût négligeable face aux frais fixes (≈ 300 Mo en base, quelques minutes d'embeddings par jour). Le vrai coût est le bruit : la qualité du matching compte d'autant plus.
 - **Catalogue fixe** dans `backend/sources.yaml`, synchronisé en base par une commande `sync-sources` : ajoute les nouvelles, **désactive** (ne supprime pas) les retirées. Pas d'endpoint d'ajout de source.
 - **Sources imposées** : l'utilisateur ne choisit pas ses sources (pas d'abonnement, rien à cocher) et ne peut pas en ajouter. Chaque prompt est comparé à tous les papiers du catalogue.
@@ -100,7 +101,6 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 
 ## À vérifier plus tard
 - Compatibilité de torch / sentence-transformers avec Python 3.14 (sinon 3.13 dans l'image Docker) — M2.
-- URL du flux RSS bioRxiv (les anciennes URLs `connect.biorxiv.org/biorxiv_xml/…` renvoient 404) — tâche catalogue.
 - Conditions d'utilisation des flux arXiv et bioRxiv pour un usage commercial — avant la publication.
 - Cadre juridique des résumés IA (directive DSM art. 15, opt-out TDM) — avant les résumés.
 - Prix Infomaniak, Apple, Google, RevenueCat, Codemagic — avant de les budgéter.
