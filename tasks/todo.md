@@ -30,13 +30,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** Modèle `User` (`id` UUID généré par Postgres, `plan` `free|paid` avec contrainte CHECK, `created_at`) + migration. `POST /v1/users` → `201 {"id", "plan"}`. Dépendance FastAPI `current_user` qui lit `X-User-Id` (`401` si absent ou inconnu, `422` si mal formé). Commande `python -m app.cli set-plan <user-id> free|paid`.
 
 **Critères d'acceptation :**
-- [ ] `POST /v1/users` crée un utilisateur `free` et renvoie son UUID
-- [ ] `set-plan` change le plan ; un id inconnu ou un plan invalide → message clair et code de sortie ≠ 0
-- [ ] Aucune route ne permet de changer le plan
+- [x] `POST /v1/users` crée un utilisateur `free` et renvoie son UUID
+- [x] `set-plan` change le plan ; un id inconnu ou un plan invalide → message clair et code de sortie ≠ 0
+- [x] Aucune route ne permet de changer le plan
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `curl -X POST localhost:8000/v1/users` puis `set-plan`
+- [x] Lint + tests passent
+- [x] Manuel : `curl -X POST localhost:8000/v1/users` puis `set-plan`
 
 **Dépendances :** aucune
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/users.py`, `backend/app/main.py`, `backend/app/cli.py`, `backend/tests/test_api_users.py`

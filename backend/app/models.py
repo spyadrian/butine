@@ -1,6 +1,7 @@
+import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, Text, func, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -61,3 +62,16 @@ class FetchCycle(Base):
     updated_papers: Mapped[int]
     errors: Mapped[int]
     purged: Mapped[int]
+
+
+class User(Base):
+    """An anonymous account: the UUID is its only credential until real auth exists."""
+
+    __tablename__ = "users"
+    __table_args__ = (CheckConstraint("plan IN ('free', 'paid')", name="users_plan_check"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    plan: Mapped[str] = mapped_column(String(10), server_default="free")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
