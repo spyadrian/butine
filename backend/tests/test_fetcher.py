@@ -111,3 +111,49 @@ def test_source_not_due_is_not_fetched(session):
     run_cycle(session, serve({}, requests))
 
     assert requests == []
+
+
+def failing(status: int = 500) -> httpx2.Client:
+    return httpx2.Client(transport=httpx2.MockTransport(lambda request: httpx2.Response(status)))
+
+
+def test_backoff_grows_and_is_capped(session):
+    source = add_source(session, "cs")
+    delays = []
+    for _ in range(8):
+        make_due(session)
+        start = datetime.now(UTC)
+        run_cycle(session, failing())
+        delays.append(round((source.next_fetch_at - start) / timedelta(minutes=1)))
+
+    assert delays == [30, 60, 120, 240, 480, 960, 1440, 1440]
+    assert source.consecutive_failures == 8
+    assert "500" in source.last_error
+
+
+def test_tenth_failure_deactivates_source(session):
+    source = add_source(session, "cs", consecutive_failures=9)
+    run_cycle(session, serve({"cs": b"not a feed"}))
+    assert (source.active, source.consecutive_failures) == (False, 10)
+    assert "unreadable feed" in source.last_error
+
+
+def test_success_resets_failures(session):
+    source = add_source(session, "cs", consecutive_failures=3)
+    run_cycle(session, serve({"cs": arxiv_feed()}))
+    assert source.consecutive_failures == 0
+
+
+def test_failing_source_does_not_stop_others(session):
+    broken = add_source(session, "broken")
+    add_source(session, "cs")
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        if request.url.path.endswith("broken"):
+            raise httpx2.ConnectError("down", request=request)
+        return httpx2.Response(200, content=arxiv_feed(("2410.1", 1, "A")))
+
+    run_cycle(session, httpx2.Client(transport=httpx2.MockTransport(handler)))
+
+    assert broken.consecutive_failures == 1
+    assert [p.external_id for p in papers(session)] == ["arxiv:2410.1"]
