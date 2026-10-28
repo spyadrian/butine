@@ -2,8 +2,8 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 
-from app.models import Paper
-from app.services.purge import purge_papers
+from app.models import FetchCycle, Paper
+from app.services.purge import purge_fetch_cycles, purge_papers
 from tests.test_fetcher import add_source
 
 
@@ -31,3 +31,19 @@ def test_purge_deletes_only_papers_older_than_retention(session):
 
     assert purge_papers(session, retention_days=30) == 1
     assert session.scalars(select(Paper.external_id)).all() == ["recent"]
+
+
+def add_cycle(session, age: timedelta) -> None:
+    stats = dict.fromkeys(["feeds_polled", "new_papers", "updated_papers", "errors", "purged"], 0)
+    session.add(FetchCycle(started_at=datetime.now(UTC) - age, duration_ms=0, **stats))
+    session.flush()
+
+
+def test_purge_deletes_only_cycles_older_than_retention(session):
+    add_cycle(session, timedelta(days=31))
+    add_cycle(session, timedelta(days=29))
+
+    purge_fetch_cycles(session, retention_days=30)
+
+    (cycle,) = session.scalars(select(FetchCycle))
+    assert cycle.started_at > datetime.now(UTC) - timedelta(days=30)
