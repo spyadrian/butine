@@ -46,13 +46,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** Modèle `Prompt` (`id`, `user_id` FK `ON DELETE CASCADE`, `text`, `created_at`) + migration. `POST /v1/prompts` (texte de 1 à 500 caractères après suppression des espaces autour, `403` au-delà de `PROMPT_LIMITS[plan]`, ligne de l'utilisateur verrouillée pendant le comptage), `GET /v1/prompts` (du plus ancien au plus récent, avec `status`), `DELETE /v1/prompts/{id}`. `status` vaut `pending` tant qu'il n'y a pas d'embedding : toujours le cas avant T16.
 
 **Critères d'acceptation :**
-- [ ] `free` : 1 prompt, le 2ᵉ → `403` ; `paid` : 10, le 11ᵉ → `403` ; repasser en `free` garde les prompts mais bloque la création
-- [ ] Le prompt d'un autre utilisateur ou un prompt inexistant → `404` (lecture et suppression)
-- [ ] Texte vide ou > 500 caractères → `422` ; sans `X-User-Id` → `401`
+- [x] `free` : 1 prompt, le 2ᵉ → `403` ; `paid` : 10, le 11ᵉ → `403` ; repasser en `free` garde les prompts mais bloque la création
+- [x] Le prompt d'un autre utilisateur ou un prompt inexistant → `404` (lecture et suppression)
+- [x] Texte vide ou > 500 caractères → `422` ; sans `X-User-Id` → `401`
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : créer, lister et supprimer un prompt avec `curl`
+- [x] Lint + tests passent
+- [x] Manuel : créer, lister et supprimer un prompt avec `curl`
 
 **Dépendances :** T13
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/prompts.py`, `backend/app/main.py`, `backend/tests/test_api_prompts.py`
