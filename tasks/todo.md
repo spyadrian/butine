@@ -95,8 +95,8 @@ Commandes de vérification communes (depuis `backend/`) :
 **Taille :** S
 
 ### Checkpoint 2
-- [ ] Modifier `sources.yaml` → `sync-sources` → visible dans `/v1/sources`
-- [ ] Revue humaine
+- [x] Modifier `sources.yaml` → `sync-sources` → visible dans `/v1/sources`
+- [x] Revue humaine
 
 ---
 
@@ -151,9 +151,9 @@ Commandes de vérification communes (depuis `backend/`) :
 **Taille :** S
 
 ### Checkpoint 3
-- [ ] `docker compose up` → vrais papiers dans `/v1/papers`
-- [ ] Pas de doublons après plusieurs cycles
-- [ ] Revue humaine
+- [x] `docker compose up` → vrais papiers dans `/v1/papers`
+- [x] Pas de doublons après plusieurs cycles
+- [x] Revue humaine
 
 ---
 
@@ -205,6 +205,6 @@ Commandes de vérification communes (depuis `backend/`) :
 **Taille :** M
 
 ### Checkpoint final
-- [ ] Toutes les briques de M1 (DECISIONS.md) livrées
-- [ ] CI verte
-- [ ] Revue humaine avant M2
+- [x] Toutes les briques de M1 (DECISIONS.md) livrées
+- [x] CI verte
+- [x] Revue humaine avant M2

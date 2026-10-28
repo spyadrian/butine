@@ -67,25 +67,25 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T5 : catalogue arXiv + bioRxiv, retrait de YouTube
 
 ### Checkpoint 2
-- [ ] Modifier `sources.yaml` + `sync-sources` → changement visible dans `/v1/sources`
+- [x] Modifier `sources.yaml` + `sync-sources` → changement visible dans `/v1/sources`
 
 ### Phase 3 : récupération
-- [ ] T6 : parsing des flux arXiv et bioRxiv en papiers normalisés
-- [ ] T7 : modèle `Paper`, cycle du worker (conditionnel + dédoublonnage + versions), conteneur `worker`
-- [ ] T8 : `GET /v1/papers`
+- [x] T6 : parsing des flux arXiv et bioRxiv en papiers normalisés
+- [x] T7 : modèle `Paper`, cycle du worker (conditionnel + dédoublonnage + versions), conteneur `worker`
+- [x] T8 : `GET /v1/papers`
 
 ### Checkpoint 3 (le flux principal marche de bout en bout)
-- [ ] `docker compose up` → de vrais papiers apparaissent dans `/v1/papers` en quelques minutes
-- [ ] Relancer un cycle ne crée aucun doublon ; un papier présent dans deux archives n'apparaît qu'une fois
+- [x] `docker compose up` → de vrais papiers apparaissent dans `/v1/papers` en quelques minutes
+- [x] Relancer un cycle ne crée aucun doublon ; un papier présent dans deux archives n'apparaît qu'une fois
 
 ### Phase 4 : robustesse et observabilité
-- [ ] T9 : backoff progressif + désactivation après 10 échecs
-- [ ] T10 : purge des papiers > 30 jours
-- [ ] T11 : ligne de log par cycle + `GET /v1/stats`
+- [x] T9 : backoff progressif + désactivation après 10 échecs
+- [x] T10 : purge des papiers > 30 jours
+- [x] T11 : ligne de log par cycle + `GET /v1/stats`
 
 ### Checkpoint final
-- [ ] Tous les critères de M1 (DECISIONS.md) remplis
-- [ ] CI verte, revue humaine
+- [x] Tous les critères de M1 (DECISIONS.md) remplis
+- [x] CI verte, revue humaine
 
 ## Risques et mitigations
 | Risque | Impact | Mitigation |
