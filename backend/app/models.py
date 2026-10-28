@@ -46,3 +46,18 @@ class Paper(Base):
     link: Mapped[str] = mapped_column(String(2000))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class FetchCycle(Base):
+    """One worker cycle, kept for /v1/stats and monitoring."""
+
+    __tablename__ = "fetch_cycles"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    duration_ms: Mapped[int]
+    feeds_polled: Mapped[int]
+    new_papers: Mapped[int]
+    updated_papers: Mapped[int]
+    errors: Mapped[int]
+    purged: Mapped[int]

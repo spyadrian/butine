@@ -192,13 +192,13 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Table `fetch_cycles` (started_at, duration_ms, feeds_polled, new_papers, updated_papers, errors, purged) + migration. Chaque cycle écrit une ligne en base et une ligne de log JSON sur stdout. `GET /v1/stats` renvoie le dernier cycle + le nombre de sources actives/désactivées et de papiers. (Le compteur « en attente d'embedding » arrive en M2 avec les embeddings.)
 
 **Critères d'acceptation :**
-- [ ] Une ligne de log JSON par cycle avec durée, flux interrogés, nouveaux papiers, erreurs
-- [ ] `/v1/stats` renvoie les mêmes chiffres que le dernier log
-- [ ] `/v1/stats` sans aucun cycle → réponse valide (pas d'erreur 500)
+- [x] Une ligne de log JSON par cycle avec durée, flux interrogés, nouveaux papiers, erreurs
+- [x] `/v1/stats` renvoie les mêmes chiffres que le dernier log
+- [x] `/v1/stats` sans aucun cycle → réponse valide (pas d'erreur 500)
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `docker compose logs worker` et `curl localhost:8000/v1/stats`
+- [x] Lint + tests passent
+- [x] Manuel : `docker compose logs worker` et `curl localhost:8000/v1/stats`
 
 **Dépendances :** T9, T10
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/worker.py`, `backend/app/api/v1/stats.py`, `backend/tests/test_api_stats.py`
