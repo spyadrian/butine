@@ -139,12 +139,12 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Papiers du plus récent au plus ancien, avec le nom de la source. Pagination `limit` (défaut 50, max 200) + `offset`, filtre optionnel `source` (slug).
 
 **Critères d'acceptation :**
-- [ ] Tri par date décroissante, pagination respectée, `limit` > 200 refusé (422)
-- [ ] Filtre `source` fonctionne ; slug inconnu → liste vide
+- [x] Tri par date décroissante, pagination respectée, `limit` > 200 refusé (422)
+- [x] Filtre `source` fonctionne ; slug inconnu → liste vide
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `curl 'localhost:8000/v1/papers?limit=5'`
+- [x] Lint + tests passent
+- [x] Manuel : `curl 'localhost:8000/v1/papers?limit=5'`
 
 **Dépendances :** T7
 **Fichiers :** `backend/app/api/v1/papers.py`, `backend/app/main.py`, `backend/tests/test_api_papers.py`
