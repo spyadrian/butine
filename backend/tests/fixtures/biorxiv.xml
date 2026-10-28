@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rdf:RDF xmlns:admin="http://webns.net/mvcb/" xmlns="http://purl.org/rss/1.0/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:prism="http://purl.org/rss/1.0/modules/prism/" xmlns:taxo="http://purl.org/rss/1.0/modules/taxonomy/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:syn="http://purl.org/rss/1.0/modules/syndication/">
+<channel rdf:about="https://biorxiv.org">
+<admin:errorReportsTo rdf:resource="mailto:biorxiv@cshlpress.edu"/>
+<title>bioRxiv Subject Collection: Animal Behavior And Cognition</title>
+<link>https://biorxiv.org</link>
+<description>
+This feed contains articles for bioRxiv Subject Collection "Animal Behavior And Cognition"
+</description>
+
+<items>
+<rdf:Seq>
+<rdf:li rdf:resource="https://www.biorxiv.org/content/10.64898/2026.10.22.760929v1?rss=1"/>
+<rdf:li rdf:resource="https://www.biorxiv.org/content/10.64898/2026.10.26.761929v1?rss=1"/>
+</rdf:Seq>
+</items>
+<prism:eIssn/>
+<prism:publicationName>bioRxiv</prism:publicationName>
+<prism:issn/>
+
+<image rdf:resource=""/>
+</channel>
+<image rdf:about="">
+<title>bioRxiv</title>
+<url>https://www.biorxiv.org/sites/default/files/bioRxiv_article.jpg</url>
+<link>https://www.biorxiv.org</link>
+</image>
+<item rdf:about="https://www.biorxiv.org/content/10.64898/2026.10.22.760929v1?rss=1">
+<title>
+<![CDATA[
+What do navigating animals see? Reconstructing the visual histories of desert ants 
+]]>
+</title>
+<link>
+https://www.biorxiv.org/content/10.64898/2026.10.22.760929v1?rss=1
+</link>
+<description><![CDATA[
+To understand how brains translate sensory input into behavioural outputs requires a fuller account of the sensory experience of individual animals in their natural settings. Previously we developed a visual rendering software capable of reconstructing the information that insect's compound eyes perceive (Millward et al, 2022). In this work, we extend this software pipeline to integrate data from animal tracking, habitat mapping, and compound eye modelling methods. The result is a new type of dataset that documents the natural foraging behaviour of desert ants (a model species for the study of animal navigation) within their natural habitat, combined with simulation tools to accurately reconstruct the visual experience of each forager as they learned to navigate their surroundings. This addresses a long-held need to create realistic training input for brain models complimented with verification tests in the same real ecologically relevant scenarios.
+]]></description>
+<dc:creator><![CDATA[ Mangan, M., Millward, B., James, S., Baird, E. ]]></dc:creator>
+<dc:date>2026-10-27</dc:date>
+<dc:identifier>doi:10.64898/2026.10.22.760929</dc:identifier>
+<dc:title><![CDATA[What do navigating animals see? Reconstructing the visual histories of desert ants]]></dc:title>
+<dc:publisher>Cold Spring Harbor Laboratory</dc:publisher>
+<prism:publicationDate>2026-10-27</prism:publicationDate>
+<prism:section></prism:section>
+</item>
+<item rdf:about="https://www.biorxiv.org/content/10.64898/2026.10.26.761929v1?rss=1">
+<title>
+<![CDATA[
+Movements for Grooming in Rhesus Macaques Co-opted from Feeding Movements 
+]]>
+</title>
+<link>
+https://www.biorxiv.org/content/10.64898/2026.10.26.761929v1?rss=1
+</link>
+<description><![CDATA[
+Abstract Catarrhine primates exhibit a wide range of skilled hand movements, including those used for foraging and grooming, and their evolution attracts ongoing attention. Competing hypotheses are that skilled hand movements evolved for feeding, or that the hand movements of various behaviors evolved independently. The present study addressed these questions by asking whether the movements of grooming of rhesus macaques (Macaca mulatta) are co-opted from feeding movements. We video-recorded free-ranging rhesus macaques in the Cayo Santiago colony of the Caribbean Primate Research Center (CPRC), University of Puerto Rico. Allogrooming (grooming a conspecific), self-grooming, and rhythmic scratching with a hand or foot were compared with a common foraging behavior, geophagy, mining and eating soil. Allogrooming, self-grooming, and foraging occurred in visually mediated bouts that featured numerous comb and brush hand movements directed toward searching for a target in the fur or soil. Once located, the target was grasped between the thumb and index finger in a pincer grip to be placed in the mouth - or less often bitted or licked from the fur. Hand movements were generally directed toward the actor but were also influenced by object-surface features, including fur direction during grooming and the rocks and debris covering soil targets during geophagy. The grooming movements of comb, brush, and grasp were recognizably those used during foraging. Rhythmic scratching with a hand or foot was not visually guided but did employ a comb movement of the digits of the hand or foot. Thus, with the exception of the rhythmicity of scratching, the hand movements of grooming are fundamentally foraging movements. It is proposed that grooming movements are coopted from oromanual feeding movements in macaques, a relationship that may be widespread in other species.
+]]></description>
+<dc:creator><![CDATA[ Whishaw, I. Q., Buks, K., Ruiz, A., Savolainen, V., Melin, A. D. ]]></dc:creator>
+<dc:date>2026-10-27</dc:date>
+<dc:identifier>doi:10.64898/2026.10.26.761929</dc:identifier>
+<dc:title><![CDATA[Movements for Grooming in Rhesus Macaques Co-opted from Feeding Movements]]></dc:title>
+<dc:publisher>Cold Spring Harbor Laboratory</dc:publisher>
+<prism:publicationDate>2026-10-27</prism:publicationDate>
+<prism:section></prism:section>
+</item>
+</rdf:RDF>
