@@ -1,210 +1,163 @@
-# M1 — tâches
+# M2 — tâches
 
 Commandes de vérification communes (depuis `backend/`) :
 - Lint : `uv run ruff check . && uv run ruff format --check .`
 - Tests : `docker compose up -d db && uv run pytest`
 
----
-
-## Phase 1 : fondations
-
-### T1 : squelette backend + Compose + health
-**Description :** Créer `backend/` (projet `uv`, FastAPI, SQLAlchemy, psycopg, ruff, pytest), un `Dockerfile`, un `docker-compose.yml` (services `api` et `db` Postgres avec volume), et une route `GET /v1/health` qui exécute `SELECT 1`. Mettre en place la fixture pytest qui se connecte à une base de test Postgres et annule chaque test dans une transaction.
-
-**Critères d'acceptation :**
-- [x] `docker compose up` démarre `api` et `db` ; `curl localhost:8000/v1/health` → `{"status": "ok"}`
-- [x] Un test appelle `/v1/health` via `TestClient` sur le vrai Postgres et passe
-- [x] `/docs` (OpenAPI) liste la route sous `/v1`
-
-**Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `docker compose up --build` puis `curl`
-
-**Dépendances :** aucune
-**Fichiers :** `backend/pyproject.toml`, `backend/Dockerfile`, `backend/app/{main,config,db}.py`, `backend/app/api/v1/health.py`, `backend/tests/{conftest,test_health}.py`, `docker-compose.yml`, `.gitignore`
-**Taille :** M
-
-### T2 : CI GitHub Actions
-**Description :** Workflow sur push/PR : installe `uv`, lance ruff puis pytest avec un service Postgres.
-
-**Critères d'acceptation :**
-- [x] Le workflow tourne sur chaque push et PR vers `main`
-- [x] Un test volontairement cassé fait échouer la CI (vérifié une fois puis annulé)
-
-**Vérification :**
-- [x] Manuel : run vert visible dans l'onglet Actions de `spyadrian/butine`
-
-**Dépendances :** T1
-**Fichiers :** `.github/workflows/ci.yml`
-**Taille :** XS
-
-### Checkpoint 1
-- [x] `docker compose up` OK, `/v1/health` OK
-- [x] CI verte
-- [x] Revue humaine
+Spec : [docs/SPEC.md](../docs/SPEC.md).
 
 ---
 
-## Phase 2 : catalogue
+## Phase 1 : risque et comptes
 
-### T3 : modèle Source, migration, `sync-sources`
-**Description :** Configurer Alembic. Modèle `Source` (id, slug unique, name, url, kind `rss|youtube`, active, etag, last_modified, next_fetch_at, consecutive_failures, last_error). Fichier `sources.yaml` avec quelques sources. Commande `python -m app.cli sync-sources` : ajoute les nouvelles (clé = slug), met à jour nom/url, **désactive** celles retirées du YAML, réactive celles qui y reviennent. Valide le YAML (champs requis, slugs uniques) avant d'écrire.
-
-**Critères d'acceptation :**
-- [x] `alembic upgrade head` crée la table sur une base vide
-- [x] Ajout, modification, retrait et réapparition d'une source testés
-- [x] Un YAML invalide échoue avec un message clair, sans rien modifier en base
-
-**Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `docker compose run --rm api python -m app.cli sync-sources`
-
-**Dépendances :** T1
-**Fichiers :** `backend/alembic.ini`, `backend/migrations/`, `backend/app/models.py`, `backend/app/services/catalog.py`, `backend/app/cli.py`, `backend/sources.yaml`, `backend/tests/test_catalog.py`
-**Taille :** M
-
-### T4 : `GET /v1/sources`
-**Description :** Liste des sources actives (slug, name, url, kind). Schéma Pydantic de réponse séparé du modèle SQLAlchemy (évite d'exposer etag, erreurs, etc.).
+### T12 : test du modèle d'embeddings
+**Description :** Choisir la bibliothèque (`fastembed` ou `sentence-transformers`), le modèle (bge-small-en-v1.5 ou e5-small-v2), la dimension N et le seuil par défaut. Le script `backend/scripts/match_preview.py` embedde les papiers en base et les prompts de l'utilisateur, puis affiche les meilleurs papiers de chaque prompt avec leur score. L'utilisateur juge la pertinence, et on en déduit le seuil. On mesure la RAM du processus et le temps d'embedding de 3 000 papiers sur CPU. Résultats et choix notés dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [x] Ne renvoie que les sources actives, triées par nom
-- [x] Les champs internes (etag, last_error…) n'apparaissent pas
+- [ ] La bibliothèque retenue s'installe et tourne avec la version de Python choisie (3.14, sinon 3.13)
+- [ ] Les deux modèles comparés sur les mêmes prompts ; RAM et temps pour 3 000 papiers mesurés
+- [ ] Modèle, N et `MATCH_THRESHOLD` par défaut validés par l'utilisateur et notés dans DECISIONS.md
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `curl localhost:8000/v1/sources`
+- [ ] Lint passe
+- [ ] Manuel : `uv run python scripts/match_preview.py prompts.txt` affiche des résultats lisibles
 
-**Dépendances :** T3
-**Fichiers :** `backend/app/api/v1/sources.py`, `backend/app/main.py`, `backend/tests/test_api_sources.py`
+**Dépendances :** aucune (attend les prompts de l'utilisateur)
+**Fichiers :** `backend/scripts/match_preview.py`, `backend/pyproject.toml`, `backend/uv.lock`, `docs/DECISIONS.md`
 **Taille :** S
 
-### T5 : catalogue arXiv + bioRxiv
-**Description :** Recentrage sur les papiers scientifiques. Remplacer les kinds `rss|youtube` par `arxiv|biorxiv` (le kind choisit l'extracteur en T6). `sources.yaml` : une source par archive arXiv (`https://rss.arxiv.org/rss/<archive>`, ~20 archives : `cs`, `math`, `physics`, `astro-ph`, `cond-mat`, `quant-ph`, `stat`, `eess`, `q-bio`…) + bioRxiv. Trouver l'URL du flux bioRxiv qui marche (les anciennes `connect.biorxiv.org/biorxiv_xml/…` renvoient 404). Les anciennes sources (presse, YouTube) sont retirées du YAML, donc désactivées par `sync-sources`.
+### T13 : utilisateurs et commande `set-plan`
+**Description :** Modèle `User` (`id` UUID généré par Postgres, `plan` `free|paid` avec contrainte CHECK, `created_at`) + migration. `POST /v1/users` → `201 {"id", "plan"}`. Dépendance FastAPI `current_user` qui lit `X-User-Id` (`401` si absent ou inconnu, `422` si mal formé). Commande `python -m app.cli set-plan <user-id> free|paid`.
 
 **Critères d'acceptation :**
-- [x] `kind` hors `arxiv|biorxiv` → YAML refusé avec un message clair
-- [x] Toutes les URLs du YAML répondent 200 avec du XML (vérifié une fois à la main)
-- [x] Après `sync-sources`, `/v1/sources` ne liste que les sources arXiv et bioRxiv
+- [ ] `POST /v1/users` crée un utilisateur `free` et renvoie son UUID
+- [ ] `set-plan` change le plan ; un id inconnu ou un plan invalide → message clair et code de sortie ≠ 0
+- [ ] Aucune route ne permet de changer le plan
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `sync-sources` puis `curl localhost:8000/v1/sources`
+- [ ] Lint + tests passent
+- [ ] Manuel : `curl -X POST localhost:8000/v1/users` puis `set-plan`
 
-**Dépendances :** T3
-**Fichiers :** `backend/app/services/catalog.py`, `backend/sources.yaml`, `backend/tests/test_catalog.py`
+**Dépendances :** aucune
+**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/users.py`, `backend/app/main.py`, `backend/app/cli.py`, `backend/tests/test_api_users.py`
+**Taille :** M
+
+### T14 : prompts et limite par plan
+**Description :** Modèle `Prompt` (`id`, `user_id` FK `ON DELETE CASCADE`, `text`, `created_at`) + migration. `POST /v1/prompts` (texte de 1 à 500 caractères après suppression des espaces autour, `403` au-delà de `PROMPT_LIMITS[plan]`, ligne de l'utilisateur verrouillée pendant le comptage), `GET /v1/prompts` (du plus ancien au plus récent, avec `status`), `DELETE /v1/prompts/{id}`. `status` vaut `pending` tant qu'il n'y a pas d'embedding : toujours le cas avant T16.
+
+**Critères d'acceptation :**
+- [ ] `free` : 1 prompt, le 2ᵉ → `403` ; `paid` : 10, le 11ᵉ → `403` ; repasser en `free` garde les prompts mais bloque la création
+- [ ] Le prompt d'un autre utilisateur ou un prompt inexistant → `404` (lecture et suppression)
+- [ ] Texte vide ou > 500 caractères → `422` ; sans `X-User-Id` → `401`
+
+**Vérification :**
+- [ ] Lint + tests passent
+- [ ] Manuel : créer, lister et supprimer un prompt avec `curl`
+
+**Dépendances :** T13
+**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/prompts.py`, `backend/app/main.py`, `backend/tests/test_api_prompts.py`
+**Taille :** M
+
+### Checkpoint 1
+- [ ] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
+- [ ] Modèle et seuil validés par l'humain (T12)
+- [ ] Revue humaine
+
+---
+
+## Phase 2 : embeddings
+
+### T15 : pgvector et colonnes d'embedding
+**Description :** Image `pgvector/pgvector:pg18` dans Compose et dans la CI. Dépendance Python `pgvector`. Migration : `CREATE EXTENSION vector`, colonnes `papers.embedding` et `prompts.embedding` en `vector(N)` nullable (N issu de T12).
+
+**Critères d'acceptation :**
+- [ ] `alembic upgrade head` passe sur une base vide et sur la base locale existante (données conservées)
+- [ ] La CI tourne sur l'image pgvector et reste verte
+- [ ] `test_models_match_migrations` passe (modèles et migration alignés)
+
+**Vérification :**
+- [ ] Lint + tests passent
+- [ ] Manuel : `docker compose up -d --build` → `/v1/papers` renvoie toujours les papiers existants
+
+**Dépendances :** T12 (N), T14 (table `prompts`)
+**Fichiers :** `docker-compose.yml`, `.github/workflows/ci.yml`, `backend/pyproject.toml`, `backend/uv.lock`, `backend/app/models.py`, `backend/migrations/versions/…`
+**Taille :** S
+
+### T16 : embeddings calculés par le worker
+**Description :** `services/embeddings.py` : `embed_pending(session, embed, batch_limit)` embedde d'abord tous les prompts sans embedding, puis au plus `EMBED_BATCH_LIMIT` papiers (défaut 2 000), en vecteurs normalisés. Texte d'un papier : `title + "\n\n" + abstract`. L'upsert d'une nouvelle version remet `embedding` à `NULL`. Le worker charge le vrai modèle une fois au démarrage et appelle `embed_pending` après la purge. Modèle téléchargé au build de l'image. Version de Python ajustée si T12 l'exige. `status` d'un prompt : `ready` dès qu'il a un embedding.
+
+**Critères d'acceptation :**
+- [ ] Avec un faux embedder : prompts et papiers sans embedding sont remplis, la limite par cycle est respectée, les prompts passent avant les papiers
+- [ ] Une nouvelle version d'un papier remet son embedding à `NULL` ; une version plus ancienne n'y touche pas
+- [ ] Le worker réel embedde les papiers en base sans erreur, et un prompt créé passe à `ready` au cycle suivant
+
+**Vérification :**
+- [ ] Lint + tests passent (aucun vrai modèle chargé dans les tests)
+- [ ] Manuel : `docker compose up -d --build`, créer un prompt, `GET /v1/prompts` → `ready` en ≤ 2 min
+
+**Dépendances :** T15
+**Fichiers :** `backend/app/services/embeddings.py`, `backend/app/services/fetcher.py`, `backend/app/worker.py`, `backend/app/config.py`, `backend/Dockerfile`, `backend/tests/test_embeddings.py`
+**Taille :** M
+
+### T17 : compteurs d'embeddings dans les stats
+**Description :** `fetch_cycles` gagne `embedded_papers` et `pending_embeddings` (papiers sans embedding en fin de cycle) + migration. Ils apparaissent dans la ligne de log JSON et dans `/v1/stats`.
+
+**Critères d'acceptation :**
+- [ ] Le log et `/v1/stats` donnent les mêmes `embedded_papers` et `pending_embeddings`
+- [ ] Avec plus de papiers en attente que `EMBED_BATCH_LIMIT`, `pending_embeddings` reflète le reste
+
+**Vérification :**
+- [ ] Lint + tests passent
+- [ ] Manuel : `docker compose logs worker` puis `curl localhost:8000/v1/stats`
+
+**Dépendances :** T16
+**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/worker.py`, `backend/app/api/v1/stats.py`, `backend/tests/test_api_stats.py`
 **Taille :** S
 
 ### Checkpoint 2
-- [x] Modifier `sources.yaml` → `sync-sources` → visible dans `/v1/sources`
-- [x] Revue humaine
+- [ ] `docker compose up` → `pending_embeddings` redescend à 0 et ne grossit plus d'un cycle à l'autre
+- [ ] Un nouveau prompt passe à `ready` en ≤ 2 min
+- [ ] RAM du worker mesurée, compatible avec un VPS de 4 Go (avec Postgres et l'API)
+- [ ] Revue humaine
 
 ---
 
-## Phase 3 : récupération
+## Phase 3 : feeds
 
-### T6 : parsing des flux
-**Description :** Fonctions pures `parse_feed(kind, content: bytes) -> list[PaperEntry]` basées sur `feedparser`, un extracteur par kind. `PaperEntry` : `external_id` (`arxiv:2410.12345` / `doi:10.1101/…`, **sans** la version), `version`, title, authors (liste), abstract **complet** nettoyé du HTML (pas tronqué), categories (liste), link, published_at. Entrée sans identifiant → ignorée.
+### T18 : feed d'un prompt
+**Description :** `services/feeds.py` : requête de matching (similarité `1 − (embedding <=> prompt.embedding) ≥ MATCH_THRESHOLD`, `coalesce(published_at, fetched_at) ≥ prompt.created_at − BACKFILL_DAYS`), triée comme `/v1/papers`. `GET /v1/prompts/{id}/feed?limit&offset` → `PaperOut` + `score`. Prompt `pending` → liste vide ; prompt d'un autre utilisateur → `404`.
 
 **Critères d'acceptation :**
-- [x] Fixtures réelles arXiv (RSS 2.0) et bioRxiv (RSS 1.0 / RDF) parsées correctement
-- [x] La version est séparée de l'identifiant (`2410.12345v2` → `arxiv:2410.12345`, version 2)
-- [x] Entrée sans identifiant → ignorée ; flux mal formé → liste vide ou erreur explicite, jamais de crash non géré
+- [ ] Seuil : un papier juste au-dessus est retenu, un papier juste en dessous ne l'est pas (vecteurs choisis à la main)
+- [ ] Rattrapage : un papier de 6 jours avant la création du prompt est retenu, un papier de 8 jours ne l'est pas
+- [ ] Tri, pagination et `limit` > 200 → `422`, comme `/v1/papers`
 
 **Vérification :**
-- [x] Lint + tests passent
+- [ ] Lint + tests passent
+- [ ] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/prompts/1/feed?limit=5` → papiers pertinents
 
-**Dépendances :** T5
-**Fichiers :** `backend/app/services/feeds.py`, `backend/tests/fixtures/*.xml`, `backend/tests/test_feeds.py`
+**Dépendances :** T16
+**Fichiers :** `backend/app/services/feeds.py`, `backend/app/api/v1/feeds.py`, `backend/app/config.py`, `backend/app/main.py`, `backend/tests/test_api_feeds.py`
 **Taille :** M
 
-### T7 : Paper, cycle du worker, conteneur worker
-**Description :** Modèle `Paper` (external_id **unique**, source_id = première source, version, title, authors, abstract, categories, link, published_at, fetched_at) + migration. `run_cycle(session, client)` : pour chaque source active dont `next_fetch_at <= now`, GET avec `If-None-Match`/`If-Modified-Since`, 304 → rien, 200 → parse + upsert par `external_id` : nouveau papier inséré, version plus récente → mise à jour, sinon rien. Stocke etag/last_modified, `next_fetch_at = now + 30 min`. `worker.py` boucle : `run_cycle` puis dort 60 s. Service `worker` dans Compose.
+### T19 : feed global
+**Description :** `GET /v1/feed?limit&offset` : l'union des tiroirs des prompts de l'utilisateur. Chaque papier apparaît une fois, avec `score` (le meilleur) et `prompt_ids`. Même tri et même pagination.
 
 **Critères d'acceptation :**
-- [x] Deux cycles sur le même flux → aucun doublon
-- [x] Un papier présent dans deux archives → une seule ligne
-- [x] Une `v2` met à jour la ligne de la `v1` ; une `v1` arrivée après la `v2` ne l'écrase pas
-- [x] Les en-têtes conditionnels sont envoyés, un 304 n'insère rien
-- [x] Une source pas encore due n'est pas interrogée
+- [ ] Un papier retenu par deux prompts apparaît une fois, avec les deux `prompt_ids` et le meilleur score
+- [ ] Les prompts d'un autre utilisateur n'y contribuent pas
+- [ ] Utilisateur sans prompt `ready` → liste vide
 
 **Vérification :**
-- [x] Lint + tests passent (httpx `MockTransport` servant les fixtures, aucun réseau)
-- [x] Manuel : `docker compose up` → papiers en base après une minute
+- [ ] Lint + tests passent
+- [ ] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/feed?limit=5`
 
-**Dépendances :** T5, T6
-**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/services/fetcher.py`, `backend/app/worker.py`, `docker-compose.yml`, `backend/tests/test_fetcher.py`
-**Taille :** M
-
-### T8 : `GET /v1/papers`
-**Description :** Papiers du plus récent au plus ancien, avec le nom de la source. Pagination `limit` (défaut 50, max 200) + `offset`, filtre optionnel `source` (slug).
-
-**Critères d'acceptation :**
-- [x] Tri par date décroissante, pagination respectée, `limit` > 200 refusé (422)
-- [x] Filtre `source` fonctionne ; slug inconnu → liste vide
-
-**Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `curl 'localhost:8000/v1/papers?limit=5'`
-
-**Dépendances :** T7
-**Fichiers :** `backend/app/api/v1/papers.py`, `backend/app/main.py`, `backend/tests/test_api_papers.py`
+**Dépendances :** T18
+**Fichiers :** `backend/app/services/feeds.py`, `backend/app/api/v1/feeds.py`, `backend/tests/test_api_feeds.py`
 **Taille :** S
-
-### Checkpoint 3
-- [x] `docker compose up` → vrais papiers dans `/v1/papers`
-- [x] Pas de doublons après plusieurs cycles
-- [x] Revue humaine
-
----
-
-## Phase 4 : robustesse et observabilité
-
-### T9 : backoff et désactivation
-**Description :** Sur erreur (réseau, HTTP ≥ 400, flux illisible) : `consecutive_failures += 1`, `last_error` conservé, `next_fetch_at = now + 30 min × 2^(échecs−1)` plafonné (ex. 24 h). À 10 échecs : `active = false`. Un succès remet le compteur à zéro. Une source en erreur n'interrompt pas le cycle des autres.
-
-**Critères d'acceptation :**
-- [x] Délais de backoff croissants et plafonnés (testés)
-- [x] 10ᵉ échec → source désactivée, erreur conservée
-- [x] Une source en erreur n'empêche pas les autres d'être récupérées
-
-**Vérification :**
-- [x] Lint + tests passent
-
-**Dépendances :** T7
-**Fichiers :** `backend/app/services/fetcher.py`, `backend/tests/test_fetcher.py`
-**Taille :** S
-
-### T10 : purge
-**Description :** Supprimer les papiers dont `fetched_at` a plus de `PAPER_RETENTION_DAYS` jours (défaut 30), à chaque cycle du worker.
-
-**Critères d'acceptation :**
-- [x] Papiers plus vieux que la rétention supprimés, les autres conservés
-- [x] Rétention réglable par variable d'environnement
-
-**Vérification :**
-- [x] Lint + tests passent
-
-**Dépendances :** T7
-**Fichiers :** `backend/app/services/purge.py`, `backend/app/worker.py`, `backend/app/config.py`, `backend/tests/test_purge.py`
-**Taille :** XS
-
-### T11 : log de cycle + `GET /v1/stats`
-**Description :** Table `fetch_cycles` (started_at, duration_ms, feeds_polled, new_papers, updated_papers, errors, purged) + migration. Chaque cycle écrit une ligne en base et une ligne de log JSON sur stdout. `GET /v1/stats` renvoie le dernier cycle + le nombre de sources actives/désactivées et de papiers. (Le compteur « en attente d'embedding » arrive en M2 avec les embeddings.)
-
-**Critères d'acceptation :**
-- [x] Une ligne de log JSON par cycle avec durée, flux interrogés, nouveaux papiers, erreurs
-- [x] `/v1/stats` renvoie les mêmes chiffres que le dernier log
-- [x] `/v1/stats` sans aucun cycle → réponse valide (pas d'erreur 500)
-
-**Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `docker compose logs worker` et `curl localhost:8000/v1/stats`
-
-**Dépendances :** T9, T10
-**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/worker.py`, `backend/app/api/v1/stats.py`, `backend/tests/test_api_stats.py`
-**Taille :** M
 
 ### Checkpoint final
-- [x] Toutes les briques de M1 (DECISIONS.md) livrées
-- [x] CI verte
-- [x] Revue humaine avant M2
+- [ ] Tous les critères de réussite de docs/SPEC.md remplis
+- [ ] `/v1/feed` < 200 ms en local avec ~60 k papiers et 10 prompts (mesuré avec des papiers synthétiques)
+- [ ] CI verte
+- [ ] Revue humaine avant M3
