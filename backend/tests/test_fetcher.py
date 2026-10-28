@@ -157,3 +157,18 @@ def test_failing_source_does_not_stop_others(session):
 
     assert broken.consecutive_failures == 1
     assert [p.external_id for p in papers(session)] == ["arxiv:2410.1"]
+
+
+def test_cycle_counts_new_updated_and_errors(session):
+    add_source(session, "cs")
+    add_source(session, "broken")
+    first = run_cycle(session, serve({"cs": arxiv_feed(("2410.1", 1, "A")), "broken": b"bad"}))
+    make_due(session)
+
+    second = run_cycle(
+        session,
+        serve({"cs": arxiv_feed(("2410.1", 2, "A"), ("2410.2", 1, "B")), "broken": b""}),
+    )
+
+    assert first == {"feeds_polled": 2, "new_papers": 1, "updated_papers": 0, "errors": 1}
+    assert second == {"feeds_polled": 2, "new_papers": 1, "updated_papers": 1, "errors": 0}
