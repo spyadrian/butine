@@ -121,15 +121,15 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Modèle `Paper` (external_id **unique**, source_id = première source, version, title, authors, abstract, categories, link, published_at, fetched_at) + migration. `run_cycle(session, client)` : pour chaque source active dont `next_fetch_at <= now`, GET avec `If-None-Match`/`If-Modified-Since`, 304 → rien, 200 → parse + upsert par `external_id` : nouveau papier inséré, version plus récente → mise à jour, sinon rien. Stocke etag/last_modified, `next_fetch_at = now + 30 min`. `worker.py` boucle : `run_cycle` puis dort 60 s. Service `worker` dans Compose.
 
 **Critères d'acceptation :**
-- [ ] Deux cycles sur le même flux → aucun doublon
-- [ ] Un papier présent dans deux archives → une seule ligne
-- [ ] Une `v2` met à jour la ligne de la `v1` ; une `v1` arrivée après la `v2` ne l'écrase pas
-- [ ] Les en-têtes conditionnels sont envoyés, un 304 n'insère rien
-- [ ] Une source pas encore due n'est pas interrogée
+- [x] Deux cycles sur le même flux → aucun doublon
+- [x] Un papier présent dans deux archives → une seule ligne
+- [x] Une `v2` met à jour la ligne de la `v1` ; une `v1` arrivée après la `v2` ne l'écrase pas
+- [x] Les en-têtes conditionnels sont envoyés, un 304 n'insère rien
+- [x] Une source pas encore due n'est pas interrogée
 
 **Vérification :**
-- [ ] Lint + tests passent (httpx `MockTransport` servant les fixtures, aucun réseau)
-- [ ] Manuel : `docker compose up` → papiers en base après une minute
+- [x] Lint + tests passent (httpx `MockTransport` servant les fixtures, aucun réseau)
+- [x] Manuel : `docker compose up` → papiers en base après une minute
 
 **Dépendances :** T5, T6
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/services/fetcher.py`, `backend/app/worker.py`, `docker-compose.yml`, `backend/tests/test_fetcher.py`

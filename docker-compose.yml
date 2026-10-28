@@ -27,5 +27,14 @@ services:
       db:
         condition: service_healthy
 
+  worker:
+    build: ./backend
+    command: python -m app.worker
+    environment:
+      DATABASE_URL: postgresql+psycopg://butine:butine@db:5432/butine
+    depends_on:
+      - api  # api applies the migrations; until then the worker logs and retries
+    restart: unless-stopped
+
 volumes:
   db-data:
