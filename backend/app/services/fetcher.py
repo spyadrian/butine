@@ -7,9 +7,11 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.models import Paper, Source
-from app.services.feeds import PaperEntry, parse_feed
+from app.services.feeds import FeedError, PaperEntry, parse_feed
 
 FETCH_INTERVAL = timedelta(minutes=30)
+MAX_BACKOFF = timedelta(hours=24)
+MAX_FAILURES = 10
 
 
 def upsert_papers(session: Session, source: Source, entries: list[PaperEntry]) -> None:
@@ -41,7 +43,18 @@ def fetch_source(session: Session, client: httpx2.Client, source: Source) -> Non
         upsert_papers(session, source, parse_feed(source.kind, response.content))
         source.etag = response.headers.get("ETag")
         source.last_modified = response.headers.get("Last-Modified")
+    source.consecutive_failures = 0
     source.next_fetch_at = datetime.now(UTC) + FETCH_INTERVAL
+
+
+def record_failure(source: Source, error: Exception) -> None:
+    """Back off exponentially, and give up on the source after MAX_FAILURES in a row."""
+    source.consecutive_failures += 1
+    source.last_error = f"{type(error).__name__}: {error}"
+    backoff = FETCH_INTERVAL * 2 ** (source.consecutive_failures - 1)
+    source.next_fetch_at = datetime.now(UTC) + min(backoff, MAX_BACKOFF)
+    if source.consecutive_failures >= MAX_FAILURES:
+        source.active = False
 
 
 def run_cycle(session: Session, client: httpx2.Client) -> None:
@@ -52,6 +65,10 @@ def run_cycle(session: Session, client: httpx2.Client) -> None:
         .order_by(Source.id)
     ).all()
     for source in due:
-        # shortcut: an error stops the cycle (earlier sources stay committed), backoff comes next.
-        fetch_source(session, client, source)
+        try:
+            # Savepoint: a failure undoes only this source's partial writes.
+            with session.begin_nested():
+                fetch_source(session, client, source)
+        except (httpx2.HTTPError, FeedError) as error:
+            record_failure(source, error)
         session.commit()

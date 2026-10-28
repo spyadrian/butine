@@ -163,12 +163,12 @@ Commandes de vérification communes (depuis `backend/`) :
 **Description :** Sur erreur (réseau, HTTP ≥ 400, flux illisible) : `consecutive_failures += 1`, `last_error` conservé, `next_fetch_at = now + 30 min × 2^(échecs−1)` plafonné (ex. 24 h). À 10 échecs : `active = false`. Un succès remet le compteur à zéro. Une source en erreur n'interrompt pas le cycle des autres.
 
 **Critères d'acceptation :**
-- [ ] Délais de backoff croissants et plafonnés (testés)
-- [ ] 10ᵉ échec → source désactivée, erreur conservée
-- [ ] Une source en erreur n'empêche pas les autres d'être récupérées
+- [x] Délais de backoff croissants et plafonnés (testés)
+- [x] 10ᵉ échec → source désactivée, erreur conservée
+- [x] Une source en erreur n'empêche pas les autres d'être récupérées
 
 **Vérification :**
-- [ ] Lint + tests passent
+- [x] Lint + tests passent
 
 **Dépendances :** T7
 **Fichiers :** `backend/app/services/fetcher.py`, `backend/tests/test_fetcher.py`
