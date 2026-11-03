@@ -19,8 +19,7 @@ from sqlalchemy import select
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.db import SessionLocal  # noqa: E402
 from app.models import Paper  # noqa: E402
-
-MODEL = "ibm-granite/granite-embedding-small-english-r2"
+from app.services.embeddings import MODEL  # noqa: E402
 
 
 def main() -> None:

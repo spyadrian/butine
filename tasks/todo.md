@@ -87,13 +87,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** `services/embeddings.py` : `embed_pending(session, embed, batch_limit)` embedde d'abord tous les prompts sans embedding, puis au plus `EMBED_BATCH_LIMIT` papiers (défaut 2 000), en vecteurs normalisés. Texte d'un papier : `title + "\n\n" + abstract`. L'upsert d'une nouvelle version remet `embedding` à `NULL`. Le worker charge le vrai modèle une fois au démarrage et appelle `embed_pending` après la purge. Modèle téléchargé au build de l'image. Version de Python ajustée si T12 l'exige. `status` d'un prompt : `ready` dès qu'il a un embedding.
 
 **Critères d'acceptation :**
-- [ ] Avec un faux embedder : prompts et papiers sans embedding sont remplis, la limite par cycle est respectée, les prompts passent avant les papiers
-- [ ] Une nouvelle version d'un papier remet son embedding à `NULL` ; une version plus ancienne n'y touche pas
-- [ ] Le worker réel embedde les papiers en base sans erreur, et un prompt créé passe à `ready` au cycle suivant
+- [x] Avec un faux embedder : prompts et papiers sans embedding sont remplis, la limite par cycle est respectée, les prompts passent avant les papiers
+- [x] Une nouvelle version d'un papier remet son embedding à `NULL` ; une version plus ancienne n'y touche pas
+- [x] Le worker réel embedde les papiers en base sans erreur, et un prompt créé passe à `ready` au cycle suivant
 
 **Vérification :**
-- [ ] Lint + tests passent (aucun vrai modèle chargé dans les tests)
-- [ ] Manuel : `docker compose up -d --build`, créer un prompt, `GET /v1/prompts` → `ready` en ≤ 2 min
+- [x] Lint + tests passent (aucun vrai modèle chargé dans les tests)
+- [x] Manuel : `docker compose up -d --build`, créer un prompt, `GET /v1/prompts` → `ready` en ≤ 2 min
 
 **Dépendances :** T15
 **Fichiers :** `backend/app/services/embeddings.py`, `backend/app/services/fetcher.py`, `backend/app/worker.py`, `backend/app/config.py`, `backend/Dockerfile`, `backend/tests/test_embeddings.py`

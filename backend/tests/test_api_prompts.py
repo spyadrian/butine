@@ -3,6 +3,7 @@ import uuid
 import pytest
 
 from app.cli import set_plan
+from app.models import Prompt
 
 
 @pytest.fixture
@@ -21,6 +22,15 @@ def test_create_prompt_strips_text_and_is_pending(client, headers):
     body = response.json()
     assert body["text"] == "protein folding"
     assert body["status"] == "pending"
+
+
+def test_prompt_is_ready_once_embedded(client, session, headers):
+    prompt_id = create(client, headers).json()["id"]
+    session.get(Prompt, prompt_id).embedding = [1.0] * 384
+
+    (prompt,) = client.get("/v1/prompts", headers=headers).json()
+
+    assert prompt["status"] == "ready"
 
 
 def test_free_plan_allows_one_prompt(client, headers):

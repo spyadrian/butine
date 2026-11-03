@@ -8,6 +8,12 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy PATH="/app/.venv/bin:$PATH"
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
+# Bake the embedding model into the image: the worker starts without downloading it.
+ENV FASTEMBED_CACHE_PATH=/opt/fastembed
+# Same name as MODEL in app/services/embeddings.py.
+RUN python -c "from fastembed import TextEmbedding; \
+    TextEmbedding('ibm-granite/granite-embedding-small-english-r2')"
+
 COPY . .
 # Apply pending migrations, then start the API.
 CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000"]

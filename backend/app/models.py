@@ -91,3 +91,7 @@ class Prompt(Base):
     text: Mapped[str] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     embedding = mapped_column(Vector(EMBEDDING_DIM))  # NULL until the worker embeds it
+
+    @property
+    def status(self) -> str:
+        return "pending" if self.embedding is None else "ready"
