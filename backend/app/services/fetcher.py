@@ -29,7 +29,8 @@ def upsert_papers(session: Session, source: Source, entries: list[PaperEntry]) -
     inserted = session.scalars(
         stmt.on_conflict_do_update(
             index_elements=[Paper.external_id],
-            set_={col: stmt.excluded[col] for col in updated} | {"fetched_at": func.now()},
+            set_={col: stmt.excluded[col] for col in updated}
+            | {"fetched_at": func.now(), "embedding": None},
             where=Paper.version < stmt.excluded.version,
         ).returning(literal_column("xmax = 0"))
     ).all()

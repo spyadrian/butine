@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timedelta
 
 from app.worker import run_once
+from tests.test_embeddings import FakeEmbedder
 from tests.test_fetcher import add_source, arxiv_feed, serve
 from tests.test_purge import add_paper
 
@@ -21,7 +22,7 @@ def test_stats_match_last_cycle_log(client, session, capsys):
     add_paper(session, "old", timedelta(days=31))  # its source "src-old" answers 304
 
     feed = arxiv_feed(("2410.1", 1, "A"), ("2410.2", 1, "B"))
-    run_once(session, serve({"cs": feed, "src-old": b""}))
+    run_once(session, serve({"cs": feed, "src-old": b""}), FakeEmbedder())
 
     log = json.loads(capsys.readouterr().out)
     stats = client.get("/v1/stats").json()

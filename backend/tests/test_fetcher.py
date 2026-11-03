@@ -172,3 +172,20 @@ def test_cycle_counts_new_updated_and_errors(session):
 
     assert first == {"feeds_polled": 2, "new_papers": 1, "updated_papers": 0, "errors": 1}
     assert second == {"feeds_polled": 2, "new_papers": 1, "updated_papers": 1, "errors": 0}
+
+
+def test_newer_version_resets_embedding_and_older_does_not(session):
+    add_source(session, "cs")
+    run_cycle(session, serve({"cs": arxiv_feed(("2410.1", 2, "A"))}))
+    (paper,) = papers(session)
+
+    paper.embedding = [1.0] * 384
+    make_due(session)
+    run_cycle(session, serve({"cs": arxiv_feed(("2410.1", 1, "A"))}))
+    session.refresh(paper)
+    assert paper.embedding is not None
+
+    make_due(session)
+    run_cycle(session, serve({"cs": arxiv_feed(("2410.1", 3, "A"))}))
+    session.refresh(paper)
+    assert paper.embedding is None

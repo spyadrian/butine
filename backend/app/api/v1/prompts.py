@@ -25,7 +25,7 @@ class PromptOut(BaseModel):
     id: int
     text: str
     created_at: datetime
-    status: str = "pending"  # shortcut: always pending, derive it from the embedding once it exists
+    status: str  # "pending" until the worker embeds the prompt, then "ready"
 
 
 @router.post("/prompts", status_code=201)
