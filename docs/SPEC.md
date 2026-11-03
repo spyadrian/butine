@@ -41,7 +41,7 @@ Ordre de construction : `accounts` → `prompts` → `embeddings` → `feeds`.
 
 ### `embeddings`
 - Postgres passe à l'image `pgvector/pgvector:pg18` (Compose et CI), avec l'extension `vector` créée par une migration.
-- Colonnes `papers.embedding` et `prompts.embedding` : `vector(N)` nullable, N fixé par le modèle choisi (probablement 384).
+- Colonnes `papers.embedding` et `prompts.embedding` : `vector(N)` nullable, N = 384 (granite-embedding-small-english-r2, voir DECISIONS.md).
 - Texte embeddé : `title + "\n\n" + abstract` pour un papier, `text` pour un prompt. Les vecteurs sont **normalisés**, et la similarité vaut `1 − distance cosinus` (`<=>`).
 - **Seul le worker charge le modèle.** À chaque cycle, après la récupération et la purge, il calcule :
   1. les embeddings des prompts qui n'en ont pas encore (tous) ;
@@ -49,14 +49,11 @@ Ordre de construction : `accounts` → `prompts` → `embeddings` → `feeds`.
 - Quand un papier reçoit une nouvelle version (upsert), son `embedding` repasse à `NULL` pour être recalculé.
 - La fonction d'embedding est passée en paramètre (`embed: Callable[[list[str]], list[list[float]]]`) : les tests utilisent un faux embedder déterministe, et seul le worker réel charge le modèle.
 - `fetch_cycles` et le log JSON gagnent `embedded_papers` et `pending_embeddings` (papiers encore sans embedding en fin de cycle). `/v1/stats` les expose.
-- **Première tâche : un test du modèle**, qui fixe le modèle, la bibliothèque, N et le seuil par défaut. Résultats notés dans DECISIONS.md :
-  - bibliothèque : `sentence-transformers` (torch) ou `fastembed` (ONNX, sans torch, plus léger) ; vérifier la compatibilité avec Python 3.14 (sinon, image en 3.13) ;
-  - modèle : bge-small-en-v1.5 contre e5-small-v2 sur 10 à 20 vrais prompts de l'utilisateur et les papiers en base ;
-  - mesures : RAM du worker, temps d'embedding de 3 000 papiers sur CPU, et seuil qui sépare au mieux les bons papiers du bruit.
+- Modèle, bibliothèque et seuil par défaut : fixés par le test du modèle, voir DECISIONS.md.
 
 ### `feeds`
 - Un papier est dans le tiroir du prompt P si :
-  - `similarité(papier, P) ≥ MATCH_THRESHOLD` (variable d'environnement, défaut fixé par le test du modèle) ;
+  - `similarité(papier, P) ≥ MATCH_THRESHOLD` (variable d'environnement, défaut 0,84) ;
   - `coalesce(published_at, fetched_at) ≥ P.created_at − BACKFILL_DAYS` (défaut 7 jours).
 - **Calcul à la volée en SQL**, sans table de correspondances. Un changement de seuil s'applique tout de suite. Pas d'index ANN en M2 : une lecture exacte de ~60 k papiers suffit.
 - `GET /v1/prompts/{id}/feed?limit&offset` → papiers au format `PaperOut` + `score`. Prompt d'un autre utilisateur → `404`. Prompt encore `pending` → liste vide.

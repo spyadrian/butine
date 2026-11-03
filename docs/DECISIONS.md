@@ -59,12 +59,38 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 
 ## IA et feeds
 - Prompt = texte libre en anglais. Pas d'exclusions ni de mots-clés pour l'instant.
-- **Tout est en anglais** (papiers et prompts) : modèle d'embeddings anglais local (gratuit, sans API externe). Choix du modèle en M2 après un test sur 10–20 vrais prompts ; probablement un petit modèle généraliste de recherche (bge, e5) plutôt qu'un modèle papier ↔ papier (SPECTER2).
+- **Tout est en anglais** (papiers et prompts) : modèle d'embeddings anglais local (gratuit, sans API externe).
+- **Modèle : `ibm-granite/granite-embedding-small-english-r2`** via `fastembed` (ONNX, sans torch, tourne sur Python 3.14). Licence Apache 2.0, **N = 384**, pas de préfixe requête/document. fastembed ne normalise pas ce modèle : le worker normalise lui-même. Lots de 2 textes (contexte de 8 192 tokens : de gros lots d'abstracts longs font exploser la RAM).
+- **`MATCH_THRESHOLD` = 0,84** par défaut (précision 0,62, rappel 0,88 sur le test ; 0,82 → 0,50 / 0,96 ; 0,86 → 0,79 / 0,59).
+- Test (novembre 2026, `scripts/match_preview.py`) : 10 modèles sur 19 prompts et ~8 700 papiers, pertinence jugée à la main sur le top 10.
+
+  | Modèle | P@5 | Rappel top 10 | MRR | F1 seuil global | min / 3 000 papiers | RAM |
+  |---|---|---|---|---|---|---|
+  | **granite-s** | **0,53** | **0,68** | 0,86 | 0,75 | **6,5** | 1,2 Go |
+  | arctic-embed-l-v2.0 | 0,51 | 0,62 | 0,94 | 0,74 | 62,8 | 2,7 Go |
+  | bge-base-en-v1.5 | 0,51 | 0,61 | 0,89 | 0,65 | 21,9 | 1,8 Go |
+  | bge-large-en-v1.5 | 0,51 | 0,62 | 0,87 | 0,76 | 72,4 | 3,7 Go |
+  | nomic-embed-text-v1.5 | 0,51 | 0,54 | 0,76 | 0,68 | 24,1 | 1,8 Go |
+  | embeddinggemma-300m | 0,50 | 0,67 | 0,82 | 0,71 | 18,4 | 1,9 Go |
+  | Qwen3-Embedding-0.6B | 0,50 | 0,62 | 0,89 | 0,78 | 103,1 | 2,5 Go |
+  | bge-small-en-v1.5 | 0,47 | 0,62 | 0,86 | 0,67 | 7,7 | 0,95 Go |
+  | arctic-embed-s | 0,47 | 0,56 | 0,77 | 0,67 | 7,1 | 1,4 Go |
+  | e5-small-v2 | 0,37 | 0,49 | 0,73 | 0,54 | 7,1 | 1,4 Go |
+
+  - Les écarts entre les meilleurs modèles sont dans le bruit d'un test de 19 prompts : on prend le moins cher.
+  - Avec un seuil global, le F1 plafonne vers 0,75 quel que soit le modèle : l'échelle des scores varie d'un prompt à l'autre, et un prompt sans papier pertinent laisse passer 1 ou 2 papiers hors sujet.
+  - Les prompts courts (« sodium-ion battery cathode materials ») marchent mieux que les longues phrases, pour tous les modèles.
+  - Rerankers (bge-reranker-base, bge-reranker-v2-m3 sur le top 50) : **écartés**, moins bons que granite-s seul (P@5 0,40 et 0,44), 22 à 77 s par prompt, 3 à 4 Go de RAM.
+  - SPECTER2 : non mesuré (OOM au-delà de 6 Go avec torch).
 - Un papier entre dans le tiroir d'un prompt si sa similarité dépasse un **seuil global**, réglé côté serveur (variable d'environnement). Pas de réglage par l'utilisateur ni de 👍/👎 pour l'instant.
 - **Un feed (« tiroir ») par prompt**, plus un **feed global** qui regroupe tous les tiroirs de l'utilisateur.
 - À la création d'un prompt : rattrapage sur les papiers des 7 derniers jours (configurable).
 - Pas de digest hebdomadaire pour l'instant.
 - Plus tard : LLM pour les résumés, uniquement sur les papiers qui correspondent à un prompt (jamais tout le catalogue : ~50 k papiers par mois).
+- Pistes d'amélioration (pas pour le MVP) :
+  - **Réglage de sensibilité par feed** (« plus de résultats » ↔ « plus précis ») : décale le seuil pour ce prompt. Raison : l'échelle des scores varie d'un prompt à l'autre, un seuil global plafonne vite.
+  - **Suggestions « à côté »** : quelques papiers juste sous le seuil, affichés à part (« Ça pourrait aussi vous intéresser »), pour la découverte.
+  - **Juge LLM sur les candidats** : les embeddings présélectionnent ~10 papiers par prompt et par jour, un LLM tranche (pertinent / proche / hors sujet). Règle le seuil global et les suggestions « à côté ». Coût estimé pour ~300 prompts : ~6 $/mois avec Claude Haiku 5.5, ~10–40 CHF/mois chez Infomaniak AI Services (données en Suisse). Jamais sur tout le catalogue (~1 000 $/mois même avec Haiku). À tester sur les prompts du test avant de décider.
 
 ## Offre et paiement
 - Gratuit : 1 prompt. Payant : 10 prompts pour **5 CHF/mois** (≈ 4,25 CHF net après 15 % de commission → ~6 abonnés couvrent ~25 CHF/mois de frais fixes). Prix annuel à fixer à la publication.
@@ -100,7 +126,6 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 - **Ensuite** : compte anonyme, paiement (RevenueCat + webhook), email, suppression de compte, résumés IA, déploiement Infomaniak (images Docker avec utilisateur non-root), compilation iOS en CI, Kubernetes.
 
 ## À vérifier plus tard
-- Compatibilité de torch / sentence-transformers avec Python 3.14 (sinon 3.13 dans l'image Docker) — M2.
 - Conditions d'utilisation des flux arXiv et bioRxiv pour un usage commercial — avant la publication.
 - Cadre juridique des résumés IA (directive DSM art. 15, opt-out TDM) — avant les résumés.
 - Prix Infomaniak, Apple, Google, RevenueCat, Codemagic — avant de les budgéter.

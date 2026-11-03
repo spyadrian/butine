@@ -32,7 +32,7 @@ T15 a besoin de N (T12) et de la table `prompts` (T14). T17 et T18 sont indépen
 Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 
 ### Phase 1 : risque et comptes
-- [ ] T12 : test du modèle d'embeddings, décision notée dans DECISIONS.md
+- [x] T12 : test du modèle d'embeddings, décision notée dans DECISIONS.md
 - [ ] T13 : table `users`, `POST /v1/users`, commande `set-plan`
 - [ ] T14 : prompts (créer, lister, supprimer) avec la limite par plan
 
