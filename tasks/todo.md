@@ -14,13 +14,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** Choisir la bibliothèque (`fastembed` ou `sentence-transformers`), le modèle (bge-small-en-v1.5 ou e5-small-v2), la dimension N et le seuil par défaut. Le script `backend/scripts/match_preview.py` embedde les papiers en base et les prompts de l'utilisateur, puis affiche les meilleurs papiers de chaque prompt avec leur score. L'utilisateur juge la pertinence, et on en déduit le seuil. On mesure la RAM du processus et le temps d'embedding de 3 000 papiers sur CPU. Résultats et choix notés dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [ ] La bibliothèque retenue s'installe et tourne avec la version de Python choisie (3.14, sinon 3.13)
-- [ ] Les deux modèles comparés sur les mêmes prompts ; RAM et temps pour 3 000 papiers mesurés
-- [ ] Modèle, N et `MATCH_THRESHOLD` par défaut validés par l'utilisateur et notés dans DECISIONS.md
+- [x] La bibliothèque retenue s'installe et tourne avec la version de Python choisie (3.14, sinon 3.13)
+- [x] Les deux modèles comparés sur les mêmes prompts ; RAM et temps pour 3 000 papiers mesurés
+- [x] Modèle, N et `MATCH_THRESHOLD` par défaut validés par l'utilisateur et notés dans DECISIONS.md
 
 **Vérification :**
-- [ ] Lint passe
-- [ ] Manuel : `uv run python scripts/match_preview.py prompts.txt` affiche des résultats lisibles
+- [x] Lint passe
+- [x] Manuel : `uv run python scripts/match_preview.py prompts.txt` affiche des résultats lisibles
 
 **Dépendances :** aucune (attend les prompts de l'utilisateur)
 **Fichiers :** `backend/scripts/match_preview.py`, `backend/pyproject.toml`, `backend/uv.lock`, `docs/DECISIONS.md`
@@ -60,7 +60,7 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 
 ### Checkpoint 1
 - [ ] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
-- [ ] Modèle et seuil validés par l'humain (T12)
+- [x] Modèle et seuil validés par l'humain (T12)
 - [ ] Revue humaine
 
 ---
