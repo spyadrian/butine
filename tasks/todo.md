@@ -71,13 +71,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** Image `pgvector/pgvector:pg18` dans Compose et dans la CI. Dépendance Python `pgvector`. Migration : `CREATE EXTENSION vector`, colonnes `papers.embedding` et `prompts.embedding` en `vector(N)` nullable (N issu de T12).
 
 **Critères d'acceptation :**
-- [ ] `alembic upgrade head` passe sur une base vide et sur la base locale existante (données conservées)
-- [ ] La CI tourne sur l'image pgvector et reste verte
-- [ ] `test_models_match_migrations` passe (modèles et migration alignés)
+- [x] `alembic upgrade head` passe sur une base vide et sur la base locale existante (données conservées)
+- [x] La CI tourne sur l'image pgvector et reste verte
+- [x] `test_models_match_migrations` passe (modèles et migration alignés)
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `docker compose up -d --build` → `/v1/papers` renvoie toujours les papiers existants
+- [x] Lint + tests passent
+- [x] Manuel : `docker compose up -d --build` → `/v1/papers` renvoie toujours les papiers existants
 
 **Dépendances :** T12 (N), T14 (table `prompts`)
 **Fichiers :** `docker-compose.yml`, `.github/workflows/ci.yml`, `backend/pyproject.toml`, `backend/uv.lock`, `backend/app/models.py`, `backend/migrations/versions/…`
