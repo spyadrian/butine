@@ -62,7 +62,7 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 - **Tout est en anglais** (papiers et prompts) : modèle d'embeddings anglais local (gratuit, sans API externe).
 - **Modèle : `ibm-granite/granite-embedding-small-english-r2`** via `fastembed` (ONNX, sans torch, tourne sur Python 3.14). Licence Apache 2.0, **N = 384**, pas de préfixe requête/document. fastembed ne normalise pas ce modèle : le worker normalise lui-même. Lots de 2 textes (contexte de 8 192 tokens : de gros lots d'abstracts longs font exploser la RAM).
 - **`MATCH_THRESHOLD` = 0,84** par défaut (précision 0,62, rappel 0,88 sur le test ; 0,82 → 0,50 / 0,96 ; 0,86 → 0,79 / 0,59).
-- Test (novembre 2026, `scripts/match_preview.py`) : 10 modèles sur 19 prompts et ~8 700 papiers, pertinence jugée à la main sur le top 10.
+- Test (novembre 2026) : 10 modèles sur 19 prompts et ~8 700 papiers, pertinence jugée à la main sur le top 10. `scripts/match_preview.py` ne garde que granite-s, pour réajuster le seuil.
 
   | Modèle | P@5 | Rappel top 10 | MRR | F1 seuil global | min / 3 000 papiers | RAM |
   |---|---|---|---|---|---|---|
