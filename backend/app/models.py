@@ -1,9 +1,12 @@
 import uuid
 from datetime import datetime
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, Text, func, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+EMBEDDING_DIM = 384  # granite-embedding-small-english-r2, see docs/DECISIONS.md
 
 
 class Base(DeclarativeBase):
@@ -47,6 +50,7 @@ class Paper(Base):
     link: Mapped[str] = mapped_column(String(2000))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    embedding = mapped_column(Vector(EMBEDDING_DIM))  # NULL until the worker embeds it
 
 
 class FetchCycle(Base):
@@ -86,3 +90,4 @@ class Prompt(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     text: Mapped[str] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    embedding = mapped_column(Vector(EMBEDDING_DIM))  # NULL until the worker embeds it
