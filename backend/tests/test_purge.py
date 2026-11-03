@@ -34,7 +34,11 @@ def test_purge_deletes_only_papers_older_than_retention(session):
 
 
 def add_cycle(session, age: timedelta) -> None:
-    stats = dict.fromkeys(["feeds_polled", "new_papers", "updated_papers", "errors", "purged"], 0)
+    stats = dict.fromkeys(
+        ["feeds_polled", "new_papers", "updated_papers", "errors", "purged"]
+        + ["embedded_papers", "pending_embeddings"],
+        0,
+    )
     session.add(FetchCycle(started_at=datetime.now(UTC) - age, duration_ms=0, **stats))
     session.flush()
 
