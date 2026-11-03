@@ -59,7 +59,7 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Taille :** M
 
 ### Checkpoint 1
-- [ ] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
+- [x] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
 - [x] Modèle et seuil validés par l'humain (T12)
 - [ ] Revue humaine
 
@@ -108,16 +108,16 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 
 **Vérification :**
 - [x] Lint + tests passent
-- [ ] Manuel : `docker compose logs worker` puis `curl localhost:8000/v1/stats`
+- [x] Manuel : `docker compose logs worker` puis `curl localhost:8000/v1/stats`
 
 **Dépendances :** T16
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/worker.py`, `backend/app/api/v1/stats.py`, `backend/tests/test_api_stats.py`
 **Taille :** S
 
 ### Checkpoint 2
-- [ ] `docker compose up` → `pending_embeddings` redescend à 0 et ne grossit plus d'un cycle à l'autre
-- [ ] Un nouveau prompt passe à `ready` en ≤ 2 min
-- [ ] RAM du worker mesurée, compatible avec un VPS de 4 Go (avec Postgres et l'API)
+- [x] `docker compose up` → `pending_embeddings` redescend à 0 et ne grossit plus d'un cycle à l'autre (0 en fin de chaque cycle, y compris après 2 000 embeddings vidés d'un coup)
+- [x] Un nouveau prompt passe à `ready` en ≤ 2 min (34 s mesurées)
+- [x] RAM du worker mesurée, compatible avec un VPS de 4 Go (avec Postgres et l'API) : pic du worker 570 Mio sur un lot de 2 000 papiers ; avec Postgres (223 Mio) et l'API (71 Mio), ≈ 865 Mio
 - [ ] Revue humaine
 
 ---
@@ -150,14 +150,14 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 
 **Vérification :**
 - [x] Lint + tests passent
-- [ ] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/feed?limit=5`
+- [x] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/feed?limit=5`
 
 **Dépendances :** T18
 **Fichiers :** `backend/app/services/feeds.py`, `backend/app/api/v1/feeds.py`, `backend/tests/test_api_feeds.py`
 **Taille :** S
 
 ### Checkpoint final
-- [ ] Tous les critères de réussite de docs/SPEC.md remplis
-- [ ] `/v1/feed` < 200 ms en local avec ~60 k papiers et 10 prompts (mesuré avec des papiers synthétiques)
-- [ ] CI verte
+- [x] Tous les critères de réussite de docs/SPEC.md remplis
+- [x] `/v1/feed` < 200 ms en local avec ~60 k papiers et 10 prompts (mesuré avec des papiers synthétiques) : 141 à 177 ms ; le coût croît avec papiers × prompts, peu de marge
+- [x] CI verte
 - [ ] Revue humaine avant M3
