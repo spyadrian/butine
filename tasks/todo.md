@@ -144,12 +144,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** `GET /v1/feed?limit&offset` : l'union des tiroirs des prompts de l'utilisateur. Chaque papier apparaît une fois, avec `score` (le meilleur) et `prompt_ids`. Même tri et même pagination.
 
 **Critères d'acceptation :**
-- [ ] Un papier retenu par deux prompts apparaît une fois, avec les deux `prompt_ids` et le meilleur score
-- [ ] Les prompts d'un autre utilisateur n'y contribuent pas
-- [ ] Utilisateur sans prompt `ready` → liste vide
+- [x] Un papier retenu par deux prompts apparaît une fois, avec les deux `prompt_ids` et le meilleur score
+- [x] Les prompts d'un autre utilisateur n'y contribuent pas
+- [x] Utilisateur sans prompt `ready` → liste vide
 
 **Vérification :**
-- [ ] Lint + tests passent
+- [x] Lint + tests passent
 - [ ] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/feed?limit=5`
 
 **Dépendances :** T18

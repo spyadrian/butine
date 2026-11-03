@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
+from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.orm import Session
 
 from app.api.v1.papers import PaperOut
@@ -13,9 +14,38 @@ from app.models import Paper, Prompt, Source, User
 
 router = APIRouter()
 
+PAPER_COLUMNS = (
+    Paper.external_id,
+    Paper.version,
+    Paper.title,
+    Paper.authors,
+    Paper.abstract,
+    Paper.categories,
+    Paper.link,
+    Paper.published_at,
+    Source.name.label("source"),
+)
+# Same order as /v1/papers; id breaks ties so pages never overlap.
+ORDER = (Paper.published_at.desc().nulls_last(), Paper.id.desc())
+
 
 class FeedPaperOut(PaperOut):
     score: float  # cosine similarity with the prompt
+
+
+class GlobalFeedPaperOut(FeedPaperOut):
+    prompt_ids: list[int]  # prompts that keep the paper; score is the best of them
+
+
+def match(prompt):
+    """Score and match conditions; `prompt` is a Prompt row, or the Prompt class inside a join."""
+    # Vectors are normalized, so 1 - cosine distance is the similarity.
+    score = 1 - Paper.embedding.cosine_distance(prompt.embedding)
+    since = prompt.created_at - timedelta(days=BACKFILL_DAYS)
+    return score, (
+        score >= MATCH_THRESHOLD,
+        func.coalesce(Paper.published_at, Paper.fetched_at) >= since,
+    )
 
 
 @router.get("/prompts/{prompt_id}/feed")
@@ -31,29 +61,38 @@ def prompt_feed(
         raise HTTPException(404, "prompt not found")
     if prompt.embedding is None:
         return []
-    # Vectors are normalized, so 1 - cosine distance is the similarity.
-    score = 1 - Paper.embedding.cosine_distance(prompt.embedding)
+    score, conditions = match(prompt)
+    query = (
+        select(*PAPER_COLUMNS, score.label("score"))
+        .join(Source)
+        .where(*conditions)
+        .order_by(*ORDER)
+        .limit(limit)
+        .offset(offset)
+    )
+    return session.execute(query).mappings().all()
+
+
+@router.get("/feed")
+def global_feed(
+    user: Annotated[User, Depends(current_user)],
+    session: Annotated[Session, Depends(get_session)],
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> list[GlobalFeedPaperOut]:
+    score, conditions = match(Prompt)
     query = (
         select(
-            Paper.external_id,
-            Paper.version,
-            Paper.title,
-            Paper.authors,
-            Paper.abstract,
-            Paper.categories,
-            Paper.link,
-            Paper.published_at,
-            Source.name.label("source"),
-            score.label("score"),
+            *PAPER_COLUMNS,
+            func.max(score).label("score"),
+            func.array_agg(aggregate_order_by(Prompt.id, Prompt.id)).label("prompt_ids"),
         )
         .join(Source)
-        .where(
-            score >= MATCH_THRESHOLD,
-            func.coalesce(Paper.published_at, Paper.fetched_at)
-            >= prompt.created_at - timedelta(days=BACKFILL_DAYS),
-        )
-        # Same order as /v1/papers; id breaks ties so pages never overlap.
-        .order_by(Paper.published_at.desc().nulls_last(), Paper.id.desc())
+        # Pending prompts have no embedding: their score is NULL and never matches.
+        .join(Prompt, Prompt.user_id == user.id)
+        .where(*conditions)
+        .group_by(Paper.id, Source.id)
+        .order_by(*ORDER)
         .limit(limit)
         .offset(offset)
     )
