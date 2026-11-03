@@ -128,16 +128,16 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** `services/feeds.py` : requête de matching (similarité `1 − (embedding <=> prompt.embedding) ≥ MATCH_THRESHOLD`, `coalesce(published_at, fetched_at) ≥ prompt.created_at − BACKFILL_DAYS`), triée comme `/v1/papers`. `GET /v1/prompts/{id}/feed?limit&offset` → `PaperOut` + `score`. Prompt `pending` → liste vide ; prompt d'un autre utilisateur → `404`.
 
 **Critères d'acceptation :**
-- [ ] Seuil : un papier juste au-dessus est retenu, un papier juste en dessous ne l'est pas (vecteurs choisis à la main)
-- [ ] Rattrapage : un papier de 6 jours avant la création du prompt est retenu, un papier de 8 jours ne l'est pas
-- [ ] Tri, pagination et `limit` > 200 → `422`, comme `/v1/papers`
+- [x] Seuil : un papier juste au-dessus est retenu, un papier juste en dessous ne l'est pas (vecteurs choisis à la main)
+- [x] Rattrapage : un papier de 6 jours avant la création du prompt est retenu, un papier de 8 jours ne l'est pas
+- [x] Tri, pagination et `limit` > 200 → `422`, comme `/v1/papers`
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/prompts/1/feed?limit=5` → papiers pertinents
+- [x] Lint + tests passent
+- [x] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/prompts/1/feed?limit=5` → papiers pertinents
 
 **Dépendances :** T16
-**Fichiers :** `backend/app/services/feeds.py`, `backend/app/api/v1/feeds.py`, `backend/app/config.py`, `backend/app/main.py`, `backend/tests/test_api_feeds.py`
+**Fichiers :** `backend/app/api/v1/feeds.py` (`services/feeds.py` est déjà le parseur RSS), `backend/app/config.py`, `backend/app/main.py`, `backend/tests/test_api_feeds.py`
 **Taille :** M
 
 ### T19 : feed global
