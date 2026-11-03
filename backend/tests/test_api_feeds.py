@@ -118,3 +118,61 @@ def test_feed_requires_user(client, session, headers):
     prompt = add_prompt(session, headers)
 
     assert client.get(f"/v1/prompts/{prompt.id}/feed").status_code == 401
+
+
+def global_feed(client, headers, **params):
+    return client.get("/v1/feed", params=params, headers=headers)
+
+
+def at(degrees):
+    """Unit vector at `degrees` from the prompt vector [1, 0, …], on the first two axes."""
+    return [math.cos(math.radians(degrees)), math.sin(math.radians(degrees))] + [0.0] * 382
+
+
+def test_global_feed_merges_prompts_with_best_score(client, session, headers, source):
+    first = add_prompt(session, headers)
+    second = add_prompt(session, headers, embedding=at(40))
+    add_paper(session, source, 1, day=25)
+    add_paper(session, source, 2, day=26)
+    papers = session.query(Paper).order_by(Paper.external_id).all()
+    papers[0].embedding = at(-10)  # first: cos 10° ≈ 0.98, second: cos 50° ≈ 0.64 (dropped)
+    papers[1].embedding = at(15)  # first: cos 15° ≈ 0.97, second: cos 25° ≈ 0.91
+    session.flush()
+
+    response = global_feed(client, headers)
+
+    assert response.status_code == 200
+    both, only_first = response.json()
+    assert both["title"] == "Paper 2"
+    assert both["prompt_ids"] == [first.id, second.id]
+    assert both["score"] == pytest.approx(math.cos(math.radians(15)), abs=1e-4)
+    assert only_first["prompt_ids"] == [first.id]
+    assert only_first["score"] == pytest.approx(math.cos(math.radians(10)), abs=1e-4)
+
+
+def test_global_feed_ignores_other_users_prompts(client, session, headers, source):
+    other = {"X-User-Id": client.post("/v1/users").json()["id"]}
+    add_prompt(session, other)
+    add_paper(session, source, 1)
+
+    assert global_feed(client, headers).json() == []
+
+
+def test_global_feed_empty_without_ready_prompt(client, session, headers, source):
+    add_prompt(session, headers, embedding=None)
+    add_paper(session, source, 1)
+
+    assert global_feed(client, headers).json() == []
+
+
+def test_global_feed_applies_backfill_sort_and_pagination(client, session, headers, source):
+    add_prompt(session, headers)
+    add_paper(session, source, 1, day=21)
+    add_paper(session, source, 2, day=23)
+    add_paper(session, source, 3, day=12)  # 8 days before the prompt
+    add_paper(session, source, 4, published=False)
+
+    assert titles(global_feed(client, headers)) == ["Paper 2", "Paper 1", "Paper 4"]
+    assert titles(global_feed(client, headers, limit=1, offset=1)) == ["Paper 1"]
+    assert global_feed(client, headers, limit=201).status_code == 422
+    assert client.get("/v1/feed").status_code == 401
