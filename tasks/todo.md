@@ -103,11 +103,11 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 **Description :** `fetch_cycles` gagne `embedded_papers` et `pending_embeddings` (papiers sans embedding en fin de cycle) + migration. Ils apparaissent dans la ligne de log JSON et dans `/v1/stats`.
 
 **Critères d'acceptation :**
-- [ ] Le log et `/v1/stats` donnent les mêmes `embedded_papers` et `pending_embeddings`
-- [ ] Avec plus de papiers en attente que `EMBED_BATCH_LIMIT`, `pending_embeddings` reflète le reste
+- [x] Le log et `/v1/stats` donnent les mêmes `embedded_papers` et `pending_embeddings`
+- [x] Avec plus de papiers en attente que `EMBED_BATCH_LIMIT`, `pending_embeddings` reflète le reste
 
 **Vérification :**
-- [ ] Lint + tests passent
+- [x] Lint + tests passent
 - [ ] Manuel : `docker compose logs worker` puis `curl localhost:8000/v1/stats`
 
 **Dépendances :** T16

@@ -5,11 +5,12 @@ from datetime import UTC, datetime
 
 import httpx2
 from fastembed import TextEmbedding
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.config import EMBED_BATCH_LIMIT, PAPER_RETENTION_DAYS
 from app.db import SessionLocal
-from app.models import FetchCycle
+from app.models import FetchCycle, Paper
 from app.services.embeddings import MODEL, Embed, embed_pending
 from app.services.fetcher import run_cycle
 from app.services.purge import purge_fetch_cycles, purge_papers
@@ -24,7 +25,10 @@ def run_once(session: Session, client: httpx2.Client, embed: Embed) -> None:
     stats = run_cycle(session, client)
     stats["purged"] = purge_papers(session, PAPER_RETENTION_DAYS)
     purge_fetch_cycles(session, PAPER_RETENTION_DAYS)
-    embed_pending(session, embed, EMBED_BATCH_LIMIT)
+    stats["embedded_papers"] = embed_pending(session, embed, EMBED_BATCH_LIMIT)
+    stats["pending_embeddings"] = session.scalar(
+        select(func.count()).select_from(Paper).where(Paper.embedding.is_(None))
+    )
     duration_ms = round((time.monotonic() - start) * 1000)
     session.add(FetchCycle(started_at=started_at, duration_ms=duration_ms, **stats))
     session.commit()

@@ -22,6 +22,8 @@ class CycleOut(BaseModel):
     updated_papers: int
     errors: int
     purged: int
+    embedded_papers: int
+    pending_embeddings: int
 
 
 class StatsOut(BaseModel):

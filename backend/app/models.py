@@ -66,6 +66,8 @@ class FetchCycle(Base):
     updated_papers: Mapped[int]
     errors: Mapped[int]
     purged: Mapped[int]
+    embedded_papers: Mapped[int]
+    pending_embeddings: Mapped[int]  # papers still without embedding at the end of the cycle
 
 
 class User(Base):
