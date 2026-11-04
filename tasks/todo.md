@@ -61,7 +61,7 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 ### Checkpoint 1
 - [x] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
 - [x] Modèle et seuil validés par l'humain (T12)
-- [ ] Revue humaine
+- [x] Revue humaine
 
 ---
 
@@ -118,7 +118,7 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 - [x] `docker compose up` → `pending_embeddings` redescend à 0 et ne grossit plus d'un cycle à l'autre (0 en fin de chaque cycle, y compris après 2 000 embeddings vidés d'un coup)
 - [x] Un nouveau prompt passe à `ready` en ≤ 2 min (34 s mesurées)
 - [x] RAM du worker mesurée, compatible avec un VPS de 4 Go (avec Postgres et l'API) : pic du worker 570 Mio sur un lot de 2 000 papiers ; avec Postgres (223 Mio) et l'API (71 Mio), ≈ 865 Mio
-- [ ] Revue humaine
+- [x] Revue humaine
 
 ---
 
@@ -160,4 +160,4 @@ Spec : [docs/SPEC.md](../docs/SPEC.md).
 - [x] Tous les critères de réussite de docs/SPEC.md remplis
 - [x] `/v1/feed` < 200 ms en local avec ~60 k papiers et 10 prompts (mesuré avec des papiers synthétiques) : 141 à 177 ms ; le coût croît avec papiers × prompts, peu de marge
 - [x] CI verte
-- [ ] Revue humaine avant M3
+- [x] Revue humaine avant M3
