@@ -129,3 +129,5 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 - Conditions d'utilisation des flux arXiv et bioRxiv pour un usage commercial — avant la publication.
 - Cadre juridique des résumés IA (directive DSM art. 15, opt-out TDM) — avant les résumés.
 - Prix Infomaniak, Apple, Google, RevenueCat, Codemagic — avant de les budgéter.
+- Vitesse de `/v1/feed` : 141 à 177 ms avec 60 k papiers et 10 prompts (fin de M2), pour un objectif de 200 ms. Le coût croît avec papiers × prompts. Avant d'ajouter des sources ou de relever la limite `paid` : faire remplir par le worker une table `matches(prompt_id, paper_id, score)` au moment d'embedder, pour que le feed ne fasse plus qu'une lecture par index.
+- Limite de débit sur l'API — avant le déploiement public. `POST /v1/users` crée des comptes sans limite, et chaque appel au feed coûte environ 150 ms de calcul à Postgres.
