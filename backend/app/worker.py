@@ -8,10 +8,10 @@ from fastembed import TextEmbedding
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.config import EMBED_BATCH_LIMIT, PAPER_RETENTION_DAYS
+from app.config import EMBED_BATCH_LIMIT, EMBEDDING_MODEL, PAPER_RETENTION_DAYS
 from app.db import SessionLocal
 from app.models import FetchCycle, Paper
-from app.services.embeddings import MODEL, Embed, embed_pending
+from app.services.embeddings import Embed, embed_pending
 from app.services.fetcher import run_cycle
 from app.services.purge import purge_fetch_cycles, purge_papers
 
@@ -25,7 +25,15 @@ def run_once(session: Session, client: httpx2.Client, embed: Embed) -> None:
     stats = run_cycle(session, client)
     stats["purged"] = purge_papers(session, PAPER_RETENTION_DAYS)
     purge_fetch_cycles(session, PAPER_RETENTION_DAYS)
-    stats["embedded_papers"] = embed_pending(session, embed, EMBED_BATCH_LIMIT)
+    try:
+        stats["embedded_papers"] = embed_pending(session, embed, EMBED_BATCH_LIMIT)
+    except Exception:
+        # Still record the cycle: the papers fetched above are already saved.
+        logging.exception("embedding failed")
+        session.rollback()  # chunks committed before the failure stay
+        stats["errors"] += 1
+        # shortcut: misses chunks committed before the failure, count them if used beyond alerts
+        stats["embedded_papers"] = 0
     stats["pending_embeddings"] = session.scalar(
         select(func.count()).select_from(Paper).where(Paper.embedding.is_(None))
     )
@@ -40,7 +48,7 @@ def run_once(session: Session, client: httpx2.Client, embed: Embed) -> None:
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO)
-    model = TextEmbedding(MODEL)  # loaded once: ~1 GB of RAM
+    model = TextEmbedding(EMBEDDING_MODEL)  # loaded once; the worker peaks ~570 MB on 2,000 papers
 
     def embed(texts: list[str]):
         # 8k-token context: big batches of long abstracts blow up the RAM

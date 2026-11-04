@@ -8,6 +8,8 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 EMBEDDING_DIM = 384  # granite-embedding-small-english-r2, see docs/DECISIONS.md
 
+PROMPT_LIMITS = {"free": 1, "paid": 10}  # the plans, and how many prompts each allows
+
 
 class Base(DeclarativeBase):
     pass
@@ -74,7 +76,7 @@ class User(Base):
     """An anonymous account: the UUID is its only credential until real auth exists."""
 
     __tablename__ = "users"
-    __table_args__ = (CheckConstraint("plan IN ('free', 'paid')", name="users_plan_check"),)
+    __table_args__ = (CheckConstraint(f"plan IN {tuple(PROMPT_LIMITS)}", name="users_plan_check"),)
 
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True, server_default=text("gen_random_uuid()")
