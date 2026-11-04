@@ -33,29 +33,29 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 
 ### Phase 1 : risque et comptes
 - [x] T12 : test du modèle d'embeddings, décision notée dans DECISIONS.md
-- [ ] T13 : table `users`, `POST /v1/users`, commande `set-plan`
-- [ ] T14 : prompts (créer, lister, supprimer) avec la limite par plan
+- [x] T13 : table `users`, `POST /v1/users`, commande `set-plan`
+- [x] T14 : prompts (créer, lister, supprimer) avec la limite par plan
 
 ### Checkpoint 1
-- [ ] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
-- [ ] Modèle et seuil validés par l'humain
+- [x] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
+- [x] Modèle et seuil validés par l'humain
 
 ### Phase 2 : embeddings
-- [ ] T15 : pgvector (Compose + CI) et colonnes d'embedding
-- [ ] T16 : le worker calcule les embeddings des prompts et des papiers
-- [ ] T17 : `embedded_papers` et `pending_embeddings` dans le log et `/v1/stats`
+- [x] T15 : pgvector (Compose + CI) et colonnes d'embedding
+- [x] T16 : le worker calcule les embeddings des prompts et des papiers
+- [x] T17 : `embedded_papers` et `pending_embeddings` dans le log et `/v1/stats`
 
 ### Checkpoint 2
-- [ ] `docker compose up` → `pending_embeddings` redescend à 0, un nouveau prompt passe à `ready` en ≤ 2 min
-- [ ] RAM du worker mesurée, compatible avec 4 Go
+- [x] `docker compose up` → `pending_embeddings` redescend à 0, un nouveau prompt passe à `ready` en ≤ 2 min
+- [x] RAM du worker mesurée, compatible avec 4 Go
 
 ### Phase 3 : feeds
-- [ ] T18 : `GET /v1/prompts/{id}/feed`
-- [ ] T19 : `GET /v1/feed` (feed global)
+- [x] T18 : `GET /v1/prompts/{id}/feed`
+- [x] T19 : `GET /v1/feed` (feed global)
 
 ### Checkpoint final
-- [ ] Tous les critères de réussite de docs/SPEC.md remplis (dont `/v1/feed` < 200 ms avec ~60 k papiers)
-- [ ] CI verte, revue humaine avant M3
+- [x] Tous les critères de réussite de docs/SPEC.md remplis (dont `/v1/feed` < 200 ms avec ~60 k papiers)
+- [x] CI verte, revue humaine avant M3
 
 ## Risques et mitigations
 | Risque | Impact | Mitigation |
