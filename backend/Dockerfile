@@ -10,9 +10,10 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 # Bake the embedding model into the image: the worker starts without downloading it.
 ENV FASTEMBED_CACHE_PATH=/opt/fastembed
-# Same name as MODEL in app/services/embeddings.py.
-RUN python -c "from fastembed import TextEmbedding; \
-    TextEmbedding('ibm-granite/granite-embedding-small-english-r2')"
+# Only config.py, so a code change does not download the model again.
+COPY app/__init__.py app/config.py app/
+RUN python -c "from fastembed import TextEmbedding; from app.config import EMBEDDING_MODEL; \
+    TextEmbedding(EMBEDDING_MODEL)"
 
 COPY . .
 # Apply pending migrations, then start the API.

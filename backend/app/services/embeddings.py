@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 
 from app.models import Paper, Prompt
 
-MODEL = "ibm-granite/granite-embedding-small-english-r2"  # see docs/DECISIONS.md
 COMMIT_EVERY = 100  # papers; ~15 s of embedding on CPU
 
 Embed = Callable[[list[str]], Iterable[Sequence[float]]]

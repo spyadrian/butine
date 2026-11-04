@@ -51,3 +51,16 @@ def test_pending_embeddings_counts_papers_over_the_batch_limit(
     cycle = client.get("/v1/stats").json()["last_cycle"]
     assert (log["embedded_papers"], log["pending_embeddings"]) == (2, 1)
     assert (cycle["embedded_papers"], cycle["pending_embeddings"]) == (2, 1)
+
+
+def test_embedding_failure_still_records_the_cycle(client, session, capsys):
+    def broken(texts):
+        raise RuntimeError("model crashed")
+
+    add_source(session, "cs")
+    run_once(session, serve({"cs": arxiv_feed(("2410.1", 1, "A"))}), broken)
+
+    log = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert (log["new_papers"], log["errors"], log["embedded_papers"]) == (1, 1, 0)
+    assert log["pending_embeddings"] == 1
+    assert client.get("/v1/stats").json()["last_cycle"]["errors"] == 1

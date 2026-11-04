@@ -176,3 +176,14 @@ def test_global_feed_applies_backfill_sort_and_pagination(client, session, heade
     assert titles(global_feed(client, headers, limit=1, offset=1)) == ["Paper 1"]
     assert global_feed(client, headers, limit=201).status_code == 422
     assert client.get("/v1/feed").status_code == 401
+
+
+def test_global_feed_backfill_follows_each_prompt_date(client, session, headers, source):
+    old = add_prompt(session, headers)  # created on the 20th: keeps papers from the 13th
+    recent = add_prompt(session, headers, embedding=at(20))  # similarity cos 20° ≈ 0.94
+    recent.created_at = datetime(2026, 10, 25, tzinfo=UTC)  # keeps papers from the 18th
+    add_paper(session, source, 1, day=15)
+    session.flush()
+
+    (paper,) = global_feed(client, headers).json()
+    assert paper["prompt_ids"] == [old.id]

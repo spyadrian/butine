@@ -17,9 +17,9 @@ from fastembed import TextEmbedding
 from sqlalchemy import select
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from app.config import EMBEDDING_MODEL  # noqa: E402
 from app.db import SessionLocal  # noqa: E402
 from app.models import Paper  # noqa: E402
-from app.services.embeddings import MODEL  # noqa: E402
 
 
 def main() -> None:
@@ -41,7 +41,7 @@ def main() -> None:
             query = query.where(Paper.fetched_at < args.until)
         papers = session.execute(query).all()
 
-    model = TextEmbedding(MODEL)
+    model = TextEmbedding(EMBEDDING_MODEL)
     start = time.perf_counter()
     texts = [f"{p.title}\n\n{p.abstract}" for p in papers]
     paper_vecs = np.array(list(model.embed(texts, batch_size=args.batch_size)))

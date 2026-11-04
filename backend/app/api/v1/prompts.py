@@ -8,11 +8,9 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.users import current_user
 from app.db import get_session
-from app.models import Prompt, User
+from app.models import PROMPT_LIMITS, Prompt, User
 
 router = APIRouter()
-
-PROMPT_LIMITS = {"free": 1, "paid": 10}
 
 
 class PromptIn(BaseModel):

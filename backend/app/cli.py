@@ -6,7 +6,7 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.models import User
+from app.models import PROMPT_LIMITS, User
 from app.services.catalog import CATALOG_PATH, CatalogError, load_catalog, sync_sources
 
 
@@ -25,7 +25,7 @@ def main(argv: list[str] | None = None) -> int:
     sync.add_argument("--file", type=Path, default=CATALOG_PATH)
     plan = commands.add_parser("set-plan", help="change a user's plan")
     plan.add_argument("user_id", type=uuid.UUID)
-    plan.add_argument("plan", choices=["free", "paid"])
+    plan.add_argument("plan", choices=PROMPT_LIMITS)
     args = parser.parse_args(argv)
 
     if args.command == "set-plan":
