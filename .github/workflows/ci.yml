@@ -14,7 +14,7 @@ jobs:
         working-directory: backend
     services:
       db:
-        image: pgvector/pgvector:pg18
+        image: pgvector/pgvector:0.8.7-pg18-bookworm  # pin the OS: a glibc change breaks text indexes
         env:
           POSTGRES_USER: butine
           POSTGRES_PASSWORD: butine
