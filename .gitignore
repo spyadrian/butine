@@ -6,3 +6,9 @@
 __pycache__/
 .pytest_cache/
 .ruff_cache/
+
+# Logo drafts and generated presentation (originals live outside the repo)
+design/logo/renders/
+design/logo/presentation/presentation.html
+design/logo/presentation/spec.json
+design/logo/presentation/slides/
