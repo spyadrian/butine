@@ -1,6 +1,7 @@
 {
   "enabledPlugins": {
     "ponytail@ponytail": true,
-    "agent-skills@addy-agent-skills": true
+    "agent-skills@addy-agent-skills": true,
+    "dart-flutter@dart-flutter": true
   }
 }
