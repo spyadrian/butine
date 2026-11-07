@@ -3,7 +3,7 @@
 Résultat de l'entretien de marque du 2026-11-04. Idée : [IDEE.md](IDEE.md), décisions produit : [DECISIONS.md](DECISIONS.md).
 Chaque choix a sa raison ; si la raison ne tient plus, le choix peut changer.
 
-Ce document fixe l'intention et, depuis le 2026-11-04, les valeurs finales du logo, des couleurs (y compris l'erreur) et de la police du logotype. La serif des abstracts reste à choisir.
+Ce document fixe l'intention et, depuis le 2026-11-04, les valeurs finales du logo, des couleurs (y compris l'erreur) et de la police du logotype ; depuis le 2026-11-07, la serif des papiers (Literata).
 
 Fichiers du logo, guide d'usage et scripts de génération : dossier [`design/logo/`](../design/logo/) (`GUIDE.md` pour le détail). Brief et recherche : [`design/logo/BRIEF.md`](../design/logo/BRIEF.md).
 
@@ -74,7 +74,7 @@ Règles :
 - Critères de choix : gratuites et utilisables dans une app (licence OFL, Google Fonts par exemple), bon rendu en petite taille sur mobile, plusieurs graisses, et les deux polices doivent s'accorder (hauteurs, rythme).
 - **Logotype** : Adwaita Sans SemiBold (600), taille optique 32, interlettrage −1,2 %, converti en tracés. Adwaita Sans est une version d'Inter, sous licence SIL OFL 1.1. On ne retape jamais « Butine » pour reproduire le logo : on utilise les fichiers SVG.
 - **Sans-serif de l'interface** : Inter est le choix naturel, puisqu'elle accorde l'interface au logotype. À confirmer dans le code.
-- **Serif des abstracts** : à choisir ; elle doit s'accorder avec Inter.
+- **Serif des papiers : Literata** (Google Fonts, SIL OFL 1.1), pour les titres et les abstracts. Raison : dessinée pour la lecture longue sur écran, chaleureuse sans faire d'effet ; c'est la plus lisible des quatre comparées sur un vrai abstract à largeur de téléphone (Source Serif 4, plus neutre ; Newsreader, plus fine ; Fraunces, plus marquée et plus à la mode).
 
 ## Ton de voix
 - Phrases courtes et concrètes. On dit ce qui se passe (« 3 nouveaux papiers ») sans enthousiasme forcé.
@@ -112,7 +112,7 @@ Règles :
 
 ## Prochaines étapes
 1. ~~Logo, couleurs de marque, police du logotype~~ : faits le 2026-11-04 (voir plus haut).
-2. **Explorations en code** : serif des abstracts (à accorder avec Inter).
+2. ~~Serif des papiers~~ : Literata, choisie le 2026-11-07 (voir « Typographie »).
 3. **Spec du design system** : tokens (à partir de `design/logo/palette.json`) puis `ThemeData`, le pont vers les écrans de M3.
 4. **Moodboard** : inspirations Mobbin pour les écrans, confrontées à ce brief.
 5. **Recherche d'antériorité** de la marque avant la publication sur les stores.
