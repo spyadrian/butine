@@ -1,72 +1,96 @@
-# Plan d'implémentation : jalon M2 — utilisateurs, prompts, matching, feeds
+# Plan d'implémentation : jalon M3 — app Flutter minimale
 
 ## Vue d'ensemble
-M2 permet à un utilisateur de créer des prompts en anglais (1 en `free`, 10 en `paid`) et de lire, pour chacun, un tiroir de papiers proches. Un feed global regroupe ses tiroirs. Le worker calcule les embeddings avec un modèle local, stockés dans pgvector. Le matching se fait à la volée en SQL.
-Référence : [docs/SPEC.md](../docs/SPEC.md) (contrats, règles, critères de réussite), [docs/DECISIONS.md](../docs/DECISIONS.md). Ce plan n'y ajoute que l'ordre des tâches et quelques choix d'implémentation.
+M3 livre une app Android (émulateur seulement) où l'utilisateur crée ses tiroirs (nom, icône, prompt) et lit ses papiers, tous ensemble dans All ou tiroir par tiroir grâce aux pastilles, avec l'identité de BRAND.md. Le backend gagne trois changements (auteurs sans LaTeX, `name`/`icon` sur les prompts, `fetched_at` sur les papiers) ; l'app parle à l'API par un client Dart généré.
+Référence : [docs/SPEC.md](../docs/SPEC.md) (contrats, écrans, règles, critères de réussite), [docs/BRAND.md](../docs/BRAND.md), [docs/DECISIONS.md](../docs/DECISIONS.md). Ce plan n'y ajoute que l'ordre des tâches et quelques choix d'implémentation.
 
 ## Choix d'implémentation (nouveaux, à valider)
 | Choix | Raison |
 |---|---|
-| Numérotation qui continue celle de M1 (T12 → T19) | « T3 » ne peut pas désigner deux tâches différentes en discussion. |
-| Le test du modèle (T12) passe en premier | C'est le risque principal : il fixe la bibliothèque, la dimension des vecteurs (donc la migration de T15), la version de Python et la RAM. S'il échoue, le reste de M2 change. |
-| T12 et T13 sont indépendantes | T12 attend les prompts de l'utilisateur. En attendant, T13 et T14 peuvent avancer. |
-| Script `backend/scripts/match_preview.py` gardé dans le dépôt | Il affiche les meilleurs papiers d'un prompt avec leur score ; il resservira pour réajuster le seuil avec de vrais retours. |
-| pgvector et colonnes (T15) séparés du calcul des embeddings (T16) | T15 change l'image Postgres (Compose + CI) : une PR d'infrastructure à part, facile à vérifier et à annuler. |
-| Modèle téléchargé au build de l'image du worker | Pas de téléchargement à chaque redémarrage, ni de dépendance réseau au démarrage. Détail réglé en T16. |
+| Numérotation qui continue celle de M2 (T20 → T34) | « T3 » ne peut pas désigner deux tâches différentes en discussion. |
+| Les trois changements backend d'abord (T20 → T22) | La correction LaTeX passe en premier, comme décidé. Le schéma de l'API est ainsi final avant de générer le client une seule fois (T25), au lieu de le régénérer après chaque changement. |
+| Le squelette Flutter et sa CI (T23) avant tout écran | C'est le premier contact avec Flutter dans le repo : s'il y a un problème d'outillage (Android SDK, émulateur, CI), on le voit sur une tâche minuscule. |
+| Le client généré (T25) est une tâche à part, tôt | C'est le risque principal côté mobile : swagger_parser doit produire un client qui compile depuis le schéma FastAPI. La liste exacte des dépendances (question ouverte de la spec) y est tranchée. |
+| Un test Dart qui calcule les contrastes des tokens (T24) | Les ratios WCAG de BRAND.md restent vrais même si quelqu'un touche une couleur plus tard. Quelques lignes, aucune dépendance. |
+| Écrans en tranches verticales (T27 → T34) | Chaque tâche livre un morceau du parcours qu'on peut lancer sur l'émulateur : repository + view model + écran + tests. |
+| Chaque décision est reportée dans DECISIONS.md par la tâche qui l'applique | Pas de tâche « documentation » en fin de jalon, que l'on oublie. |
+| Chaque tâche d'écran passe par l'aperçu de widget, ui-ux-pro-max et emil-design-eng avant sa PR | Règle de la spec (« Always ») ; c'est là que le rendu visuel se décide. |
 
 ## Graphe de dépendances
 ```
-T12 test du modèle (bibliothèque, modèle, N, seuil, Python)
- └──────────────┐
-T13 users + set-plan          │
- └── T14 prompts + limite     │
-      └── T15 pgvector + colonnes vector(N) ◄┘
-           └── T16 embeddings calculés par le worker
-                ├── T17 compteurs d'embeddings dans les stats
-                └── T18 feed d'un prompt
-                     └── T19 feed global
+T20 auteurs sans LaTeX
+T21 name + icon sur les prompts ─────┐
+T22 fetched_at sur les papiers ──────┤
+T23 squelette Flutter + CI ──────────┼── T25 client API généré
+ ├── T24 thème, tokens, polices      │          │
+ │    └── T26 icônes (tiroirs, app)  │          │
+ │                                   │          │
+ └───────────────────────────── T27 identité + premier lancement
+                                     └── T28 création d'un tiroir (T26)
+                                          └── T29 feed All
+                                               ├── T30 pastilles + feed d'un tiroir
+                                               │    └── T33 détail d'un tiroir + suppression
+                                               ├── T31 signal « New »
+                                               └── T32 détail d'un papier
+T24 ── T34 réglages + choix du thème
 ```
-T15 a besoin de N (T12) et de la table `prompts` (T14). T17 et T18 sont indépendantes une fois T16 faite.
+T20 est indépendante de tout le reste. T24 et T25 sont indépendantes une fois T23 faite.
 
 ## Liste des tâches
 Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 
-### Phase 1 : risque et comptes
-- [x] T12 : test du modèle d'embeddings, décision notée dans DECISIONS.md
-- [x] T13 : table `users`, `POST /v1/users`, commande `set-plan`
-- [x] T14 : prompts (créer, lister, supprimer) avec la limite par plan
+### Phase 1 : backend
+- [ ] T20 : auteurs sans commandes LaTeX (parseur + migration de données)
+- [ ] T21 : `name` et `icon` sur les prompts
+- [ ] T22 : `fetched_at` dans les papiers
 
 ### Checkpoint 1
-- [x] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
-- [x] Modèle et seuil validés par l'humain
+- [ ] Lint + tests backend passent, CI verte
+- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX sur la base locale
+- [ ] Revue humaine
 
-### Phase 2 : embeddings
-- [x] T15 : pgvector (Compose + CI) et colonnes d'embedding
-- [x] T16 : le worker calcule les embeddings des prompts et des papiers
-- [x] T17 : `embedded_papers` et `pending_embeddings` dans le log et `/v1/stats`
+### Phase 2 : socle mobile
+- [ ] T23 : projet Flutter Android dans `mobile/` + job CI
+- [ ] T24 : thème (tokens, polices, clair/sombre)
+- [ ] T25 : client API généré par swagger_parser, vérifié en CI
+- [ ] T26 : jeu d'icônes des tiroirs + icône de l'app
 
 ### Checkpoint 2
-- [x] `docker compose up` → `pending_embeddings` redescend à 0, un nouveau prompt passe à `ready` en ≤ 2 min
-- [x] RAM du worker mesurée, compatible avec 4 Go
+- [ ] L'app se lance sur l'émulateur, aux couleurs et polices de Butine, avec son icône
+- [ ] CI verte (backend + mobile, client régénéré identique)
+- [ ] Revue humaine (dont la liste des icônes des tiroirs)
 
-### Phase 3 : feeds
-- [x] T18 : `GET /v1/prompts/{id}/feed`
-- [x] T19 : `GET /v1/feed` (feed global)
+### Phase 3 : parcours principal
+- [ ] T27 : identité de l'appareil + premier lancement
+- [ ] T28 : création d'un tiroir
+- [ ] T29 : feed All (liste, pagination, rafraîchir, états)
+- [ ] T30 : pastilles + feed d'un tiroir
+- [ ] T31 : signal « New »
+
+### Checkpoint 3
+- [ ] Critères de réussite 1, 2, 3 et 6 de la spec, à la main sur l'émulateur
+- [ ] Revue humaine
+
+### Phase 4 : compléments
+- [ ] T32 : détail d'un papier
+- [ ] T33 : détail d'un tiroir + suppression
+- [ ] T34 : réglages + choix du thème
 
 ### Checkpoint final
-- [x] Tous les critères de réussite de docs/SPEC.md remplis (dont `/v1/feed` < 200 ms avec ~60 k papiers)
-- [x] CI verte, revue humaine avant M3
+- [ ] Tous les critères de réussite de docs/SPEC.md remplis
+- [ ] Décisions de la spec reportées dans DECISIONS.md
+- [ ] CI verte
+- [ ] Revue humaine avant la suite (compte anonyme, paiement)
 
 ## Risques et mitigations
 | Risque | Impact | Mitigation |
 |---|---|---|
-| Bibliothèque d'embeddings incompatible avec Python 3.14 | Moyen | Vérifié en T12 ; sinon `python:3.13-slim` et `requires-python` ajusté en T16. |
-| Le seuil global sépare mal le bon du bruit | Haut | T12 le mesure sur de vrais prompts ; `MATCH_THRESHOLD` reste réglable sans redéploiement de code ; `match_preview.py` pour le réajuster. |
-| torch alourdit l'image et la RAM | Moyen | `fastembed` (ONNX) testé en T12 ; seul le worker charge le modèle. |
-| Rattrapage initial long (~4 000 papiers, puis ~60 k en régime plein) | Moyen | `EMBED_BATCH_LIMIT` borne chaque cycle ; `pending_embeddings` (T17) rend la file visible ; règle Celery de DECISIONS.md. |
-| Matching à la volée trop lent | Moyen | Mesuré au checkpoint final avec ~60 k papiers ; recours prévu par la spec : index HNSW ou table de correspondances. |
-| Changement d'image Postgres qui casse la base locale | Faible | `pgvector/pgvector:pg18` est Postgres 18 plus l'extension : même format de données, le volume est réutilisé. |
-| Changement de modèle plus tard (dimension différente) | Faible | Une migration qui change N et remet tous les embeddings à `NULL` ; le worker recalcule. |
+| swagger_parser produit un client qui ne compile pas ou mal typé depuis le schéma FastAPI (nullables, `list[str]`, UUID) | Haut | T25 tôt et isolée. Si le schéma pose problème, on l'ajuste côté FastAPI (noms d'opérations, types) plutôt que de retoucher le code généré. Repli : openapi-generator, à décider ensemble. |
+| L'outillage Android (SDK, émulateur, Gradle) ou le job Flutter en CI casse | Moyen | T23 ne fait que ça ; `flutter doctor` est vert et l'émulateur existe déjà. |
+| La migration de données LaTeX abîme des noms d'auteurs | Moyen | Fonction pure testée sur une table de cas, dont des noms sans accent laissés intacts ; la migration réutilise cette même fonction. |
+| Le feed global reste vers 150 ms et l'app enchaîne les appels (pagination, pastilles) | Faible | Volumes locaux ; la table `matches` de DECISIONS.md reste le recours. On mesure au Checkpoint 3. |
+| HTTP en clair refusé par Android en debug | Faible | Autorisé en debug seulement, dans le manifeste de debug (T23). |
+| Le design visuel s'éternise tâche après tâche | Moyen | Le rendu se décide dans la tâche de l'écran, relu par les skills ; les retouches globales attendent le Checkpoint 3. |
 
 ## Open Questions
-- Les 10 à 20 prompts réels de l'utilisateur, nécessaires pour T12.
+- Aucune nouvelle. La question de la spec (dépendances du client généré) est tranchée dans T25.

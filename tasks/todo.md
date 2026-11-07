@@ -1,163 +1,282 @@
-# M2 — tâches
+# M3 — tâches
 
-Commandes de vérification communes (depuis `backend/`) :
-- Lint : `uv run ruff check . && uv run ruff format --check .`
-- Tests : `docker compose up -d db && uv run pytest`
+Commandes de vérification communes :
+- Backend (depuis `backend/`) : `uv run ruff check . && uv run ruff format --check .` puis `docker compose up -d db && uv run pytest`
+- Mobile (depuis `mobile/`) : `dart format --set-exit-if-changed . && flutter analyze` puis `flutter test`
+- App : `docker compose up -d --build` (racine), `flutter emulators --launch Medium_Phone_API_37.0`, puis `flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000` (depuis `mobile/`)
 
-Spec : [docs/SPEC.md](../docs/SPEC.md).
+Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) passe avant sa PR par un aperçu de widget, une relecture avec ui-ux-pro-max (règles UX, accessibilité, guide Flutter) et emil-design-eng (finitions).
 
 ---
 
-## Phase 1 : risque et comptes
+## Phase 1 : backend
 
-### T12 : test du modèle d'embeddings
-**Description :** Choisir la bibliothèque (`fastembed` ou `sentence-transformers`), le modèle (bge-small-en-v1.5 ou e5-small-v2), la dimension N et le seuil par défaut. Le script `backend/scripts/match_preview.py` embedde les papiers en base et les prompts de l'utilisateur, puis affiche les meilleurs papiers de chaque prompt avec leur score. L'utilisateur juge la pertinence, et on en déduit le seuil. On mesure la RAM du processus et le temps d'embedding de 3 000 papiers sur CPU. Résultats et choix notés dans DECISIONS.md.
-
-**Critères d'acceptation :**
-- [x] La bibliothèque retenue s'installe et tourne avec la version de Python choisie (3.14, sinon 3.13)
-- [x] Les deux modèles comparés sur les mêmes prompts ; RAM et temps pour 3 000 papiers mesurés
-- [x] Modèle, N et `MATCH_THRESHOLD` par défaut validés par l'utilisateur et notés dans DECISIONS.md
-
-**Vérification :**
-- [x] Lint passe
-- [x] Manuel : `uv run python scripts/match_preview.py prompts.txt` affiche des résultats lisibles
-
-**Dépendances :** aucune (attend les prompts de l'utilisateur)
-**Fichiers :** `backend/scripts/match_preview.py`, `backend/pyproject.toml`, `backend/uv.lock`, `docs/DECISIONS.md`
-**Taille :** S
-
-### T13 : utilisateurs et commande `set-plan`
-**Description :** Modèle `User` (`id` UUID généré par Postgres, `plan` `free|paid` avec contrainte CHECK, `created_at`) + migration. `POST /v1/users` → `201 {"id", "plan"}`. Dépendance FastAPI `current_user` qui lit `X-User-Id` (`401` si absent ou inconnu, `422` si mal formé). Commande `python -m app.cli set-plan <user-id> free|paid`.
+### T20 : auteurs sans commandes LaTeX
+**Description :** Une fonction pure dans `services/` convertit les commandes d'accent LaTeX des noms d'auteurs en caractères Unicode (`{\O}` → `Ø`, `{\aa}` → `å`, `\"o` → `ö`, etc., liste dans la spec). Le parseur arXiv l'applique. Une migration de données applique la même fonction aux auteurs déjà en base.
 
 **Critères d'acceptation :**
-- [x] `POST /v1/users` crée un utilisateur `free` et renvoie son UUID
-- [x] `set-plan` change le plan ; un id inconnu ou un plan invalide → message clair et code de sortie ≠ 0
-- [x] Aucune route ne permet de changer le plan
+- [ ] `{\O}ystein Gullbrekken` → `Øystein Gullbrekken`, `Sondre Kvalv{\aa}g Schnell` → `Sondre Kvalvåg Schnell` ; un nom sans commande LaTeX reste identique
+- [ ] Les nouveaux papiers arXiv sont propres dès l'import
+- [ ] Après `alembic upgrade head`, plus aucun auteur en base ne contient `\` ni `{`
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `curl -X POST localhost:8000/v1/users` puis `set-plan`
+- [ ] Lint + tests passent
+- [ ] Manuel : `docker compose exec db psql -U butine -d butine -c "select count(*) from papers where array_to_string(authors, ' ') ~ '[\\\\{]'"` → 0
 
 **Dépendances :** aucune
-**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/users.py`, `backend/app/main.py`, `backend/app/cli.py`, `backend/tests/test_api_users.py`
-**Taille :** M
+**Fichiers :** `backend/app/services/latex.py`, `backend/app/services/feeds.py`, `backend/migrations/versions/…`, `backend/tests/test_latex.py`
+**Taille :** S
 
-### T14 : prompts et limite par plan
-**Description :** Modèle `Prompt` (`id`, `user_id` FK `ON DELETE CASCADE`, `text`, `created_at`) + migration. `POST /v1/prompts` (texte de 1 à 500 caractères après suppression des espaces autour, `403` au-delà de `PROMPT_LIMITS[plan]`, ligne de l'utilisateur verrouillée pendant le comptage), `GET /v1/prompts` (du plus ancien au plus récent, avec `status`), `DELETE /v1/prompts/{id}`. `status` vaut `pending` tant qu'il n'y a pas d'embedding : toujours le cas avant T16.
+### T21 : `name` et `icon` sur les prompts
+**Description :** Colonnes `prompts.name` (1 à 24 caractères) et `prompts.icon` (`^[a-z0-9_]{1,40}$`), `NOT NULL`. Migration : les prompts existants reçoivent les premiers mots de leur texte comme nom et `label` comme icône. `POST /v1/prompts` les exige, `GET /v1/prompts` les renvoie. Décisions « `/v1` modifié sur place tant que rien n'est publié » et « tiroir = nom + icône » reportées dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [x] `free` : 1 prompt, le 2ᵉ → `403` ; `paid` : 10, le 11ᵉ → `403` ; repasser en `free` garde les prompts mais bloque la création
-- [x] Le prompt d'un autre utilisateur ou un prompt inexistant → `404` (lecture et suppression)
-- [x] Texte vide ou > 500 caractères → `422` ; sans `X-User-Id` → `401`
+- [ ] `POST /v1/prompts` sans `name` ou `icon`, avec un nom de 25 caractères ou une icône `Bad-Icon` → `422`
+- [ ] `GET /v1/prompts` renvoie `name` et `icon` ; l'embedding reste calculé sur `text` seul
+- [ ] `alembic upgrade head` passe sur la base locale existante, les prompts existants gardent leur texte
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : créer, lister et supprimer un prompt avec `curl`
+- [ ] Lint + tests passent, `test_models_match_migrations` compris
+- [ ] Manuel : créer un prompt avec `curl` (nom, icône, texte) puis le lister
 
-**Dépendances :** T13
-**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/prompts.py`, `backend/app/main.py`, `backend/tests/test_api_prompts.py`
+**Dépendances :** aucune
+**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/prompts.py`, `backend/tests/test_api_prompts.py`, `docs/DECISIONS.md`
 **Taille :** M
 
+### T22 : `fetched_at` dans les papiers
+**Description :** `PaperOut` gagne `fetched_at`, donc `/v1/papers` et les deux feeds aussi. C'est la base du signal « New » (T31).
+
+**Critères d'acceptation :**
+- [ ] `fetched_at` présent dans `/v1/papers`, `/v1/prompts/{id}/feed` et `/v1/feed`
+- [ ] Les autres champs et le tri ne changent pas
+
+**Vérification :**
+- [ ] Lint + tests passent
+- [ ] Manuel : `curl localhost:8000/v1/papers?limit=1`
+
+**Dépendances :** aucune
+**Fichiers :** `backend/app/api/v1/papers.py`, `backend/tests/test_api_papers.py`, `backend/tests/test_api_feeds.py`
+**Taille :** XS
+
 ### Checkpoint 1
-- [x] Créer un utilisateur et un prompt avec `curl` ; 2ᵉ prompt refusé en `free`, accepté après `set-plan … paid`
-- [x] Modèle et seuil validés par l'humain (T12)
-- [x] Revue humaine
+- [ ] Lint + tests backend passent, CI verte
+- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX sur la base locale
+- [ ] Revue humaine
 
 ---
 
-## Phase 2 : embeddings
+## Phase 2 : socle mobile
 
-### T15 : pgvector et colonnes d'embedding
-**Description :** Image `pgvector/pgvector:pg18` dans Compose et dans la CI. Dépendance Python `pgvector`. Migration : `CREATE EXTENSION vector`, colonnes `papers.embedding` et `prompts.embedding` en `vector(N)` nullable (N issu de T12).
+### T23 : projet Flutter Android + CI
+**Description :** `flutter create` dans `mobile/` (Android seulement, organisation `ch.butine` à confirmer), `flutter_lints`, un écran « Butine » provisoire et un test de widget minimal. HTTP en clair autorisé dans le manifeste de debug seulement. Job `mobile` dans la CI : format, analyse, tests.
 
 **Critères d'acceptation :**
-- [x] `alembic upgrade head` passe sur une base vide et sur la base locale existante (données conservées)
-- [x] La CI tourne sur l'image pgvector et reste verte
-- [x] `test_models_match_migrations` passe (modèles et migration alignés)
+- [ ] `flutter run` affiche l'écran provisoire sur l'émulateur
+- [ ] Le job CI `mobile` passe ; le job `backend` est inchangé
+- [ ] Aucun dossier iOS, web ou desktop
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `docker compose up -d --build` → `/v1/papers` renvoie toujours les papiers existants
+- [ ] `dart format --set-exit-if-changed . && flutter analyze && flutter test`
+- [ ] Manuel : l'app se lance sur l'émulateur
 
-**Dépendances :** T12 (N), T14 (table `prompts`)
-**Fichiers :** `docker-compose.yml`, `.github/workflows/ci.yml`, `backend/pyproject.toml`, `backend/uv.lock`, `backend/app/models.py`, `backend/migrations/versions/…`
+**Dépendances :** aucune
+**Fichiers :** `mobile/` (généré par `flutter create`), `mobile/android/app/src/debug/AndroidManifest.xml`, `.github/workflows/ci.yml`
 **Taille :** S
 
-### T16 : embeddings calculés par le worker
-**Description :** `services/embeddings.py` : `embed_pending(session, embed, batch_limit)` embedde d'abord tous les prompts sans embedding, puis au plus `EMBED_BATCH_LIMIT` papiers (défaut 2 000), en vecteurs normalisés. Texte d'un papier : `title + "\n\n" + abstract`. L'upsert d'une nouvelle version remet `embedding` à `NULL`. Le worker charge le vrai modèle une fois au démarrage et appelle `embed_pending` après la purge. Modèle téléchargé au build de l'image. Version de Python ajustée si T12 l'exige. `status` d'un prompt : `ready` dès qu'il a un embedding.
+### T24 : thème, tokens et polices
+**Description :** `theme.dart` : tokens de `palette.json` (clair et sombre), `ThemeData` Material 3 pour les deux thèmes, Inter pour l'interface et Literata pour les papiers, intégrées en `.ttf`. Un test calcule les contrastes WCAG des paires de BRAND.md. Aperçu de widget qui montre les deux thèmes.
 
 **Critères d'acceptation :**
-- [x] Avec un faux embedder : prompts et papiers sans embedding sont remplis, la limite par cycle est respectée, les prompts passent avant les papiers
-- [x] Une nouvelle version d'un papier remet son embedding à `NULL` ; une version plus ancienne n'y touche pas
-- [x] Le worker réel embedde les papiers en base sans erreur, et un prompt créé passe à `ready` au cycle suivant
+- [ ] Les paires texte/fond de BRAND.md passent AA dans les deux thèmes (test)
+- [ ] Inter et Literata s'affichent sans réseau
+- [ ] Aucune couleur en dur hors de `theme.dart`
 
 **Vérification :**
-- [x] Lint + tests passent (aucun vrai modèle chargé dans les tests)
-- [x] Manuel : `docker compose up -d --build`, créer un prompt, `GET /v1/prompts` → `ready` en ≤ 2 min
+- [ ] Analyse + tests passent
+- [ ] Manuel : aperçu du thème clair et sombre sur l'émulateur
 
-**Dépendances :** T15
-**Fichiers :** `backend/app/services/embeddings.py`, `backend/app/services/fetcher.py`, `backend/app/worker.py`, `backend/app/config.py`, `backend/Dockerfile`, `backend/tests/test_embeddings.py`
+**Dépendances :** T23
+**Fichiers :** `mobile/lib/ui/core/theme.dart`, `mobile/assets/fonts/…`, `mobile/pubspec.yaml`, `mobile/test/ui/core/theme_test.dart`, `mobile/lib/main.dart`
 **Taille :** M
 
-### T17 : compteurs d'embeddings dans les stats
-**Description :** `fetch_cycles` gagne `embedded_papers` et `pending_embeddings` (papiers sans embedding en fin de cycle) + migration. Ils apparaissent dans la ligne de log JSON et dans `/v1/stats`.
+### T25 : client API généré
+**Description :** Export du schéma dans `mobile/openapi.json`, configuration de swagger_parser, génération du client dans `lib/data/api/`. La liste exacte des dépendances est confirmée avec l'humain avant l'ajout. La CI régénère le schéma et le client et échoue s'il y a une différence. Décision « swagger_parser + schéma commité vérifié en CI » reportée dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [x] Le log et `/v1/stats` donnent les mêmes `embedded_papers` et `pending_embeddings`
-- [x] Avec plus de papiers en attente que `EMBED_BATCH_LIMIT`, `pending_embeddings` reflète le reste
+- [ ] Le client compile et couvre les routes utilisées : users, prompts (avec `name`/`icon`), feeds (avec `fetched_at`)
+- [ ] Un test appelle le client contre un faux serveur HTTP local et décode un feed
+- [ ] Modifier un champ côté backend sans régénérer fait échouer la CI
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `docker compose logs worker` puis `curl localhost:8000/v1/stats`
+- [ ] Analyse + tests passent
+- [ ] `git status` propre après une régénération
 
-**Dépendances :** T16
-**Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/worker.py`, `backend/app/api/v1/stats.py`, `backend/tests/test_api_stats.py`
+**Dépendances :** T21, T22, T23
+**Fichiers :** `mobile/openapi.json`, `mobile/swagger_parser.yaml`, `mobile/pubspec.yaml`, `mobile/lib/data/api/…` (généré), `.github/workflows/ci.yml`, `docs/DECISIONS.md`
+**Taille :** M
+
+### T26 : icônes des tiroirs et de l'app
+**Description :** `drawer_icons.dart` : environ 24 icônes Material `outlined`, chacune avec un identifiant stable, et une icône par défaut pour un identifiant inconnu. La liste est montrée dans un aperçu et validée par l'humain. Icône de l'app depuis `design/logo/exports/app/` avec `flutter_launcher_icons` (avant-plan, arrière-plan, monochrome).
+
+**Critères d'acceptation :**
+- [ ] Chaque identifiant respecte `^[a-z0-9_]{1,40}$` (test) ; un identifiant inconnu donne l'icône par défaut
+- [ ] Liste des icônes validée par l'humain
+- [ ] L'icône Butine apparaît sur l'écran d'accueil de l'émulateur, y compris en icône thémée
+
+**Vérification :**
+- [ ] Analyse + tests passent
+- [ ] Manuel : icône de l'app sur l'émulateur
+
+**Dépendances :** T24
+**Fichiers :** `mobile/lib/ui/core/drawer_icons.dart`, `mobile/test/ui/core/drawer_icons_test.dart`, `mobile/pubspec.yaml`, `mobile/android/app/src/main/res/…` (généré)
 **Taille :** S
 
 ### Checkpoint 2
-- [x] `docker compose up` → `pending_embeddings` redescend à 0 et ne grossit plus d'un cycle à l'autre (0 en fin de chaque cycle, y compris après 2 000 embeddings vidés d'un coup)
-- [x] Un nouveau prompt passe à `ready` en ≤ 2 min (34 s mesurées)
-- [x] RAM du worker mesurée, compatible avec un VPS de 4 Go (avec Postgres et l'API) : pic du worker 570 Mio sur un lot de 2 000 papiers ; avec Postgres (223 Mio) et l'API (71 Mio), ≈ 865 Mio
-- [x] Revue humaine
+- [ ] L'app se lance sur l'émulateur, aux couleurs et polices de Butine, avec son icône
+- [ ] CI verte (backend + mobile, client régénéré identique)
+- [ ] Revue humaine (dont la liste des icônes des tiroirs)
 
 ---
 
-## Phase 3 : feeds
+## Phase 3 : parcours principal
 
-### T18 : feed d'un prompt
-**Description :** `services/feeds.py` : requête de matching (similarité `1 − (embedding <=> prompt.embedding) ≥ MATCH_THRESHOLD`, `coalesce(published_at, fetched_at) ≥ prompt.created_at − BACKFILL_DAYS`), triée comme `/v1/papers`. `GET /v1/prompts/{id}/feed?limit&offset` → `PaperOut` + `score`. Prompt `pending` → liste vide ; prompt d'un autre utilisateur → `404`.
+### T27 : identité de l'appareil + premier lancement
+**Description :** `device_store.dart` garde l'UUID (stockage sécurisé). Au premier lancement, `UserRepository` appelle `POST /v1/users`, puis l'écran d'accueil présente Butine et mène à la création du premier tiroir (provisoirement un écran vide jusqu'à T28). Interface en anglais : décision reportée dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [x] Seuil : un papier juste au-dessus est retenu, un papier juste en dessous ne l'est pas (vecteurs choisis à la main)
-- [x] Rattrapage : un papier de 6 jours avant la création du prompt est retenu, un papier de 8 jours ne l'est pas
-- [x] Tri, pagination et `limit` > 200 → `422`, comme `/v1/papers`
+- [ ] Premier lancement : un utilisateur est créé et son id gardé ; au lancement suivant, pas d'appel ni d'écran d'accueil
+- [ ] Échec réseau : message et « Retry », qui fonctionne une fois le backend relancé
+- [ ] Toutes les requêtes utilisateur envoient `X-User-Id`
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/prompts/1/feed?limit=5` → papiers pertinents
+- [ ] Analyse + tests (view model et widget, faux repository)
+- [ ] Manuel : désinstaller, relancer, vérifier l'utilisateur en base
 
-**Dépendances :** T16
-**Fichiers :** `backend/app/api/v1/feeds.py` (`services/feeds.py` est déjà le parseur RSS), `backend/app/config.py`, `backend/app/main.py`, `backend/tests/test_api_feeds.py`
+**Dépendances :** T24, T25
+**Fichiers :** `mobile/lib/data/device_store.dart`, `mobile/lib/data/repositories/user_repository.dart`, `mobile/lib/ui/onboarding/…`, `mobile/lib/main.dart`, `mobile/test/ui/onboarding/…`
 **Taille :** M
 
-### T19 : feed global
-**Description :** `GET /v1/feed?limit&offset` : l'union des tiroirs des prompts de l'utilisateur. Chaque papier apparaît une fois, avec `score` (le meilleur) et `prompt_ids`. Même tri et même pagination.
+### T28 : création d'un tiroir
+**Description :** Écran « nouveau tiroir » : nom (1 à 24), choix d'une icône du jeu, texte du prompt (1 à 500), exemples de prompts courts. `403` → « The free plan includes 1 drawer. ». Ouvert depuis le premier lancement (et depuis la pastille + en T30).
 
 **Critères d'acceptation :**
-- [x] Un papier retenu par deux prompts apparaît une fois, avec les deux `prompt_ids` et le meilleur score
-- [x] Les prompts d'un autre utilisateur n'y contribuent pas
-- [x] Utilisateur sans prompt `ready` → liste vide
+- [ ] Champs validés avant l'envoi ; bouton inactif tant qu'ils sont invalides
+- [ ] Tiroir créé → retour au feed ; `403` → message de limite, sans bouton d'achat
+- [ ] Cibles tactiles ≥ 48 dp, y compris dans le choix d'icône
 
 **Vérification :**
-- [x] Lint + tests passent
-- [x] Manuel : `curl -H "X-User-Id: …" localhost:8000/v1/feed?limit=5`
+- [ ] Analyse + tests (validation, `403`)
+- [ ] Manuel : créer un tiroir en `free`, puis un 2ᵉ refusé
 
-**Dépendances :** T18
-**Fichiers :** `backend/app/services/feeds.py`, `backend/app/api/v1/feeds.py`, `backend/tests/test_api_feeds.py`
+**Dépendances :** T26, T27
+**Fichiers :** `mobile/lib/data/repositories/drawer_repository.dart`, `mobile/lib/ui/drawer/new_drawer_screen.dart`, `mobile/lib/ui/drawer/new_drawer_view_model.dart`, `mobile/test/ui/drawer/…`
+**Taille :** M
+
+### T29 : feed All
+**Description :** Écran principal : feed global (`/v1/feed`), cartes (titre en Literata, auteurs, source, date), page suivante en arrivant en bas, tirer pour rafraîchir. États : chargement, vide (« Butine is reading the latest papers… » si un tiroir est `pending`, sinon « No papers yet »), erreur avec « Retry », fin de liste.
+
+**Critères d'acceptation :**
+- [ ] Pagination par 50 sans doublon ni trou ; rafraîchir repart du début
+- [ ] Chaque état s'affiche correctement (tests de widget)
+- [ ] Un tiroir créé passe de l'état « reading » à des papiers après un rafraîchissement (≤ 2 min)
+
+**Vérification :**
+- [ ] Analyse + tests
+- [ ] Manuel : critère de réussite 1 de la spec
+
+**Dépendances :** T28
+**Fichiers :** `mobile/lib/data/repositories/feed_repository.dart`, `mobile/lib/ui/feed/feed_screen.dart`, `mobile/lib/ui/feed/feed_view_model.dart`, `mobile/lib/ui/feed/paper_card.dart`, `mobile/test/ui/feed/…`
+**Taille :** M
+
+### T30 : pastilles + feed d'un tiroir
+**Description :** Rangée de pastilles : All, un tiroir par pastille (icône + nom, ordre de création), + (création). Toucher une pastille charge le feed du tiroir et affiche le texte du prompt. Dans All, chaque carte montre l'icône et le nom de ses tiroirs. Rangée masquée avec un seul tiroir. Décision « pastilles au lieu d'une liste de tiroirs » reportée dans DECISIONS.md.
+
+**Critères d'acceptation :**
+- [ ] Filtre par tiroir, texte du prompt sous la rangée, retour à All
+- [ ] Rangée masquée avec un seul tiroir, visible à partir de deux
+- [ ] Un papier retenu par deux tiroirs montre les deux dans All
+
+**Vérification :**
+- [ ] Analyse + tests
+- [ ] Manuel : critère de réussite 2 de la spec (3 tiroirs en `paid`)
+
+**Dépendances :** T29
+**Fichiers :** `mobile/lib/ui/feed/drawer_pills.dart`, `mobile/lib/ui/feed/feed_screen.dart`, `mobile/lib/ui/feed/feed_view_model.dart`, `mobile/lib/ui/feed/paper_card.dart`, `mobile/test/ui/feed/…`
+**Taille :** M
+
+### T31 : signal « New »
+**Description :** La date de dernière ouverture du feed est gardée sur l'appareil. Les papiers dont `fetched_at` est postérieur portent le signal « New » (miel), jusqu'à l'ouverture suivante. Décision reportée dans DECISIONS.md.
+
+**Critères d'acceptation :**
+- [ ] Premier affichage : aucun « New » ; ensuite, seuls les papiers arrivés depuis la dernière ouverture
+- [ ] La date est mise à jour à l'ouverture du feed, pas à chaque rafraîchissement
+- [ ] Le signal respecte BRAND.md (miel profond sur clair, miel sur sombre, jamais en texte)
+
+**Vérification :**
+- [ ] Analyse + tests (horloge simulée)
+- [ ] Manuel : critère de réussite 6 de la spec
+
+**Dépendances :** T22, T29
+**Fichiers :** `mobile/lib/data/device_store.dart`, `mobile/lib/ui/feed/feed_view_model.dart`, `mobile/lib/ui/feed/paper_card.dart`, `mobile/test/ui/feed/…`
+**Taille :** S
+
+### Checkpoint 3
+- [ ] Critères de réussite 1, 2, 3 et 6 de la spec, à la main sur l'émulateur
+- [ ] Temps de réponse du feed global noté (avec la base locale)
+- [ ] Revue humaine
+
+---
+
+## Phase 4 : compléments
+
+### T32 : détail d'un papier
+**Description :** Toucher une carte ouvre le détail : titre, tous les auteurs, source, date, abstract complet, tiroirs concernés, bouton « Read on arXiv » / « Read on bioRxiv » qui ouvre `link` dans le navigateur.
+
+**Critères d'acceptation :**
+- [ ] Données reprises de la carte, sans nouvel appel réseau
+- [ ] Le libellé du bouton suit la source ; le lien s'ouvre dans le navigateur
+- [ ] Abstract en Literata, lisible dans les deux thèmes
+
+**Vérification :**
+- [ ] Analyse + tests
+- [ ] Manuel : critère de réussite 4 de la spec
+
+**Dépendances :** T29
+**Fichiers :** `mobile/lib/ui/paper/paper_screen.dart`, `mobile/lib/ui/feed/paper_card.dart`, `mobile/pubspec.yaml`, `mobile/test/ui/paper/…`
+**Taille :** S
+
+### T33 : détail d'un tiroir + suppression
+**Description :** Appui long sur une pastille : nom, icône, texte, état (`pending`/`ready`) et « Delete » avec confirmation dans l'écran. Après suppression, retour à All sans ce tiroir.
+
+**Critères d'acceptation :**
+- [ ] La confirmation est dans l'écran, pas une boîte de dialogue système
+- [ ] Le tiroir disparaît des pastilles et du feed ; erreur réseau → message et « Retry »
+
+**Vérification :**
+- [ ] Analyse + tests
+- [ ] Manuel : critère de réussite 5 de la spec
+
+**Dépendances :** T30
+**Fichiers :** `mobile/lib/ui/drawer/drawer_screen.dart`, `mobile/lib/ui/drawer/drawer_view_model.dart`, `mobile/lib/ui/feed/drawer_pills.dart`, `mobile/test/ui/drawer/…`
+**Taille :** S
+
+### T34 : réglages + choix du thème
+**Description :** Écran Settings ouvert depuis le feed : thème (système, clair, sombre) gardé sur l'appareil, version de l'app, sources suivies (arXiv, bioRxiv).
+
+**Critères d'acceptation :**
+- [ ] Le thème choisi s'applique tout de suite et survit à un redémarrage
+- [ ] Par défaut, le thème suit le système
+
+**Vérification :**
+- [ ] Analyse + tests
+- [ ] Manuel : changer le thème, redémarrer l'app
+
+**Dépendances :** T24
+**Fichiers :** `mobile/lib/ui/settings/…`, `mobile/lib/data/device_store.dart`, `mobile/lib/main.dart`, `mobile/test/ui/settings/…`
 **Taille :** S
 
 ### Checkpoint final
-- [x] Tous les critères de réussite de docs/SPEC.md remplis
-- [x] `/v1/feed` < 200 ms en local avec ~60 k papiers et 10 prompts (mesuré avec des papiers synthétiques) : 141 à 177 ms ; le coût croît avec papiers × prompts, peu de marge
-- [x] CI verte
-- [x] Revue humaine avant M3
+- [ ] Tous les critères de réussite de docs/SPEC.md remplis (dont le 8 : backend arrêté → erreurs avec « Retry », sans plantage)
+- [ ] Décisions de la spec reportées dans DECISIONS.md
+- [ ] CI verte
+- [ ] Revue humaine avant la suite (compte anonyme, paiement)
