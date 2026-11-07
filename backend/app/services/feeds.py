@@ -5,6 +5,8 @@ from datetime import UTC, datetime
 
 import feedparser
 
+from app.services.latex import latex_to_unicode
+
 
 class FeedError(Exception):
     pass
@@ -48,7 +50,9 @@ def parse_arxiv(entry, feed) -> PaperEntry | None:
         external_id=f"arxiv:{match[1]}",
         version=int(match[2]),
         title=clean(entry.get("title", "")),
-        authors=[a.strip() for a in entry.get("author", "").split(",") if a.strip()],
+        authors=[
+            latex_to_unicode(a.strip()) for a in entry.get("author", "").split(",") if a.strip()
+        ],
         abstract=ARXIV_PREAMBLE.sub("", clean(entry.get("summary", ""))),
         categories=[t.term for t in entry.get("tags", [])],
         link=entry.get("link", ""),
