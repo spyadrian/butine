@@ -57,7 +57,7 @@ Les valeurs CMJN sont converties mathématiquement. Pour un vrai tirage, il faut
 
 ## 5. Typographie
 - **Logotype** : Adwaita Sans SemiBold (600), taille optique 32, interlettrage −1,2 %, converti en tracés. Adwaita Sans est une version d'Inter, sous licence SIL OFL 1.1. Pour que le logo marche, il n'est pas nécessaire d'installer la police.
-- **Interface** : la sans-serif de l'app pourra être Inter, qui va naturellement avec le logotype. La serif des abstracts reste à choisir (voir BRAND.md).
+- **Interface** : la sans-serif de l'app pourra être Inter, qui va naturellement avec le logotype. La serif des titres et abstracts des papiers est Literata (voir BRAND.md).
 - On ne retape jamais « Butine » au clavier pour reproduire le logo : on utilise les fichiers SVG.
 
 ## 6. À ne pas faire
