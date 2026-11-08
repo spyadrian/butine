@@ -11,16 +11,19 @@ def headers(client):
     return {"X-User-Id": client.post("/v1/users").json()["id"]}
 
 
-def create(client, headers, text="graph neural networks for chemistry"):
-    return client.post("/v1/prompts", json={"text": text}, headers=headers)
+def create(client, headers, text="graph neural networks for chemistry", **fields):
+    body = {"name": "Chemistry", "icon": "science", "text": text} | fields
+    return client.post("/v1/prompts", json=body, headers=headers)
 
 
-def test_create_prompt_strips_text_and_is_pending(client, headers):
-    response = create(client, headers, "  protein folding  ")
+def test_create_prompt_strips_text_and_name_and_is_pending(client, headers):
+    response = create(client, headers, "  protein folding  ", name="  Proteins  ")
 
     assert response.status_code == 201
     body = response.json()
     assert body["text"] == "protein folding"
+    assert body["name"] == "Proteins"
+    assert body["icon"] == "science"
     assert body["status"] == "pending"
 
 
@@ -65,7 +68,7 @@ def test_list_prompts_oldest_first_and_only_own(client, session, headers):
     response = client.get("/v1/prompts", headers=headers)
 
     assert [p["id"] for p in response.json()] == [first["id"], second["id"]]
-    assert set(response.json()[0]) == {"id", "text", "created_at", "status"}
+    assert set(response.json()[0]) == {"id", "name", "icon", "text", "created_at", "status"}
 
 
 def test_delete_prompt(client, headers):
@@ -90,6 +93,30 @@ def test_create_prompt_rejects_empty_or_too_long_text(client, headers, text):
 
 def test_create_prompt_accepts_500_chars(client, headers):
     assert create(client, headers, "x" * 500).status_code == 201
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"name": None},
+        {"icon": None},
+        {"name": ""},
+        {"name": "   "},
+        {"name": "x" * 25},
+        {"icon": "Bad-Icon"},
+        {"icon": ""},
+        {"icon": "x" * 41},
+    ],
+)
+def test_create_prompt_rejects_missing_or_invalid_name_and_icon(client, headers, fields):
+    body = {"name": "Chemistry", "icon": "science", "text": "chemistry"} | fields
+    body = {k: v for k, v in body.items() if v is not None}
+
+    assert client.post("/v1/prompts", json=body, headers=headers).status_code == 422
+
+
+def test_create_prompt_accepts_24_char_name_and_40_char_icon(client, headers):
+    assert create(client, headers, name="x" * 24, icon="a_1" + "x" * 37).status_code == 201
 
 
 @pytest.mark.parametrize(

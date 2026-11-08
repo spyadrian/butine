@@ -41,7 +41,7 @@ def setup(session, papers: int) -> Prompt:
     session.flush()
     for n in range(papers):
         add_paper(session, n, source)
-    prompt = Prompt(user_id=user.id, text="protein folding")
+    prompt = Prompt(user_id=user.id, name="p", icon="label", text="protein folding")
     session.add(prompt)
     session.flush()
     return prompt
@@ -79,7 +79,7 @@ def test_prompt_created_mid_batch_waits_one_chunk(session, monkeypatch):
 
     def embed(texts):
         if len(fake.calls) == 1:  # while the first paper is being embedded
-            session.add(Prompt(user_id=prompt.user_id, text="new prompt"))
+            session.add(Prompt(user_id=prompt.user_id, name="p", icon="label", text="new prompt"))
         return fake(texts)
 
     embed_pending(session, embed, batch_limit=10)

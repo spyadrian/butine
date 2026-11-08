@@ -15,13 +15,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Une fonction pure dans `services/` convertit les commandes d'accent LaTeX des noms d'auteurs en caractères Unicode (`{\O}` → `Ø`, `{\aa}` → `å`, `\"o` → `ö`, etc., liste dans la spec). Le parseur arXiv l'applique. Une migration de données applique la même fonction aux auteurs déjà en base.
 
 **Critères d'acceptation :**
-- [ ] `{\O}ystein Gullbrekken` → `Øystein Gullbrekken`, `Sondre Kvalv{\aa}g Schnell` → `Sondre Kvalvåg Schnell` ; un nom sans commande LaTeX reste identique
-- [ ] Les nouveaux papiers arXiv sont propres dès l'import
-- [ ] Après `alembic upgrade head`, plus aucun auteur en base ne contient `\` ni `{`
+- [x] `{\O}ystein Gullbrekken` → `Øystein Gullbrekken`, `Sondre Kvalv{\aa}g Schnell` → `Sondre Kvalvåg Schnell` ; un nom sans commande LaTeX reste identique
+- [x] Les nouveaux papiers arXiv sont propres dès l'import
+- [x] Après `alembic upgrade head`, plus aucun auteur en base ne contient `\` ni `{`
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `docker compose exec db psql -U butine -d butine -c "select count(*) from papers where array_to_string(authors, ' ') ~ '[\\\\{]'"` → 0
+- [x] Lint + tests passent
+- [x] Manuel : `docker compose exec db psql -U butine -d butine -c "select count(*) from papers where array_to_string(authors, ' ') ~ '[\\\\{]'"` → 0
 
 **Dépendances :** aucune
 **Fichiers :** `backend/app/services/latex.py`, `backend/app/services/feeds.py`, `backend/migrations/versions/…`, `backend/tests/test_latex.py`
@@ -31,13 +31,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Colonnes `prompts.name` (1 à 24 caractères) et `prompts.icon` (`^[a-z0-9_]{1,40}$`), `NOT NULL`. Migration : les prompts existants reçoivent les premiers mots de leur texte comme nom et `label` comme icône. `POST /v1/prompts` les exige, `GET /v1/prompts` les renvoie. Décisions « `/v1` modifié sur place tant que rien n'est publié » et « tiroir = nom + icône » reportées dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [ ] `POST /v1/prompts` sans `name` ou `icon`, avec un nom de 25 caractères ou une icône `Bad-Icon` → `422`
-- [ ] `GET /v1/prompts` renvoie `name` et `icon` ; l'embedding reste calculé sur `text` seul
-- [ ] `alembic upgrade head` passe sur la base locale existante, les prompts existants gardent leur texte
+- [x] `POST /v1/prompts` sans `name` ou `icon`, avec un nom de 25 caractères ou une icône `Bad-Icon` → `422`
+- [x] `GET /v1/prompts` renvoie `name` et `icon` ; l'embedding reste calculé sur `text` seul
+- [x] `alembic upgrade head` passe sur la base locale existante, les prompts existants gardent leur texte
 
 **Vérification :**
-- [ ] Lint + tests passent, `test_models_match_migrations` compris
-- [ ] Manuel : créer un prompt avec `curl` (nom, icône, texte) puis le lister
+- [x] Lint + tests passent, `test_models_match_migrations` compris
+- [x] Manuel : créer un prompt avec `curl` (nom, icône, texte) puis le lister
 
 **Dépendances :** aucune
 **Fichiers :** `backend/app/models.py`, `backend/migrations/versions/…`, `backend/app/api/v1/prompts.py`, `backend/tests/test_api_prompts.py`, `docs/DECISIONS.md`

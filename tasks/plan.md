@@ -40,8 +40,8 @@ T20 est indépendante de tout le reste. T24 et T25 sont indépendantes une fois 
 Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 
 ### Phase 1 : backend
-- [ ] T20 : auteurs sans commandes LaTeX (parseur + migration de données)
-- [ ] T21 : `name` et `icon` sur les prompts
+- [x] T20 : auteurs sans commandes LaTeX (parseur + migration de données)
+- [x] T21 : `name` et `icon` sur les prompts
 - [ ] T22 : `fetched_at` dans les papiers
 
 ### Checkpoint 1
