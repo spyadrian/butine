@@ -58,9 +58,25 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Fichiers :** `backend/app/api/v1/papers.py`, `backend/tests/test_api_papers.py`, `backend/tests/test_api_feeds.py`
 **Taille :** XS
 
+### T35 : auteurs arXiv sans affiliations
+**Description :** Le parseur arXiv coupe les auteurs à chaque virgule, y compris dans les parenthèses : `Joshua Terranova (Thomas Lord Department of Computer Science, University of Southern California)` donne deux « auteurs ». 311 papiers touchés sur la base locale le 2026-11-08. Le parseur ne coupe plus qu'aux virgules hors parenthèses et retire la parenthèse finale d'un nom (affiliation ou lieu). Une parenthèse au milieu du nom reste (`Haoxuan (Charlie) Zhou`). Une migration de données recolle et nettoie les auteurs déjà en base, comme T20.
+
+**Critères d'acceptation :**
+- [ ] `A (Dept, Univ), B` → `["A", "B"]` ; `Haoxuan (Charlie) Zhou` reste identique ; un nom sans parenthèse reste identique
+- [ ] Les nouveaux papiers arXiv sont propres dès l'import ; bioRxiv inchangé
+- [ ] Après `alembic upgrade head`, plus aucun auteur arXiv en base ne finit par `)` ni ne contient une parenthèse non fermée
+
+**Vérification :**
+- [ ] Lint + tests passent
+- [ ] Manuel : `docker compose exec db psql -U butine -d butine -c "select count(*) from papers where external_id like 'arxiv:%' and exists (select 1 from unnest(authors) a where a ~ '\\)$' or a ~ '\\([^)]*$')"` → 0
+
+**Dépendances :** aucune
+**Fichiers :** `backend/app/services/feeds.py`, `backend/migrations/versions/…`, `backend/tests/test_feeds.py`
+**Taille :** S
+
 ### Checkpoint 1
 - [ ] Lint + tests backend passent, CI verte
-- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX sur la base locale
+- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX ni avec une affiliation sur la base locale
 - [ ] Revue humaine
 
 ---
@@ -68,7 +84,7 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 ## Phase 2 : socle mobile
 
 ### T23 : projet Flutter Android + CI
-**Description :** `flutter create` dans `mobile/` (Android seulement, organisation `ch.butine` à confirmer), `flutter_lints`, un écran « Butine » provisoire et un test de widget minimal. HTTP en clair autorisé dans le manifeste de debug seulement. Job `mobile` dans la CI : format, analyse, tests.
+**Description :** `flutter create` dans `mobile/` (Android seulement, identifiant d'application `ch.butine` : `flutter create --org ch --project-name butine` ; décision reportée dans DECISIONS.md), `flutter_lints`, un écran « Butine » provisoire et un test de widget minimal. HTTP en clair autorisé dans le manifeste de debug seulement. Job `mobile` dans la CI : format, analyse, tests.
 
 **Critères d'acceptation :**
 - [ ] `flutter run` affiche l'écran provisoire sur l'émulateur
@@ -80,7 +96,7 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 - [ ] Manuel : l'app se lance sur l'émulateur
 
 **Dépendances :** aucune
-**Fichiers :** `mobile/` (généré par `flutter create`), `mobile/android/app/src/debug/AndroidManifest.xml`, `.github/workflows/ci.yml`
+**Fichiers :** `docs/DECISIONS.md`, `mobile/` (généré par `flutter create`), `mobile/android/app/src/debug/AndroidManifest.xml`, `.github/workflows/ci.yml`
 **Taille :** S
 
 ### T24 : thème, tokens et polices
