@@ -62,13 +62,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Le parseur arXiv coupe les auteurs à chaque virgule, y compris dans les parenthèses : `Joshua Terranova (Thomas Lord Department of Computer Science, University of Southern California)` donne deux « auteurs ». 311 papiers touchés sur la base locale le 2026-11-08. Le parseur ne coupe plus qu'aux virgules hors parenthèses et retire la parenthèse finale d'un nom (affiliation ou lieu). Une parenthèse au milieu du nom reste (`Haoxuan (Charlie) Zhou`). Une migration de données recolle et nettoie les auteurs déjà en base, comme T20.
 
 **Critères d'acceptation :**
-- [ ] `A (Dept, Univ), B` → `["A", "B"]` ; `Haoxuan (Charlie) Zhou` reste identique ; un nom sans parenthèse reste identique
-- [ ] Les nouveaux papiers arXiv sont propres dès l'import ; bioRxiv inchangé
-- [ ] Après `alembic upgrade head`, plus aucun auteur arXiv en base ne finit par `)` ni ne contient une parenthèse non fermée
+- [x] `A (Dept, Univ), B` → `["A", "B"]` ; `Haoxuan (Charlie) Zhou` reste identique ; un nom sans parenthèse reste identique
+- [x] Les nouveaux papiers arXiv sont propres dès l'import ; bioRxiv inchangé
+- [x] Après `alembic upgrade head`, plus aucun auteur arXiv en base ne finit par `)` ni ne contient une parenthèse non fermée
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `docker compose exec db psql -U butine -d butine -c "select count(*) from papers where external_id like 'arxiv:%' and exists (select 1 from unnest(authors) a where a ~ '\\)$' or a ~ '\\([^)]*$')"` → 0
+- [x] Lint + tests passent
+- [x] Manuel : `docker compose exec db psql -U butine -d butine -c "select count(*) from papers where external_id like 'arxiv:%' and exists (select 1 from unnest(authors) a where a ~ '\\)$' or a ~ '\\([^)]*$')"` → 0
 
 **Dépendances :** aucune
 **Fichiers :** `backend/app/services/feeds.py`, `backend/migrations/versions/…`, `backend/tests/test_feeds.py`

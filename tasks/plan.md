@@ -44,7 +44,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T20 : auteurs sans commandes LaTeX (parseur + migration de données)
 - [x] T21 : `name` et `icon` sur les prompts
 - [x] T22 : `fetched_at` dans les papiers
-- [ ] T35 : auteurs arXiv sans affiliations (parseur + migration de données)
+- [x] T35 : auteurs arXiv sans affiliations (parseur + migration de données)
 
 ### Checkpoint 1
 - [ ] Lint + tests backend passent, CI verte

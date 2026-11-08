@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from app.services.feeds import FeedError, parse_feed
+from app.services.feeds import FeedError, parse_feed, split_arxiv_authors
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -78,3 +78,16 @@ def test_malformed_feed_raises():
 def test_unknown_kind_raises():
     with pytest.raises(FeedError, match="kind"):
         parse_feed("rss", fixture("arxiv.xml"))
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("A (Dept, Univ), B", ["A", "B"]),
+        ("Haoxuan (Charlie) Zhou", ["Haoxuan (Charlie) Zhou"]),
+        ("Hao Xuan, Yu Huang", ["Hao Xuan", "Yu Huang"]),
+        ("A (Dept", ["A"]),  # unclosed affiliation
+    ],
+)
+def test_arxiv_author_affiliations_are_dropped(raw, expected):
+    assert split_arxiv_authors(raw) == expected
