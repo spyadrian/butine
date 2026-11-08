@@ -47,12 +47,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** `PaperOut` gagne `fetched_at`, donc `/v1/papers` et les deux feeds aussi. C'est la base du signal « New » (T31).
 
 **Critères d'acceptation :**
-- [ ] `fetched_at` présent dans `/v1/papers`, `/v1/prompts/{id}/feed` et `/v1/feed`
-- [ ] Les autres champs et le tri ne changent pas
+- [x] `fetched_at` présent dans `/v1/papers`, `/v1/prompts/{id}/feed` et `/v1/feed`
+- [x] Les autres champs et le tri ne changent pas
 
 **Vérification :**
-- [ ] Lint + tests passent
-- [ ] Manuel : `curl localhost:8000/v1/papers?limit=1`
+- [x] Lint + tests passent
+- [x] Manuel : `curl localhost:8000/v1/papers?limit=1`
 
 **Dépendances :** aucune
 **Fichiers :** `backend/app/api/v1/papers.py`, `backend/tests/test_api_papers.py`, `backend/tests/test_api_feeds.py`

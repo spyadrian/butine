@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.orm import Session
 
-from app.api.v1.papers import PaperOut
+from app.api.v1.papers import PAPER_COLUMNS, PaperOut
 from app.api.v1.users import current_user
 from app.config import BACKFILL_DAYS, MATCH_THRESHOLD
 from app.db import get_session
@@ -14,17 +14,6 @@ from app.models import Paper, Prompt, Source, User
 
 router = APIRouter()
 
-PAPER_COLUMNS = (
-    Paper.external_id,
-    Paper.version,
-    Paper.title,
-    Paper.authors,
-    Paper.abstract,
-    Paper.categories,
-    Paper.link,
-    Paper.published_at,
-    Source.name.label("source"),
-)
 # Same order as /v1/papers; id breaks ties so pages never overlap.
 ORDER = (Paper.published_at.desc().nulls_last(), Paper.id.desc())
 
