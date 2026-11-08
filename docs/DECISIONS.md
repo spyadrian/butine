@@ -24,6 +24,8 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 
 ## Plateformes
 - Développement et tests sur Android (Linux). iOS compilé uniquement via CI macOS au jalon « prêt stores ».
+- Identifiant d'application `ch.butine` (Android `applicationId`, plus tard bundle iOS) : il ne change plus une fois publié.
+- Projet `mobile/` créé pour Android seulement ; iOS ajouté (`flutter create --platforms ios .`) au jalon « prêt stores ».
 - Compte Apple Developer (99 $/an) seulement quand la publication approche : c'est un coût récurrent à couvrir.
 
 ## Sources et contenu

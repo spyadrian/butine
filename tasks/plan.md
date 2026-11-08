@@ -47,12 +47,12 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T35 : auteurs arXiv sans affiliations (parseur + migration de données)
 
 ### Checkpoint 1
-- [ ] Lint + tests backend passent, CI verte
-- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX ni avec une affiliation sur la base locale
-- [ ] Revue humaine
+- [x] Lint + tests backend passent, CI verte
+- [x] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX ni avec une affiliation sur la base locale
+- [x] Revue humaine
 
 ### Phase 2 : socle mobile
-- [ ] T23 : projet Flutter Android dans `mobile/` + job CI
+- [x] T23 : projet Flutter Android dans `mobile/` + job CI
 - [ ] T24 : thème (tokens, polices, clair/sombre)
 - [ ] T25 : client API généré par swagger_parser, vérifié en CI
 - [ ] T26 : jeu d'icônes des tiroirs + icône de l'app
