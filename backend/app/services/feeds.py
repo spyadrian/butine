@@ -26,6 +26,8 @@ class PaperEntry:
 
 ARXIV_ID = re.compile(r"^oai:arXiv\.org:(.+)v(\d+)$")
 ARXIV_PREAMBLE = re.compile(r"^arXiv:\S+ Announce Type: \S+ Abstract: ")
+ARXIV_AUTHOR_SEP = re.compile(r",\s*(?![^()]*\))")  # commas outside parentheses
+ARXIV_AFFILIATION = re.compile(r"\s*\([^()]*\)?$")  # "(Dept, Univ)" ending a name
 BIORXIV_VERSION = re.compile(r"v(\d+)$")
 BIORXIV_PREAMBLE = re.compile(r"^Abstract ")
 BIORXIV_AUTHOR_SEP = re.compile(r"(?<=\.),\s*")  # "Mangan, M., Millward, B." → per author
@@ -35,6 +37,12 @@ def clean(text: str) -> str:
     """Strip HTML tags and entities, collapse whitespace."""
     # shortcut: paragraph breaks are lost, keep them if the UI needs them.
     return " ".join(html.unescape(re.sub(r"<[^>]+>", " ", text)).split())
+
+
+def split_arxiv_authors(raw: str) -> list[str]:
+    """Split an arXiv author line, dropping trailing affiliations; "A (B) C" stays."""
+    names = (ARXIV_AFFILIATION.sub("", a.strip()) for a in ARXIV_AUTHOR_SEP.split(raw))
+    return [latex_to_unicode(n) for n in names if n]
 
 
 def published_at(entry) -> datetime | None:
@@ -50,9 +58,7 @@ def parse_arxiv(entry, feed) -> PaperEntry | None:
         external_id=f"arxiv:{match[1]}",
         version=int(match[2]),
         title=clean(entry.get("title", "")),
-        authors=[
-            latex_to_unicode(a.strip()) for a in entry.get("author", "").split(",") if a.strip()
-        ],
+        authors=split_arxiv_authors(entry.get("author", "")),
         abstract=ARXIV_PREAMBLE.sub("", clean(entry.get("summary", ""))),
         categories=[t.term for t in entry.get("tags", [])],
         link=entry.get("link", ""),
