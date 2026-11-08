@@ -28,6 +28,7 @@ def test_arxiv_entries():
 
     assert replaced.external_id == "arxiv:2310.03186"
     assert replaced.version == 4
+    assert replaced.authors[2] == "Øystein Gullbrekken"  # LaTeX "{\\O}ystein" in the feed
 
 
 def test_biorxiv_entries():
