@@ -22,6 +22,7 @@ def add_paper(session, source, number, day):
             categories=["cs.AI"],
             link=f"https://arxiv.org/abs/2410.{number:05d}",
             published_at=datetime(2026, 10, day, tzinfo=UTC),
+            fetched_at=datetime(2026, 10, day, 6, tzinfo=UTC),
         )
     )
     session.flush()
@@ -50,6 +51,7 @@ def test_lists_papers_newest_first_with_source_name(client, session):
         "categories": ["cs.AI"],
         "link": "https://arxiv.org/abs/2410.00002",
         "published_at": "2026-10-03T00:00:00Z",
+        "fetched_at": "2026-10-03T06:00:00Z",
         "source": "CS",
     }
 

@@ -82,6 +82,7 @@ def test_threshold_keeps_papers_just_above(client, session, headers, source):
     (paper,) = response.json()
     assert paper["title"] == "Paper 1"
     assert paper["source"] == "CS"
+    assert paper["fetched_at"] == "2026-10-25T00:00:00Z"
     assert paper["score"] == pytest.approx(0.85, abs=1e-4)
 
 
@@ -151,6 +152,7 @@ def test_global_feed_merges_prompts_with_best_score(client, session, headers, so
     assert response.status_code == 200
     both, only_first = response.json()
     assert both["title"] == "Paper 2"
+    assert both["fetched_at"] == "2026-10-26T00:00:00Z"
     assert both["prompt_ids"] == [first.id, second.id]
     assert both["score"] == pytest.approx(math.cos(math.radians(15)), abs=1e-4)
     assert only_first["prompt_ids"] == [first.id]

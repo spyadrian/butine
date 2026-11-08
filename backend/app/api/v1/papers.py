@@ -21,7 +21,22 @@ class PaperOut(BaseModel):
     categories: list[str]
     link: str
     published_at: datetime | None
+    fetched_at: datetime
     source: str
+
+
+PAPER_COLUMNS = (
+    Paper.external_id,
+    Paper.version,
+    Paper.title,
+    Paper.authors,
+    Paper.abstract,
+    Paper.categories,
+    Paper.link,
+    Paper.published_at,
+    Paper.fetched_at,
+    Source.name.label("source"),
+)
 
 
 @router.get("/papers")
@@ -32,17 +47,7 @@ def list_papers(
     source: str | None = None,
 ) -> list[PaperOut]:
     query = (
-        select(
-            Paper.external_id,
-            Paper.version,
-            Paper.title,
-            Paper.authors,
-            Paper.abstract,
-            Paper.categories,
-            Paper.link,
-            Paper.published_at,
-            Source.name.label("source"),
-        )
+        select(*PAPER_COLUMNS)
         .join(Source)
         # id breaks ties so pages never overlap or skip papers.
         .order_by(Paper.published_at.desc().nulls_last(), Paper.id.desc())
