@@ -21,6 +21,7 @@ Référence : [docs/SPEC.md](../docs/SPEC.md) (contrats, écrans, règles, crit�
 T20 auteurs sans LaTeX
 T21 name + icon sur les prompts ─────┐
 T22 fetched_at sur les papiers ──────┤
+T35 auteurs arXiv sans affiliations  │
 T23 squelette Flutter + CI ──────────┼── T25 client API généré
  ├── T24 thème, tokens, polices      │          │
  │    └── T26 icônes (tiroirs, app)  │          │
@@ -34,7 +35,7 @@ T23 squelette Flutter + CI ──────────┼── T25 client AP
                                                └── T32 détail d'un papier
 T24 ── T34 réglages + choix du thème
 ```
-T20 est indépendante de tout le reste. T24 et T25 sont indépendantes une fois T23 faite.
+T20 et T35 sont indépendantes de tout le reste. T24 et T25 sont indépendantes une fois T23 faite.
 
 ## Liste des tâches
 Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
@@ -42,11 +43,12 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 ### Phase 1 : backend
 - [x] T20 : auteurs sans commandes LaTeX (parseur + migration de données)
 - [x] T21 : `name` et `icon` sur les prompts
-- [ ] T22 : `fetched_at` dans les papiers
+- [x] T22 : `fetched_at` dans les papiers
+- [ ] T35 : auteurs arXiv sans affiliations (parseur + migration de données)
 
 ### Checkpoint 1
 - [ ] Lint + tests backend passent, CI verte
-- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX sur la base locale
+- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX ni avec une affiliation sur la base locale
 - [ ] Revue humaine
 
 ### Phase 2 : socle mobile
