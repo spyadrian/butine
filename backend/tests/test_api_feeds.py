@@ -30,7 +30,14 @@ PROMPT_VECTOR = [1.0] + [0.0] * 383
 
 
 def add_prompt(session, headers, embedding=PROMPT_VECTOR):
-    prompt = Prompt(user_id=headers["X-User-Id"], text="p", created_at=CREATED, embedding=embedding)
+    prompt = Prompt(
+        user_id=headers["X-User-Id"],
+        name="p",
+        icon="label",
+        text="p",
+        created_at=CREATED,
+        embedding=embedding,
+    )
     session.add(prompt)
     session.flush()
     return prompt

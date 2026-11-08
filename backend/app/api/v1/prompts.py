@@ -14,6 +14,8 @@ router = APIRouter()
 
 
 class PromptIn(BaseModel):
+    name: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=24)]
+    icon: Annotated[str, StringConstraints(pattern=r"^[a-z0-9_]{1,40}$")]
     text: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
 
 
@@ -21,6 +23,8 @@ class PromptOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    name: str
+    icon: str
     text: str
     created_at: datetime
     status: str  # "pending" until the worker embeds the prompt, then "ready"
@@ -37,7 +41,7 @@ def create_prompt(
     count = session.scalar(select(func.count()).where(Prompt.user_id == user.id))
     if count >= PROMPT_LIMITS[user.plan]:
         raise HTTPException(403, f"{user.plan} plan allows {PROMPT_LIMITS[user.plan]} prompts")
-    prompt = Prompt(user_id=user.id, text=body.text)
+    prompt = Prompt(user_id=user.id, name=body.name, icon=body.icon, text=body.text)
     session.add(prompt)
     session.commit()
     return prompt
