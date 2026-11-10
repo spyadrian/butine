@@ -103,12 +103,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** `theme.dart` : tokens de `palette.json` (clair et sombre), `ThemeData` Material 3 pour les deux thèmes, Inter pour l'interface et Literata pour les papiers, intégrées en `.ttf`. Un test calcule les contrastes WCAG des paires de BRAND.md. Aperçu de widget qui montre les deux thèmes.
 
 **Critères d'acceptation :**
-- [ ] Les paires texte/fond de BRAND.md passent AA dans les deux thèmes (test)
-- [ ] Inter et Literata s'affichent sans réseau
-- [ ] Aucune couleur en dur hors de `theme.dart`
+- [x] Les paires texte/fond de BRAND.md passent AA dans les deux thèmes (test)
+- [x] Inter et Literata s'affichent sans réseau
+- [x] Aucune couleur en dur hors de `theme.dart`
 
 **Vérification :**
-- [ ] Analyse + tests passent
+- [x] Analyse + tests passent
 - [ ] Manuel : aperçu du thème clair et sombre sur l'émulateur
 
 **Dépendances :** T23

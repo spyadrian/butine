@@ -53,7 +53,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 
 ### Phase 2 : socle mobile
 - [x] T23 : projet Flutter Android dans `mobile/` + job CI
-- [ ] T24 : thème (tokens, polices, clair/sombre)
+- [x] T24 : thème (tokens, polices, clair/sombre)
 - [ ] T25 : client API généré par swagger_parser, vérifié en CI
 - [ ] T26 : jeu d'icônes des tiroirs + icône de l'app
 
