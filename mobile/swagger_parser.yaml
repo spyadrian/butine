@@ -1,0 +1,13 @@
+swagger_parser:
+  schema_path: openapi.json
+  output_directory: lib/data/api
+  generation:
+    root_api_class_name: ButineApi
+    http_client: http
+    serializer: plain
+    naming:
+      replace_rules:
+        # FastAPI operationIds end with the path and verb: global_feed_v1_feed_get → globalFeed.
+        - target: methods
+          pattern: '_v1_.*$'
+          replacement: ''

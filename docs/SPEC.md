@@ -66,7 +66,7 @@ Interface **en anglais** (comme les papiers et les prompts), sans système de tr
 - Backend : celui de M2, sans nouvelle dépendance.
 - Mobile : Flutter stable (3.47) et Dart 3.13, Android uniquement (`minSdk` par défaut de Flutter), testé sur émulateur seulement en M3.
 - Paquets prévus (liste exacte confirmée à la tâche, voir « Ask first ») :
-  - `swagger_parser` (dev) et les dépendances du client qu'il génère (`dio`, `retrofit`, `json_annotation`, `build_runner`, `retrofit_generator`, `json_serializable`) ;
+  - `swagger_parser` (dev) et `http`, seule dépendance du client qu'il génère (client `http`, modèles `plain`) ;
   - `flutter_secure_storage` (identifiant utilisateur), `shared_preferences` (thème, dernière ouverture), `url_launcher` (liens) ;
   - `flutter_launcher_icons` (dev, icône de l'app).
 - Architecture : celle recommandée par Flutter (couches UI, logique, données) avec `ChangeNotifier` et `ListenableBuilder`, sans Riverpod ni Bloc. Navigation avec `Navigator`, sans `go_router`.
@@ -76,7 +76,7 @@ Depuis `mobile/` :
 ```
 Dépendances : flutter pub get
 Schéma      : (cd ../backend && uv run python -c "import json; from app.main import app; print(json.dumps(app.openapi(), indent=2))") > openapi.json
-Client      : dart run swagger_parser && dart run build_runner build --delete-conflicting-outputs
+Client      : dart run swagger_parser
 Analyse     : dart format --set-exit-if-changed . && flutter analyze
 Tests       : flutter test
 Lancer      : flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
@@ -172,4 +172,4 @@ class FeedViewModel extends ChangeNotifier {
 - Client Dart généré par swagger_parser depuis un schéma commité, vérifié en CI.
 
 ## Open Questions
-- **Dépendances générées par swagger_parser** : la liste exacte dépend de sa configuration (Retrofit + Dio par défaut) ; elle sera confirmée à la tâche du client.
+- ~~**Dépendances générées par swagger_parser**~~ : tranché, `http` seul (voir DECISIONS.md, API).

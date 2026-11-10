@@ -119,16 +119,16 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Export du schéma dans `mobile/openapi.json`, configuration de swagger_parser, génération du client dans `lib/data/api/`. La liste exacte des dépendances est confirmée avec l'humain avant l'ajout. La CI régénère le schéma et le client et échoue s'il y a une différence. Décision « swagger_parser + schéma commité vérifié en CI » reportée dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [ ] Le client compile et couvre les routes utilisées : users, prompts (avec `name`/`icon`), feeds (avec `fetched_at`)
-- [ ] Un test appelle le client contre un faux serveur HTTP local et décode un feed
-- [ ] Modifier un champ côté backend sans régénérer fait échouer la CI
+- [x] Le client compile et couvre les routes utilisées : users, prompts (avec `name`/`icon`), feeds (avec `fetched_at`)
+- [x] Un test appelle le client contre un faux serveur HTTP local et décode un feed
+- [x] Modifier un champ côté backend sans régénérer fait échouer la CI
 
 **Vérification :**
-- [ ] Analyse + tests passent
-- [ ] `git status` propre après une régénération
+- [x] Analyse + tests passent
+- [x] `git status` propre après une régénération
 
 **Dépendances :** T21, T22, T23
-**Fichiers :** `mobile/openapi.json`, `mobile/swagger_parser.yaml`, `mobile/pubspec.yaml`, `mobile/lib/data/api/…` (généré), `.github/workflows/ci.yml`, `docs/DECISIONS.md`
+**Fichiers :** `backend/app/api/v1/{users,papers}.py` (paramètres non nullables), `mobile/openapi.json`, `mobile/swagger_parser.yaml`, `mobile/pubspec.yaml`, `mobile/lib/data/api/…` (généré), `.github/workflows/ci.yml`, `docs/DECISIONS.md`
 **Taille :** M
 
 ### T26 : icônes des tiroirs et de l'app
