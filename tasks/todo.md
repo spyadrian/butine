@@ -75,9 +75,9 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Taille :** S
 
 ### Checkpoint 1
-- [ ] Lint + tests backend passent, CI verte
-- [ ] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX ni avec une affiliation sur la base locale
-- [ ] Revue humaine
+- [x] Lint + tests backend passent, CI verte
+- [x] `/v1/papers` ne renvoie plus d'auteur avec une commande LaTeX ni avec une affiliation sur la base locale
+- [x] Revue humaine
 
 ---
 
@@ -87,13 +87,13 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** `flutter create` dans `mobile/` (Android seulement, identifiant d'application `ch.butine` : `flutter create --org ch --project-name butine` ; décision reportée dans DECISIONS.md), `flutter_lints`, un écran « Butine » provisoire et un test de widget minimal. HTTP en clair autorisé dans le manifeste de debug seulement. Job `mobile` dans la CI : format, analyse, tests.
 
 **Critères d'acceptation :**
-- [ ] `flutter run` affiche l'écran provisoire sur l'émulateur
-- [ ] Le job CI `mobile` passe ; le job `backend` est inchangé
-- [ ] Aucun dossier iOS, web ou desktop
+- [x] `flutter run` affiche l'écran provisoire sur l'émulateur
+- [x] Le job CI `mobile` passe ; le job `backend` est inchangé
+- [x] Aucun dossier iOS, web ou desktop
 
 **Vérification :**
-- [ ] `dart format --set-exit-if-changed . && flutter analyze && flutter test`
-- [ ] Manuel : l'app se lance sur l'émulateur
+- [x] `dart format --set-exit-if-changed . && flutter analyze && flutter test`
+- [x] Manuel : l'app se lance sur l'émulateur
 
 **Dépendances :** aucune
 **Fichiers :** `docs/DECISIONS.md`, `mobile/` (généré par `flutter create`), `mobile/android/app/src/debug/AndroidManifest.xml`, `.github/workflows/ci.yml`
