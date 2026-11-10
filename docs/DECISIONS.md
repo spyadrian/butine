@@ -28,6 +28,12 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 - Projet `mobile/` créé pour Android seulement ; iOS ajouté (`flutter create --platforms ios .`) au jalon « prêt stores ».
 - Compte Apple Developer (99 $/an) seulement quand la publication approche : c'est un coût récurrent à couvrir.
 
+## Thème de l'app
+- Tokens de `design/logo/palette.json` recopiés dans `mobile/lib/ui/core/theme.dart`, seul fichier où une couleur est écrite en dur. Un test vérifie les contrastes AA des paires texte/fond dans les deux thèmes.
+- Miel = `primaryContainer` (bouton principal, signal « New »), toujours avec texte anthracite. `primary` (liens, focus, champs actifs) est anthracite en clair et miel en sombre. Raison : le miel est interdit comme texte sur fond clair (1,9:1).
+- Les autres tons Material 3 (conteneurs de surface…) viennent d'une graine miel en variante « neutral » : neutres chauds sans couleur ajoutée à la main.
+- Polices statiques intégrées (`.ttf`, OFL) : Inter 400/500/600 pour l'interface, Literata 400/600 pour les papiers. Statiques plutôt que variables : la graisse s'applique sans réglage d'axe.
+
 ## Sources et contenu
 - Uniquement des papiers scientifiques, via RSS/Atom. Pas de presse, de YouTube ni de réseaux sociaux.
 - **Tout arXiv + bioRxiv**. Une source par archive arXiv (`cs`, `math`, `physics`…, ~20) : un flux en panne n'affecte que son archive, backoff et stats par archive. bioRxiv est choisi parce qu'il pose d'autres problèmes qu'arXiv : format RSS 1.0 (RDF), DOI au lieu d'identifiants arXiv, versions, données parfois mal formées.

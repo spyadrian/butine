@@ -73,7 +73,7 @@ Règles :
 - **Serif** : titres et abstracts des papiers. Raison : sépare visuellement l'outil (l'interface) de la science qu'on lit, donne de la personnalité sans faire daté, et aide à lire de longs abstracts sur mobile.
 - Critères de choix : gratuites et utilisables dans une app (licence OFL, Google Fonts par exemple), bon rendu en petite taille sur mobile, plusieurs graisses, et les deux polices doivent s'accorder (hauteurs, rythme).
 - **Logotype** : Adwaita Sans SemiBold (600), taille optique 32, interlettrage −1,2 %, converti en tracés. Adwaita Sans est une version d'Inter, sous licence SIL OFL 1.1. On ne retape jamais « Butine » pour reproduire le logo : on utilise les fichiers SVG.
-- **Sans-serif de l'interface** : Inter est le choix naturel, puisqu'elle accorde l'interface au logotype. À confirmer dans le code.
+- **Sans-serif de l'interface** : Inter est le choix naturel, puisqu'elle accorde l'interface au logotype. Confirmée dans le code (M3, `mobile/lib/ui/core/theme.dart`).
 - **Serif des papiers : Literata** (Google Fonts, SIL OFL 1.1), pour les titres et les abstracts. Raison : dessinée pour la lecture longue sur écran, chaleureuse sans faire d'effet ; c'est la plus lisible des quatre comparées sur un vrai abstract à largeur de téléphone (Source Serif 4, plus neutre ; Newsreader, plus fine ; Fraunces, plus marquée et plus à la mode).
 
 ## Ton de voix
