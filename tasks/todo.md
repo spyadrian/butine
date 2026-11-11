@@ -135,12 +135,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** `drawer_icons.dart` : environ 24 icônes Material `outlined`, chacune avec un identifiant stable, et une icône par défaut pour un identifiant inconnu. La liste est montrée dans un aperçu et validée par l'humain. Icône de l'app depuis `design/logo/exports/app/` avec `flutter_launcher_icons` (avant-plan, arrière-plan, monochrome).
 
 **Critères d'acceptation :**
-- [ ] Chaque identifiant respecte `^[a-z0-9_]{1,40}$` (test) ; un identifiant inconnu donne l'icône par défaut
+- [x] Chaque identifiant respecte `^[a-z0-9_]{1,40}$` (test) ; un identifiant inconnu donne l'icône par défaut
 - [ ] Liste des icônes validée par l'humain
 - [ ] L'icône Butine apparaît sur l'écran d'accueil de l'émulateur, y compris en icône thémée
 
 **Vérification :**
-- [ ] Analyse + tests passent
+- [x] Analyse + tests passent
 - [ ] Manuel : icône de l'app sur l'émulateur
 
 **Dépendances :** T24
