@@ -66,7 +66,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T27 : identité de l'appareil + premier lancement
 - [x] T28 : création d'un tiroir
 - [x] T29 : feed All (liste, pagination, rafraîchir, états)
-- [ ] T30 : pastilles + feed d'un tiroir
+- [x] T30 : pastilles + feed d'un tiroir
 - [ ] T31 : signal « New »
 
 ### Checkpoint 3

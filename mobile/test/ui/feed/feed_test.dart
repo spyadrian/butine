@@ -37,12 +37,19 @@ class FakeFeedRepository implements FeedRepository {
   int shift = 0;
   final offsets = <int>[];
 
+  /// The drawer asked for with each page; null is All.
+  final drawerIds = <int?>[];
+
   /// When set, pages wait for it: lets a test see the loading state.
   Completer<void>? gate;
 
   @override
-  Future<List<GlobalFeedPaperOut>> page({required int offset}) async {
+  Future<List<GlobalFeedPaperOut>> page({
+    required int offset,
+    int? drawerId,
+  }) async {
     offsets.add(offset);
+    drawerIds.add(drawerId);
     await gate?.future;
     if (failure != null) throw failure!;
     final end = (offset + feedPageSize).clamp(0, total + shift);
@@ -50,25 +57,38 @@ class FakeFeedRepository implements FeedRepository {
   }
 }
 
-PromptOut drawer(String status) => PromptOut(
-  id: 1,
-  name: 'Batteries',
-  icon: 'bolt',
-  text: 'Solid-state electrolytes',
-  createdAt: DateTime.utc(2026, 11, 11),
-  status: status,
-);
+PromptOut drawer(String status, {int id = 1, String name = 'Batteries'}) =>
+    PromptOut(
+      id: id,
+      name: name,
+      icon: 'bolt',
+      text: 'Prompt of $name',
+      createdAt: DateTime.utc(2026, 11, 11),
+      status: status,
+    );
+
+final threeDrawers = [
+  drawer('ready'),
+  drawer('ready', id: 2, name: 'Solar'),
+  drawer('pending', id: 3, name: 'Robots'),
+];
 
 Future<FeedViewModel> pumpFeed(
   WidgetTester tester,
   FeedRepository feed, {
   String status = 'ready',
+  List<PromptOut>? drawers,
 }) async {
   final vm = FeedViewModel(
     feed,
-    FakeDrawerRepository(drawers: [drawer(status)]),
+    FakeDrawerRepository(drawers: drawers ?? [drawer(status)]),
   );
-  await tester.pumpWidget(MaterialApp(home: FeedScreen(viewModel: vm)));
+  await tester.pumpWidget(
+    MaterialApp(
+      home: FeedScreen(viewModel: vm),
+      routes: {'/new-drawer': (_) => const Text('New drawer screen')},
+    ),
+  );
   await tester.pumpAndSettle();
   return vm;
 }
@@ -133,6 +153,124 @@ void main() {
       await vm.refresh();
       expect(vm.error, isNull);
       expect(vm.papers, hasLength(3));
+    });
+  });
+
+  group('drawers', () {
+    test('selecting a drawer loads its feed, All goes back', () async {
+      final feed = FakeFeedRepository(3);
+      final vm = FeedViewModel(
+        feed,
+        FakeDrawerRepository(drawers: threeDrawers),
+      );
+      await vm.refresh();
+
+      await vm.select(2);
+      expect(vm.selected?.name, 'Solar');
+      expect(feed.drawerIds.last, 2);
+
+      await vm.select(null);
+      expect(vm.selected, isNull);
+      expect(feed.drawerIds.last, isNull);
+    });
+
+    test('a selection made while a page loads wins', () async {
+      final feed = FakeFeedRepository(3)..gate = Completer();
+      final vm = FeedViewModel(
+        feed,
+        FakeDrawerRepository(drawers: threeDrawers),
+      );
+      final first = vm.refresh();
+      final second = vm.select(2);
+      feed.gate!.complete();
+      await (first, second).wait;
+
+      expect(feed.drawerIds, [null, 2]);
+      expect(vm.loading, isFalse);
+      expect(vm.papers, hasLength(3));
+    });
+
+    test('reading follows the selected drawer', () async {
+      final vm = FeedViewModel(
+        FakeFeedRepository(0),
+        FakeDrawerRepository(drawers: threeDrawers),
+      );
+      await vm.refresh();
+      expect(vm.reading, isTrue); // Robots is pending
+
+      await vm.select(2);
+      expect(vm.reading, isFalse);
+    });
+  });
+
+  group('pills', () {
+    testWidgets('hidden with a single drawer, + moves to the bar', (
+      tester,
+    ) async {
+      await pumpFeed(tester, FakeFeedRepository(1));
+      expect(find.byType(ChoiceChip), findsNothing);
+
+      await tester.tap(find.byTooltip('New drawer'));
+      await tester.pumpAndSettle();
+      expect(find.text('New drawer screen'), findsOneWidget);
+    });
+
+    testWidgets('All, one pill per drawer in order, then +', (tester) async {
+      await pumpFeed(tester, FakeFeedRepository(1), drawers: threeDrawers);
+
+      final labels = tester
+          .widgetList<ChoiceChip>(find.byType(ChoiceChip))
+          .map((c) => (c.label as Text).data);
+      expect(labels, ['All', 'Batteries', 'Solar', 'Robots']);
+      expect(find.text('3 drawers'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('New drawer'));
+      await tester.pumpAndSettle();
+      expect(find.text('New drawer screen'), findsOneWidget);
+    });
+
+    testWidgets('a pill filters the feed and shows its prompt', (tester) async {
+      final feed = FakeFeedRepository(2);
+      await pumpFeed(tester, feed, drawers: threeDrawers);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Solar'));
+      await tester.pumpAndSettle();
+      expect(feed.drawerIds.last, 2);
+      expect(find.text('Prompt of Solar'), findsOneWidget);
+      expect(find.text('3 drawers'), findsNothing);
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'All'));
+      await tester.pumpAndSettle();
+      expect(feed.drawerIds.last, isNull);
+      expect(find.text('3 drawers'), findsOneWidget);
+    });
+
+    testWidgets('in All, a card names every drawer that kept it', (
+      tester,
+    ) async {
+      final feed = _TwoDrawerPaper();
+      await pumpFeed(tester, feed, drawers: threeDrawers);
+
+      final card = find.byType(PaperCard);
+      expect(
+        find.descendant(of: card, matching: find.text('Batteries')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: card, matching: find.text('Solar')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: card, matching: find.text('Robots')),
+        findsNothing,
+      );
+
+      await tester.tap(find.widgetWithText(ChoiceChip, 'Solar'));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(of: card, matching: find.text('Batteries')),
+        findsNothing,
+      );
     });
   });
 
@@ -210,4 +348,24 @@ void main() {
       expect(feed.offsets, [0, 0]);
     });
   });
+}
+
+/// One paper, kept by drawers 1 and 2.
+class _TwoDrawerPaper extends FakeFeedRepository {
+  _TwoDrawerPaper() : super(1);
+
+  @override
+  Future<List<GlobalFeedPaperOut>> page({
+    required int offset,
+    int? drawerId,
+  }) async {
+    drawerIds.add(drawerId);
+    final p = paper(0);
+    return [
+      GlobalFeedPaperOut.fromJson({
+        ...p.toJson(),
+        'prompt_ids': [1, 2],
+      }),
+    ];
+  }
 }

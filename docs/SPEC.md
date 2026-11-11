@@ -50,7 +50,7 @@ Changements additifs ou internes, aucun client publié n'existe : `/v1` est modi
 
 1. **Premier lancement.** Si l'appareil n'a pas d'identifiant, l'app appelle `POST /v1/users` et garde l'UUID renvoyé dans un stockage sécurisé. Un écran présente Butine en une ou deux phrases et mène à la création du premier tiroir. En cas d'échec réseau : message et « Retry ». On ne revoit plus cet écran ensuite.
 2. **Feed (écran principal).**
-   - Rangée de pastilles qui défile horizontalement : **All** en premier, puis un tiroir par pastille (icône + nom, ordre de création), puis **+** pour créer un tiroir. La rangée est masquée tant qu'il n'y a qu'un tiroir.
+   - Rangée de pastilles qui défile horizontalement : **All** en premier, puis un tiroir par pastille (icône + nom, ordre de création), puis **+** pour créer un tiroir. La rangée est masquée tant qu'il n'y a qu'un tiroir ; le **+** passe alors dans la barre du haut.
    - Sous la rangée : le texte complet du prompt du tiroir sélectionné ; dans All, le nombre de tiroirs.
    - Liste des papiers : titre (Literata), auteurs, source, date ; dans All, l'icône et le nom du ou des tiroirs qui ont retenu le papier (`prompt_ids`). Le signal « New » (miel) marque les papiers dont `fetched_at` est postérieur à la dernière ouverture du feed, gardée sur l'appareil.
    - Tirer pour rafraîchir ; page suivante chargée en arrivant en bas (`limit` 50, `offset`).
