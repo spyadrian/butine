@@ -303,3 +303,4 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 
 - **Feed qui attend un tiroir `pending`** : « Butine is reading the latest papers… » ne se met pas à jour tout seul ; il faut tirer pour rafraîchir. À faire : rafraîchir automatiquement le feed tant qu'un tiroir est `pending`. Remarqué au test de T29.
 - **Retour de `paid` à `free`** : un utilisateur qui se désabonne avec plusieurs tiroirs ne doit plus pouvoir les modifier. Règle exacte à décider (tiroirs gelés, ou seul le plus ancien reste actif). À traiter avec le paiement, hors M3.
+- **Deux tiroirs en `free`** : le plan gratuit devrait inclure 2 tiroirs, pas 1. À changer : limite `free` côté backend (`PROMPT_LIMITS`), message « The free plan includes 1 drawer. » dans l'app, DECISIONS.md et SPEC.md. Demandé au test de T30.
