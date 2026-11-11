@@ -10,7 +10,31 @@ class FeedRepository {
   final ApiClient _api;
   final UserRepository _users;
 
-  /// All drawers together, newest first.
-  Future<List<GlobalFeedPaperOut>> page({required int offset}) => _api
-      .globalFeed(xUserId: _users.userId, limit: feedPageSize, offset: offset);
+  /// Newest first: all drawers together, or only [drawerId]'s papers.
+  Future<List<GlobalFeedPaperOut>> page({
+    required int offset,
+    int? drawerId,
+  }) async {
+    if (drawerId == null) {
+      return _api.globalFeed(
+        xUserId: _users.userId,
+        limit: feedPageSize,
+        offset: offset,
+      );
+    }
+    final papers = await _api.promptFeed(
+      promptId: drawerId,
+      xUserId: _users.userId,
+      limit: feedPageSize,
+      offset: offset,
+    );
+    // One paper type for the screen: a drawer's paper is kept by that drawer.
+    return [
+      for (final p in papers)
+        GlobalFeedPaperOut.fromJson({
+          ...p.toJson(),
+          'prompt_ids': [drawerId],
+        }),
+    ];
+  }
 }

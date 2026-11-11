@@ -208,12 +208,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Rangée de pastilles : All, un tiroir par pastille (icône + nom, ordre de création), + (création). Toucher une pastille charge le feed du tiroir et affiche le texte du prompt. Dans All, chaque carte montre l'icône et le nom de ses tiroirs. Rangée masquée avec un seul tiroir. Décision « pastilles au lieu d'une liste de tiroirs » reportée dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [ ] Filtre par tiroir, texte du prompt sous la rangée, retour à All
-- [ ] Rangée masquée avec un seul tiroir, visible à partir de deux
-- [ ] Un papier retenu par deux tiroirs montre les deux dans All
+- [x] Filtre par tiroir, texte du prompt sous la rangée, retour à All
+- [x] Rangée masquée avec un seul tiroir, visible à partir de deux
+- [x] Un papier retenu par deux tiroirs montre les deux dans All
 
 **Vérification :**
-- [ ] Analyse + tests
+- [x] Analyse + tests
 - [ ] Manuel : critère de réussite 2 de la spec (3 tiroirs en `paid`)
 
 **Dépendances :** T29

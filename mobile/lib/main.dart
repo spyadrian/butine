@@ -7,6 +7,8 @@ import 'data/repositories/drawer_repository.dart';
 import 'data/repositories/feed_repository.dart';
 import 'data/repositories/user_repository.dart';
 import 'ui/core/theme.dart';
+import 'ui/drawer/new_drawer_screen.dart';
+import 'ui/drawer/new_drawer_view_model.dart';
 import 'ui/feed/feed_screen.dart';
 import 'ui/feed/feed_view_model.dart';
 import 'ui/onboarding/onboarding_screen.dart';
@@ -60,7 +62,11 @@ class ButineApp extends StatelessWidget {
             )
           : _feedScreen(context),
       // Named, so the drawer screens can reach it without carrying repositories.
-      routes: {'/feed': _feedScreen},
+      routes: {
+        '/feed': _feedScreen,
+        '/new-drawer': (_) =>
+            NewDrawerScreen(viewModel: NewDrawerViewModel(drawers)),
+      },
     );
   }
 }

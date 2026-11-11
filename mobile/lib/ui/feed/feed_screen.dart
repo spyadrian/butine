@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'drawer_pills.dart';
 import 'feed_view_model.dart';
 import 'paper_card.dart';
 
@@ -28,26 +29,63 @@ class _FeedScreenState extends State<FeedScreen> {
       appBar: AppBar(title: const Text('Butine')),
       body: ListenableBuilder(
         listenable: vm,
-        builder: (context, _) => NotificationListener<ScrollNotification>(
-          onNotification: (n) {
-            // Near the bottom; a failed page waits for Retry.
-            if (n.metrics.extentAfter < 600 && vm.error == null) {
-              vm.loadMore();
-            }
-            return false;
+        builder: (context, _) => Column(
+          children: [
+            if (vm.showPills)
+              DrawerPills(
+                drawers: vm.drawers,
+                selectedId: vm.selected?.id,
+                onSelected: vm.select,
+              ),
+            Expanded(child: _list(context)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _list(BuildContext context) {
+    // Under the pills, scrolling away with the papers: what is being shown.
+    final header = vm.showPills ? 1 : 0;
+    return NotificationListener<ScrollNotification>(
+      onNotification: (n) {
+        // Near the bottom; a failed page waits for Retry.
+        if (n.metrics.extentAfter < 600 && vm.error == null) {
+          vm.loadMore();
+        }
+        return false;
+      },
+      child: RefreshIndicator(
+        onRefresh: vm.refresh,
+        child: ListView.separated(
+          // Pull to refresh works even when the list is short or empty.
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: header + vm.papers.length + 1,
+          separatorBuilder: (_, _) => const Divider(height: 1),
+          itemBuilder: (context, i) {
+            if (i < header) return _header(context);
+            i -= header;
+            return i < vm.papers.length
+                ? PaperCard(
+                    paper: vm.papers[i],
+                    drawers: vm.drawersOf(vm.papers[i]),
+                  )
+                : _footer(context);
           },
-          child: RefreshIndicator(
-            onRefresh: vm.refresh,
-            child: ListView.separated(
-              // Pull to refresh works even when the list is short or empty.
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount: vm.papers.length + 1,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, i) => i < vm.papers.length
-                  ? PaperCard(paper: vm.papers[i])
-                  : _footer(context),
-            ),
-          ),
+        ),
+      ),
+    );
+  }
+
+  /// The selected drawer's prompt, or how many drawers All gathers.
+  Widget _header(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      child: Text(
+        vm.selected?.text ?? '${vm.drawers.length} drawers',
+        style: theme.textTheme.bodyMedium!.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
         ),
       ),
     );
