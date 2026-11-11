@@ -136,21 +136,21 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 
 **Critères d'acceptation :**
 - [x] Chaque identifiant respecte `^[a-z0-9_]{1,40}$` (test) ; un identifiant inconnu donne l'icône par défaut
-- [ ] Liste des icônes validée par l'humain
-- [ ] L'icône Butine apparaît sur l'écran d'accueil de l'émulateur, y compris en icône thémée
+- [x] Liste des icônes validée par l'humain
+- [x] L'icône Butine apparaît sur l'écran d'accueil de l'émulateur, y compris en icône thémée
 
 **Vérification :**
 - [x] Analyse + tests passent
-- [ ] Manuel : icône de l'app sur l'émulateur
+- [x] Manuel : icône de l'app sur l'émulateur
 
 **Dépendances :** T24
 **Fichiers :** `mobile/lib/ui/core/drawer_icons.dart`, `mobile/test/ui/core/drawer_icons_test.dart`, `mobile/pubspec.yaml`, `mobile/android/app/src/main/res/…` (généré)
 **Taille :** S
 
 ### Checkpoint 2
-- [ ] L'app se lance sur l'émulateur, aux couleurs et polices de Butine, avec son icône
-- [ ] CI verte (backend + mobile, client régénéré identique)
-- [ ] Revue humaine (dont la liste des icônes des tiroirs)
+- [x] L'app se lance sur l'émulateur, aux couleurs et polices de Butine, avec son icône
+- [x] CI verte (backend + mobile, client régénéré identique)
+- [x] Revue humaine (dont la liste des icônes des tiroirs)
 
 ---
 
@@ -160,12 +160,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** `device_store.dart` garde l'UUID (stockage sécurisé). Au premier lancement, `UserRepository` appelle `POST /v1/users`, puis l'écran d'accueil présente Butine et mène à la création du premier tiroir (provisoirement un écran vide jusqu'à T28). Interface en anglais : décision reportée dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [ ] Premier lancement : un utilisateur est créé et son id gardé ; au lancement suivant, pas d'appel ni d'écran d'accueil
-- [ ] Échec réseau : message et « Retry », qui fonctionne une fois le backend relancé
-- [ ] Toutes les requêtes utilisateur envoient `X-User-Id`
+- [x] Premier lancement : un utilisateur est créé et son id gardé ; au lancement suivant, pas d'appel ni d'écran d'accueil
+- [x] Échec réseau : message et « Retry », qui fonctionne une fois le backend relancé
+- [x] Toutes les requêtes utilisateur envoient `X-User-Id`
 
 **Vérification :**
-- [ ] Analyse + tests (view model et widget, faux repository)
+- [x] Analyse + tests (view model et widget, faux repository)
 - [ ] Manuel : désinstaller, relancer, vérifier l'utilisateur en base
 
 **Dépendances :** T24, T25
