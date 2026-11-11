@@ -49,7 +49,16 @@ jobs:
         with:
           flutter-version: "3.47.9"
           channel: stable
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.13.1"
+      - name: OpenAPI schema matches the backend
+        run: |
+          (cd ../backend && uv run --locked python -c "import json; from app.main import app; print(json.dumps(app.openapi(), indent=2))") > openapi.json
+          git diff --exit-code openapi.json
       - run: flutter pub get
+      - name: Generated client matches the schema
+        run: dart run swagger_parser --check
       - run: dart format --set-exit-if-changed .
       - run: flutter analyze
       - run: flutter test

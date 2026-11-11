@@ -73,3 +73,15 @@ def test_set_plan_cli_rejects_bad_arguments(argv, capsys):
         main(["set-plan", *argv])
     assert exit_.value.code != 0
     assert "invalid" in capsys.readouterr().err
+
+
+def test_no_parameter_schema_is_nullable():
+    # swagger_parser skips any operation with a nullable parameter (mobile client).
+    params = [
+        p
+        for ops in app.openapi()["paths"].values()
+        for op in ops.values()
+        for p in op.get("parameters", [])
+    ]
+    nullable = [p["name"] for p in params if "anyOf" in p["schema"]]
+    assert nullable == []

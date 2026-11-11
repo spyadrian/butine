@@ -20,7 +20,8 @@ class UserOut(BaseModel):
 
 def current_user(
     session: Annotated[Session, Depends(get_session)],
-    x_user_id: Annotated[uuid.UUID | None, Header()] = None,
+    # Not `| None`: a nullable schema makes swagger_parser skip the route; None still means missing.
+    x_user_id: Annotated[uuid.UUID, Header()] = None,
 ) -> User:
     """User routes dependency: malformed id → 422 (FastAPI), missing or unknown → 401."""
     user = x_user_id and session.get(User, x_user_id)

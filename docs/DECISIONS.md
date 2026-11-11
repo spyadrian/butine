@@ -119,7 +119,9 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 - REST/JSON, toutes les routes sous `/v1`. Raison : les anciennes apps mobiles restent installées et doivent continuer à fonctionner.
 - Nouvelle version seulement en cas de changement cassant (renommer/supprimer un champ, nouveau paramètre obligatoire). Alors `api/v2/` à côté de `api/v1/`, les deux appellent les mêmes `services/` ; jamais de `if v1` dans la logique.
 - `/v1` modifié sur place tant qu'aucune app n'est publiée (aucun ancien client à protéger) ; `/v2` seulement après la première publication.
-- Client Dart généré depuis le schéma OpenAPI (M3).
+- Client Dart généré depuis le schéma OpenAPI (M3) par swagger_parser 2, en client `http` avec des modèles en Dart pur : une seule dépendance (`http`), pas de build_runner, code généré lisible. Retrofit + Dio (6 paquets, génération en deux étapes) n'apportait rien de plus ici.
+- Schéma (`mobile/openapi.json`) et client généré (`mobile/lib/data/api/`) commités. La CI réexporte le schéma depuis le backend et lance `swagger_parser --check` : un changement d'API sans régénération fait échouer la CI.
+- Aucun paramètre de route n'est déclaré nullable (`uuid.UUID = None` plutôt que `uuid.UUID | None = None`) : swagger_parser ignore toute route dont un paramètre a un schéma `anyOf [..., null]`. Un test backend le vérifie.
 
 ## Tests
 - `pytest` sur un vrai Postgres en Docker, flux RSS de test en fichiers XML locaux, aucun appel réseau.

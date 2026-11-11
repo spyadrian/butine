@@ -44,7 +44,7 @@ def list_papers(
     session: Annotated[Session, Depends(get_session)],
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
-    source: str | None = None,
+    source: str = None,  # not `| None`: see current_user
 ) -> list[PaperOut]:
     query = (
         select(*PAPER_COLUMNS)
