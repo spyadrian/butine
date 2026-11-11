@@ -204,9 +204,15 @@ void main() {
   });
 
   group('pills', () {
-    testWidgets('hidden with a single drawer', (tester) async {
+    testWidgets('hidden with a single drawer, + moves to the bar', (
+      tester,
+    ) async {
       await pumpFeed(tester, FakeFeedRepository(1));
       expect(find.byType(ChoiceChip), findsNothing);
+
+      await tester.tap(find.byTooltip('New drawer'));
+      await tester.pumpAndSettle();
+      expect(find.text('New drawer screen'), findsOneWidget);
     });
 
     testWidgets('All, one pill per drawer in order, then +', (tester) async {

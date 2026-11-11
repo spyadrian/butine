@@ -26,7 +26,18 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Butine')),
+      appBar: AppBar(
+        title: const Text('Butine'),
+        actions: [
+          // Without the pills, + would be out of reach.
+          ListenableBuilder(
+            listenable: vm,
+            builder: (context, _) => vm.showPills || vm.loading
+                ? const SizedBox.shrink()
+                : const NewDrawerButton(),
+          ),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: vm,
         builder: (context, _) => Column(

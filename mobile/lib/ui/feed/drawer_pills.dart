@@ -39,13 +39,21 @@ class DrawerPills extends StatelessWidget {
               padding: const EdgeInsets.only(right: 8),
               child: Center(child: w), // a sideways list stretches its children
             ),
-          IconButton(
-            tooltip: 'New drawer',
-            icon: const Icon(Icons.add),
-            onPressed: () => Navigator.of(context).pushNamed('/new-drawer'),
-          ),
+          const NewDrawerButton(),
         ],
       ),
     );
   }
+}
+
+/// Opens the new drawer screen.
+class NewDrawerButton extends StatelessWidget {
+  const NewDrawerButton({super.key});
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: 'New drawer',
+    icon: const Icon(Icons.add),
+    onPressed: () => Navigator.of(context).pushNamed('/new-drawer'),
+  );
 }
