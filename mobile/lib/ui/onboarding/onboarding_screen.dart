@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 
+import '../../data/repositories/drawer_repository.dart';
 import '../drawer/new_drawer_screen.dart';
+import '../drawer/new_drawer_view_model.dart';
 import 'onboarding_view_model.dart';
 
 /// First launch: presents Butine, registers the device, then opens the
 /// creation of the first drawer.
 class OnboardingScreen extends StatelessWidget {
-  const OnboardingScreen({super.key, required this.viewModel});
+  const OnboardingScreen({
+    super.key,
+    required this.viewModel,
+    required this.drawers,
+  });
 
   final OnboardingViewModel viewModel;
+  final DrawerRepository drawers;
 
   Future<void> _start(BuildContext context) async {
     await viewModel.register();
     if (viewModel.error == null && context.mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const NewDrawerScreen()),
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              NewDrawerScreen(viewModel: NewDrawerViewModel(drawers)),
+        ),
       );
     }
   }

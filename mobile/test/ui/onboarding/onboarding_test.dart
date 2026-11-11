@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
+import '../drawer/new_drawer_test.dart' show FakeDrawerRepository;
+
 /// Fails [failures] times, then registers.
 class FakeUserRepository implements UserRepository {
   FakeUserRepository({this.failures = 0});
@@ -30,7 +32,10 @@ class FakeUserRepository implements UserRepository {
 Future<void> pumpOnboarding(WidgetTester tester, UserRepository users) =>
     tester.pumpWidget(
       MaterialApp(
-        home: OnboardingScreen(viewModel: OnboardingViewModel(users)),
+        home: OnboardingScreen(
+          viewModel: OnboardingViewModel(users),
+          drawers: FakeDrawerRepository(),
+        ),
       ),
     );
 

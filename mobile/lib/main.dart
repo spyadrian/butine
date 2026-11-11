@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 
 import 'data/api/butine_api.dart';
 import 'data/device_store.dart';
+import 'data/repositories/drawer_repository.dart';
 import 'data/repositories/user_repository.dart';
 import 'ui/core/theme.dart';
 import 'ui/core/theme_preview.dart';
@@ -20,13 +21,14 @@ Future<void> main() async {
   final api = ButineApi(http.Client(), baseUrl: Uri.parse(apiBaseUrl)).api;
   final users = UserRepository(api, DeviceStore());
   await users.load();
-  runApp(ButineApp(users: users));
+  runApp(ButineApp(users: users, drawers: DrawerRepository(api, users)));
 }
 
 class ButineApp extends StatelessWidget {
-  const ButineApp({super.key, required this.users});
+  const ButineApp({super.key, required this.users, required this.drawers});
 
   final UserRepository users;
+  final DrawerRepository drawers;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,10 @@ class ButineApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       home: users.userId == null
-          ? OnboardingScreen(viewModel: OnboardingViewModel(users))
+          ? OnboardingScreen(
+              viewModel: OnboardingViewModel(users),
+              drawers: drawers,
+            )
           // shortcut: the theme specimen stands in for the feed until it exists.
           : const ThemeSpecimen(),
     );
