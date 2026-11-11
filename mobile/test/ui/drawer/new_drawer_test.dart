@@ -1,19 +1,25 @@
 import 'package:butine/data/api/butine_api.dart';
 import 'package:butine/data/repositories/drawer_repository.dart';
 import 'package:butine/ui/core/drawer_icons.dart';
-import 'package:butine/ui/core/theme_preview.dart';
 import 'package:butine/ui/drawer/new_drawer_screen.dart';
 import 'package:butine/ui/drawer/new_drawer_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
-/// Records what it creates, or throws [failure].
+/// Records what it creates, or throws [failure]; [list] returns [drawers].
 class FakeDrawerRepository implements DrawerRepository {
-  FakeDrawerRepository({this.failure});
+  FakeDrawerRepository({this.failure, this.drawers = const []});
 
   Object? failure;
+  List<PromptOut> drawers;
   final created = <(String, String, String)>[];
+
+  @override
+  Future<List<PromptOut>> list() async {
+    if (failure != null) throw failure!;
+    return drawers;
+  }
 
   @override
   Future<PromptOut> create({
@@ -38,6 +44,7 @@ Future<void> pumpNewDrawer(WidgetTester tester, DrawerRepository drawers) =>
     tester.pumpWidget(
       MaterialApp(
         home: NewDrawerScreen(viewModel: NewDrawerViewModel(drawers)),
+        routes: {'/feed': (_) => const Text('feed')},
       ),
     );
 
@@ -120,7 +127,8 @@ void main() {
       'bolt',
       'Solid-state electrolytes',
     ));
-    expect(find.byType(ThemeSpecimen), findsOneWidget);
+    expect(find.text('feed'), findsOneWidget);
+    expect(find.byType(NewDrawerScreen), findsNothing);
   });
 
   testWidgets('a 403 shows the plan limit and stays on the form', (

@@ -65,7 +65,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 ### Phase 3 : parcours principal
 - [x] T27 : identité de l'appareil + premier lancement
 - [x] T28 : création d'un tiroir
-- [ ] T29 : feed All (liste, pagination, rafraîchir, états)
+- [x] T29 : feed All (liste, pagination, rafraîchir, états)
 - [ ] T30 : pastilles + feed d'un tiroir
 - [ ] T31 : signal « New »
 

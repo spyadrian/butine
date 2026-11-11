@@ -192,12 +192,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Écran principal : feed global (`/v1/feed`), cartes (titre en Literata, auteurs, source, date), page suivante en arrivant en bas, tirer pour rafraîchir. États : chargement, vide (« Butine is reading the latest papers… » si un tiroir est `pending`, sinon « No papers yet »), erreur avec « Retry », fin de liste.
 
 **Critères d'acceptation :**
-- [ ] Pagination par 50 sans doublon ni trou ; rafraîchir repart du début
-- [ ] Chaque état s'affiche correctement (tests de widget)
+- [x] Pagination par 50 sans doublon ni trou ; rafraîchir repart du début
+- [x] Chaque état s'affiche correctement (tests de widget)
 - [ ] Un tiroir créé passe de l'état « reading » à des papiers après un rafraîchissement (≤ 2 min)
 
 **Vérification :**
-- [ ] Analyse + tests
+- [x] Analyse + tests
 - [ ] Manuel : critère de réussite 1 de la spec
 
 **Dépendances :** T28

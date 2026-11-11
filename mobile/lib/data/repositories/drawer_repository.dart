@@ -15,6 +15,9 @@ class DrawerRepository {
   final ApiClient _api;
   final UserRepository _users;
 
+  /// In creation order.
+  Future<List<PromptOut>> list() => _api.listPrompts(xUserId: _users.userId);
+
   Future<PromptOut> create({
     required String name,
     required String icon,
