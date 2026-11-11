@@ -192,12 +192,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Écran principal : feed global (`/v1/feed`), cartes (titre en Literata, auteurs, source, date), page suivante en arrivant en bas, tirer pour rafraîchir. États : chargement, vide (« Butine is reading the latest papers… » si un tiroir est `pending`, sinon « No papers yet »), erreur avec « Retry », fin de liste.
 
 **Critères d'acceptation :**
-- [ ] Pagination par 50 sans doublon ni trou ; rafraîchir repart du début
-- [ ] Chaque état s'affiche correctement (tests de widget)
+- [x] Pagination par 50 sans doublon ni trou ; rafraîchir repart du début
+- [x] Chaque état s'affiche correctement (tests de widget)
 - [ ] Un tiroir créé passe de l'état « reading » à des papiers après un rafraîchissement (≤ 2 min)
 
 **Vérification :**
-- [ ] Analyse + tests
+- [x] Analyse + tests
 - [ ] Manuel : critère de réussite 1 de la spec
 
 **Dépendances :** T28
@@ -296,3 +296,10 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 - [ ] Décisions de la spec reportées dans DECISIONS.md
 - [ ] CI verte
 - [ ] Revue humaine avant la suite (compte anonyme, paiement)
+
+---
+
+## Notes pour plus tard
+
+- **Feed qui attend un tiroir `pending`** : « Butine is reading the latest papers… » ne se met pas à jour tout seul ; il faut tirer pour rafraîchir. À faire : rafraîchir automatiquement le feed tant qu'un tiroir est `pending`. Remarqué au test de T29.
+- **Retour de `paid` à `free`** : un utilisateur qui se désabonne avec plusieurs tiroirs ne doit plus pouvoir les modifier. Règle exacte à décider (tiroirs gelés, ou seul le plus ancien reste actif). À traiter avec le paiement, hors M3.

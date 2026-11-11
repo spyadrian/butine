@@ -51,6 +51,24 @@ void main() {
     });
   });
 
+  test('list reads the drawers as the device user', () async {
+    final calls = <http.Request>[];
+    final drawers = DrawerRepository(
+      ButineApi(
+        MockClient((request) async {
+          calls.add(request);
+          return http.Response('[]', 200);
+        }),
+        baseUrl: Uri.parse('http://test'),
+      ).api,
+      FakeUserRepository()..userId = 'u-1',
+    );
+
+    expect(await drawers.list(), isEmpty);
+    expect(calls.single.url.path, '/v1/prompts');
+    expect(calls.single.headers['x-user-id'], 'u-1');
+  });
+
   test('a 403 means the plan limit is reached', () async {
     expect(
       drawersAnswering(403).create(name: 'a', icon: 'bolt', text: 'b'),

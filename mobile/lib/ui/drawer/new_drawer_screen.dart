@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../data/repositories/drawer_repository.dart';
 import '../core/drawer_icons.dart';
-import '../core/theme_preview.dart';
 import 'new_drawer_view_model.dart';
 
 /// Short, precise prompts: they show what a good one looks like.
@@ -35,11 +34,7 @@ class _NewDrawerScreenState extends State<NewDrawerScreen> {
 
   Future<void> _create() async {
     if (await vm.submit() && mounted) {
-      // shortcut: the theme specimen stands in for the feed until it exists.
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute<void>(builder: (_) => const ThemeSpecimen()),
-        (_) => false,
-      );
+      Navigator.of(context).pushNamedAndRemoveUntil('/feed', (_) => false);
     }
   }
 
