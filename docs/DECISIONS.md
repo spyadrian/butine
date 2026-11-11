@@ -27,6 +27,7 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 - Identifiant d'application `ch.butine` (Android `applicationId`, plus tard bundle iOS) : il ne change plus une fois publié.
 - Projet `mobile/` créé pour Android seulement ; iOS ajouté (`flutter create --platforms ios .`) au jalon « prêt stores ».
 - Compte Apple Developer (99 $/an) seulement quand la publication approche : c'est un coût récurrent à couvrir.
+- Interface en anglais, comme les papiers et les prompts, sans système de traduction en M3 : le public (chercheurs, ingénieurs R&D) lit déjà l'anglais. `flutter_localizations` seulement si une vraie demande apparaît.
 
 ## Thème de l'app
 - Tokens de `design/logo/palette.json` recopiés dans `mobile/lib/ui/core/theme.dart`, seul fichier où une couleur est écrite en dur. Un test vérifie les contrastes AA des paires texte/fond dans les deux thèmes.

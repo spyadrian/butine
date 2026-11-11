@@ -58,12 +58,12 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T26 : jeu d'icônes des tiroirs + icône de l'app
 
 ### Checkpoint 2
-- [ ] L'app se lance sur l'émulateur, aux couleurs et polices de Butine, avec son icône
-- [ ] CI verte (backend + mobile, client régénéré identique)
-- [ ] Revue humaine (dont la liste des icônes des tiroirs)
+- [x] L'app se lance sur l'émulateur, aux couleurs et polices de Butine, avec son icône
+- [x] CI verte (backend + mobile, client régénéré identique)
+- [x] Revue humaine (dont la liste des icônes des tiroirs)
 
 ### Phase 3 : parcours principal
-- [ ] T27 : identité de l'appareil + premier lancement
+- [x] T27 : identité de l'appareil + premier lancement
 - [ ] T28 : création d'un tiroir
 - [ ] T29 : feed All (liste, pagination, rafraîchir, états)
 - [ ] T30 : pastilles + feed d'un tiroir
