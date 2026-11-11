@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
+import '../../data/repositories/user_repository_test.dart' show FakeDeviceStore;
 import '../drawer/new_drawer_test.dart' show FakeDrawerRepository;
 
 GlobalFeedPaperOut paper(int i) => GlobalFeedPaperOut(
@@ -57,6 +58,11 @@ class FakeFeedRepository implements FeedRepository {
   }
 }
 
+/// The honey dot, labelled for screen readers.
+final newDot = find.byWidgetPredicate(
+  (w) => w is Semantics && w.properties.label == 'New',
+);
+
 PromptOut drawer(String status, {int id = 1, String name = 'Batteries'}) =>
     PromptOut(
       id: id,
@@ -78,10 +84,12 @@ Future<FeedViewModel> pumpFeed(
   FeedRepository feed, {
   String status = 'ready',
   List<PromptOut>? drawers,
+  FakeDeviceStore? store,
 }) async {
   final vm = FeedViewModel(
     feed,
     FakeDrawerRepository(drawers: drawers ?? [drawer(status)]),
+    store ?? FakeDeviceStore(),
   );
   await tester.pumpWidget(
     MaterialApp(
@@ -95,8 +103,11 @@ Future<FeedViewModel> pumpFeed(
 
 void main() {
   group('view model', () {
-    FeedViewModel vmFor(FeedRepository feed) =>
-        FeedViewModel(feed, FakeDrawerRepository(drawers: [drawer('ready')]));
+    FeedViewModel vmFor(FeedRepository feed) => FeedViewModel(
+      feed,
+      FakeDrawerRepository(drawers: [drawer('ready')]),
+      FakeDeviceStore(),
+    );
 
     test('pages by 50 with no duplicate or gap, then stops', () async {
       final feed = FakeFeedRepository(120);
@@ -162,6 +173,7 @@ void main() {
       final vm = FeedViewModel(
         feed,
         FakeDrawerRepository(drawers: threeDrawers),
+        FakeDeviceStore(),
       );
       await vm.refresh();
 
@@ -179,6 +191,7 @@ void main() {
       final vm = FeedViewModel(
         feed,
         FakeDrawerRepository(drawers: threeDrawers),
+        FakeDeviceStore(),
       );
       final first = vm.refresh();
       final second = vm.select(2);
@@ -194,12 +207,80 @@ void main() {
       final vm = FeedViewModel(
         FakeFeedRepository(0),
         FakeDrawerRepository(drawers: threeDrawers),
+        FakeDeviceStore(),
       );
       await vm.refresh();
       expect(vm.reading, isTrue); // Robots is pending
 
       await vm.select(2);
       expect(vm.reading, isFalse);
+    });
+  });
+
+  group('New', () {
+    final opened = DateTime.utc(2026, 11, 11, 8);
+
+    FeedViewModel vmWith(FakeDeviceStore store) => FeedViewModel(
+      FakeFeedRepository(3),
+      FakeDrawerRepository(drawers: [drawer('ready')]),
+      store,
+      now: () => opened,
+    );
+
+    test('first open: nothing is New, and the open is kept', () async {
+      final store = FakeDeviceStore();
+      final vm = vmWith(store);
+      await vm.open();
+
+      expect(vm.papers.where(vm.isNew), isEmpty);
+      expect(store.feedOpenedAt, opened);
+    });
+
+    test(
+      'papers fetched since the last open are New, older ones not',
+      () async {
+        // Papers are fetched at 06:00 on Nov 10.
+        final before = vmWith(
+          FakeDeviceStore()..feedOpenedAt = DateTime.utc(2026, 11, 10, 5),
+        );
+        await before.open();
+        expect(before.papers.every(before.isNew), isTrue);
+
+        final after = vmWith(
+          FakeDeviceStore()..feedOpenedAt = DateTime.utc(2026, 11, 10, 7),
+        );
+        await after.open();
+        expect(after.papers.where(after.isNew), isEmpty);
+      },
+    );
+
+    test('a refresh keeps the signal and the date', () async {
+      final store = FakeDeviceStore()
+        ..feedOpenedAt = DateTime.utc(2026, 11, 10, 5);
+      final vm = vmWith(store);
+      await vm.open();
+      await vm.refresh();
+      await vm.select(null);
+
+      expect(store.feedOpenSaves, 1);
+      expect(vm.papers.every(vm.isNew), isTrue);
+    });
+
+    testWidgets('a New paper carries the honey dot, others do not', (
+      tester,
+    ) async {
+      await pumpFeed(
+        tester,
+        FakeFeedRepository(1),
+        store: FakeDeviceStore()..feedOpenedAt = DateTime.utc(2026, 11, 10, 5),
+      );
+      expect(newDot, findsOneWidget);
+      expect(find.text('New'), findsNothing); // never as text
+    });
+
+    testWidgets('no dot on the first open', (tester) async {
+      await pumpFeed(tester, FakeFeedRepository(1));
+      expect(newDot, findsNothing);
     });
   });
 
@@ -224,7 +305,12 @@ void main() {
       expect(labels, ['All', 'Batteries', 'Solar', 'Robots']);
       expect(find.text('3 drawers'), findsOneWidget);
 
-      await tester.tap(find.byTooltip('New drawer'));
+      final plus = find.byTooltip('New drawer');
+      expect(
+        find.ancestor(of: plus, matching: find.byType(ActionChip)),
+        findsOneWidget,
+      );
+      await tester.tap(plus);
       await tester.pumpAndSettle();
       expect(find.text('New drawer screen'), findsOneWidget);
     });
@@ -280,7 +366,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: FeedScreen(
-            viewModel: FeedViewModel(feed, FakeDrawerRepository()),
+            viewModel: FeedViewModel(
+              feed,
+              FakeDrawerRepository(),
+              FakeDeviceStore(),
+            ),
           ),
         ),
       );

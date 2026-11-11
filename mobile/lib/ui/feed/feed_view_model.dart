@@ -1,14 +1,27 @@
 import 'package:flutter/foundation.dart';
 
 import '../../data/api/butine_api.dart';
+import '../../data/device_store.dart';
 import '../../data/repositories/drawer_repository.dart';
 import '../../data/repositories/feed_repository.dart';
 
 class FeedViewModel extends ChangeNotifier {
-  FeedViewModel(this._feed, this._drawers);
+  FeedViewModel(
+    this._feed,
+    this._drawers,
+    this._store, {
+    this.now = DateTime.now,
+  });
 
   final FeedRepository _feed;
   final DrawerRepository _drawers;
+  final DeviceStore _store;
+
+  /// The clock, set by tests.
+  final DateTime Function() now;
+
+  /// The previous open of the feed; null on the first one, where nothing is New.
+  DateTime? _since;
 
   final List<GlobalFeedPaperOut> papers = [];
   List<PromptOut> drawers = [];
@@ -37,6 +50,17 @@ class FeedViewModel extends ChangeNotifier {
       showPills && _selectedId == null
       ? drawers.where((d) => paper.promptIds.contains(d.id)).toList()
       : const [];
+
+  /// Fetched by Butine since the previous open of the feed.
+  bool isNew(GlobalFeedPaperOut paper) =>
+      _since != null && paper.fetchedAt.isAfter(_since!);
+
+  /// Opening the feed moves the New line; refreshing it does not.
+  Future<void> open() async {
+    _since = await _store.lastFeedOpen();
+    await _store.saveLastFeedOpen(now());
+    return refresh();
+  }
 
   /// Shows one drawer's feed, or All with null.
   Future<void> select(int? drawerId) {

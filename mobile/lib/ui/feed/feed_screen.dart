@@ -20,7 +20,7 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void initState() {
     super.initState();
-    vm.refresh();
+    vm.open();
   }
 
   @override
@@ -80,6 +80,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 ? PaperCard(
                     paper: vm.papers[i],
                     drawers: vm.drawersOf(vm.papers[i]),
+                    isNew: vm.isNew(vm.papers[i]),
                   )
                 : _footer(context);
           },

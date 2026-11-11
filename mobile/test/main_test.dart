@@ -3,6 +3,7 @@ import 'package:butine/ui/feed/feed_screen.dart';
 import 'package:butine/ui/onboarding/onboarding_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'data/repositories/user_repository_test.dart' show FakeDeviceStore;
 import 'ui/drawer/new_drawer_test.dart' show FakeDrawerRepository;
 import 'ui/feed/feed_test.dart' show FakeFeedRepository;
 import 'ui/onboarding/onboarding_test.dart' show FakeUserRepository;
@@ -14,6 +15,7 @@ void main() {
         users: FakeUserRepository(),
         drawers: FakeDrawerRepository(),
         feed: FakeFeedRepository(0),
+        store: FakeDeviceStore(),
       ),
     );
     expect(find.byType(OnboardingScreen), findsOneWidget);
@@ -25,6 +27,7 @@ void main() {
         users: FakeUserRepository()..userId = 'u-1',
         drawers: FakeDrawerRepository(),
         feed: FakeFeedRepository(0),
+        store: FakeDeviceStore(),
       ),
     );
     expect(find.byType(OnboardingScreen), findsNothing);

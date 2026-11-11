@@ -20,6 +20,12 @@ abstract final class ButineColors {
 const uiFontFamily = 'Inter';
 const paperFontFamily = 'Literata';
 
+/// The "New" dot: honey only holds on light backgrounds as deep honey (BRAND.md).
+Color newSignalColor(ColorScheme scheme) =>
+    scheme.brightness == Brightness.light
+    ? ButineColors.honeyDeep
+    : ButineColors.honey;
+
 final lightTheme = _theme(
   Brightness.light,
   background: ButineColors.offwhite,
