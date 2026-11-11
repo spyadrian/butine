@@ -176,12 +176,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Écran « nouveau tiroir » : nom (1 à 24), choix d'une icône du jeu, texte du prompt (1 à 500), exemples de prompts courts. `403` → « The free plan includes 1 drawer. ». Ouvert depuis le premier lancement (et depuis la pastille + en T30).
 
 **Critères d'acceptation :**
-- [ ] Champs validés avant l'envoi ; bouton inactif tant qu'ils sont invalides
-- [ ] Tiroir créé → retour au feed ; `403` → message de limite, sans bouton d'achat
-- [ ] Cibles tactiles ≥ 48 dp, y compris dans le choix d'icône
+- [x] Champs validés avant l'envoi ; bouton inactif tant qu'ils sont invalides
+- [x] Tiroir créé → retour au feed ; `403` → message de limite, sans bouton d'achat
+- [x] Cibles tactiles ≥ 48 dp, y compris dans le choix d'icône
 
 **Vérification :**
-- [ ] Analyse + tests (validation, `403`)
+- [x] Analyse + tests (validation, `403`)
 - [ ] Manuel : créer un tiroir en `free`, puis un 2ᵉ refusé
 
 **Dépendances :** T26, T27
