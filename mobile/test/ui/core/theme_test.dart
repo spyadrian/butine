@@ -47,12 +47,21 @@ void main() {
         expect(s.onPrimaryContainer, ButineColors.anthracite);
       });
 
+      test('the New signal passes AA for UI elements (3:1)', () {
+        expect(contrast(newSignalColor(s), s.surface), greaterThanOrEqualTo(3));
+      });
+
       test('uses Inter for the interface', () {
         expect(theme.textTheme.bodyMedium!.fontFamily, 'Inter');
         expect(theme.textTheme.labelLarge!.fontFamily, 'Inter');
       });
     });
   }
+
+  test('New is deep honey on light, honey on dark', () {
+    expect(newSignalColor(lightTheme.colorScheme), ButineColors.honeyDeep);
+    expect(newSignalColor(darkTheme.colorScheme), ButineColors.honey);
+  });
 
   test('never uses honey as text or icon color on the light background', () {
     final s = lightTheme.colorScheme;

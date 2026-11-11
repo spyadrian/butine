@@ -23,13 +23,15 @@ const apiBaseUrl = String.fromEnvironment(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final api = ButineApi(http.Client(), baseUrl: Uri.parse(apiBaseUrl)).api;
-  final users = UserRepository(api, DeviceStore());
+  final store = DeviceStore();
+  final users = UserRepository(api, store);
   await users.load();
   runApp(
     ButineApp(
       users: users,
       drawers: DrawerRepository(api, users),
       feed: FeedRepository(api, users),
+      store: store,
     ),
   );
 }
@@ -40,14 +42,16 @@ class ButineApp extends StatelessWidget {
     required this.users,
     required this.drawers,
     required this.feed,
+    required this.store,
   });
 
   final UserRepository users;
   final DrawerRepository drawers;
   final FeedRepository feed;
+  final DeviceStore store;
 
   Widget _feedScreen(BuildContext _) =>
-      FeedScreen(viewModel: FeedViewModel(feed, drawers));
+      FeedScreen(viewModel: FeedViewModel(feed, drawers, store));
 
   @override
   Widget build(BuildContext context) {

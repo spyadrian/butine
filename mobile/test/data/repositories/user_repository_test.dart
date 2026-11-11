@@ -15,6 +15,18 @@ class FakeDeviceStore implements DeviceStore {
 
   @override
   Future<void> saveUserId(String id) async => saved = id;
+
+  DateTime? feedOpenedAt;
+  int feedOpenSaves = 0;
+
+  @override
+  Future<DateTime?> lastFeedOpen() async => feedOpenedAt;
+
+  @override
+  Future<void> saveLastFeedOpen(DateTime at) async {
+    feedOpenSaves++;
+    feedOpenedAt = at;
+  }
 }
 
 void main() {

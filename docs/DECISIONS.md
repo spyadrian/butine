@@ -95,6 +95,7 @@ _À l'origine (2026-10-15) : projet d'apprentissage généraliste (presse, YouTu
 - **Un feed (« tiroir ») par prompt**, plus un **feed global** qui regroupe tous les tiroirs de l'utilisateur.
 - Un tiroir a un **nom court** (1 à 24 caractères) et une **icône monochrome** choisie dans un jeu fermé de l'app (identifiant `^[a-z0-9_]{1,40}$` stocké dans `prompts.icon`). L'embedding reste calculé sur le texte seul. Pas de renommage en M3.
 - Dans l'app, les tiroirs sont des **pastilles** en haut du feed (All, un tiroir par pastille, +) plutôt qu'un écran « liste des tiroirs » : un seul écran à lire chaque matin, un tiroir à un toucher. La rangée est masquée avec un seul tiroir ; chaque carte de All nomme ses tiroirs dès qu'il y en a deux.
+- Signal « New » : un point miel (miel profond sur clair) devant la source des papiers dont `fetched_at` est postérieur à la dernière ouverture du feed, gardée sur l'appareil. L'ouverture compte au lancement de l'écran du feed, pas au rafraîchissement ; la première fois, rien n'est « New ». Jamais en texte (BRAND.md) ; un lecteur d'écran lit « New ».
 - À la création d'un prompt : rattrapage sur les papiers des 7 derniers jours (configurable).
 - Pas de digest hebdomadaire pour l'instant.
 - Plus tard : LLM pour les résumés, uniquement sur les papiers qui correspondent à un prompt (jamais tout le catalogue : ~50 k papiers par mois).

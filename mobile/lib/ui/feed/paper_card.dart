@@ -5,12 +5,20 @@ import '../core/drawer_icons.dart';
 import '../core/theme.dart';
 
 class PaperCard extends StatelessWidget {
-  const PaperCard({super.key, required this.paper, this.drawers = const []});
+  const PaperCard({
+    super.key,
+    required this.paper,
+    this.drawers = const [],
+    this.isNew = false,
+  });
 
   final GlobalFeedPaperOut paper;
 
   /// The drawers that kept it, named under the date.
   final List<PromptOut> drawers;
+
+  /// Arrived since the last open: a honey dot before the source.
+  final bool isNew;
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +47,30 @@ class PaperCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: meta,
           ),
-          Text(
-            '${paper.source} · '
-            '${MaterialLocalizations.of(context).formatMediumDate(date)}',
-            style: meta,
+          Row(
+            children: [
+              if (isNew) ...[
+                Semantics(
+                  label: 'New',
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: newSignalColor(theme.colorScheme),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+              ],
+              Expanded(
+                child: Text(
+                  '${paper.source} · '
+                  '${MaterialLocalizations.of(context).formatMediumDate(date)}',
+                  style: meta,
+                ),
+              ),
+            ],
           ),
           if (drawers.isNotEmpty) ...[
             const SizedBox(height: 4),

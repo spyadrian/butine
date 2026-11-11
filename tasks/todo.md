@@ -224,12 +224,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** La date de dernière ouverture du feed est gardée sur l'appareil. Les papiers dont `fetched_at` est postérieur portent le signal « New » (miel), jusqu'à l'ouverture suivante. Décision reportée dans DECISIONS.md.
 
 **Critères d'acceptation :**
-- [ ] Premier affichage : aucun « New » ; ensuite, seuls les papiers arrivés depuis la dernière ouverture
-- [ ] La date est mise à jour à l'ouverture du feed, pas à chaque rafraîchissement
-- [ ] Le signal respecte BRAND.md (miel profond sur clair, miel sur sombre, jamais en texte)
+- [x] Premier affichage : aucun « New » ; ensuite, seuls les papiers arrivés depuis la dernière ouverture
+- [x] La date est mise à jour à l'ouverture du feed, pas à chaque rafraîchissement
+- [x] Le signal respecte BRAND.md (miel profond sur clair, miel sur sombre, jamais en texte)
 
 **Vérification :**
-- [ ] Analyse + tests (horloge simulée)
+- [x] Analyse + tests (horloge simulée)
 - [ ] Manuel : critère de réussite 6 de la spec
 
 **Dépendances :** T22, T29
@@ -304,3 +304,5 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 - **Feed qui attend un tiroir `pending`** : « Butine is reading the latest papers… » ne se met pas à jour tout seul ; il faut tirer pour rafraîchir. À faire : rafraîchir automatiquement le feed tant qu'un tiroir est `pending`. Remarqué au test de T29.
 - **Retour de `paid` à `free`** : un utilisateur qui se désabonne avec plusieurs tiroirs ne doit plus pouvoir les modifier. Règle exacte à décider (tiroirs gelés, ou seul le plus ancien reste actif). À traiter avec le paiement, hors M3.
 - **Deux tiroirs en `free`** : le plan gratuit devrait inclure 2 tiroirs, pas 1. À changer : limite `free` côté backend (`PROMPT_LIMITS`), message « The free plan includes 1 drawer. » dans l'app, DECISIONS.md et SPEC.md. Demandé au test de T30.
+- **+ en pastille** : au bout de la rangée, le + est une pastille comme les autres (demandé au test de T30, fait avec T31). Sans la rangée, il reste un bouton dans la barre.
+- **« New » et le retour à l'app** : l'ouverture ne compte qu'au lancement de l'écran du feed (démarrage, ou retour après la création d'un tiroir). Revenir à l'app laissée en arrière-plan ne déplace pas la ligne. À revoir si c'est gênant à l'usage.

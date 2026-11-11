@@ -67,7 +67,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T28 : création d'un tiroir
 - [x] T29 : feed All (liste, pagination, rafraîchir, états)
 - [x] T30 : pastilles + feed d'un tiroir
-- [ ] T31 : signal « New »
+- [x] T31 : signal « New »
 
 ### Checkpoint 3
 - [ ] Critères de réussite 1, 2, 3 et 6 de la spec, à la main sur l'émulateur

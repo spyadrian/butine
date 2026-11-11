@@ -39,14 +39,20 @@ class DrawerPills extends StatelessWidget {
               padding: const EdgeInsets.only(right: 8),
               child: Center(child: w), // a sideways list stretches its children
             ),
-          const NewDrawerButton(),
+          Center(
+            child: ActionChip(
+              tooltip: 'New drawer',
+              label: const Icon(Icons.add, size: 18),
+              onPressed: () => Navigator.of(context).pushNamed('/new-drawer'),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-/// Opens the new drawer screen.
+/// Opens the new drawer screen from the app bar, when the pills are hidden.
 class NewDrawerButton extends StatelessWidget {
   const NewDrawerButton({super.key});
 
