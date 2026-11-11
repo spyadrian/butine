@@ -296,3 +296,10 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 - [ ] Décisions de la spec reportées dans DECISIONS.md
 - [ ] CI verte
 - [ ] Revue humaine avant la suite (compte anonyme, paiement)
+
+---
+
+## Notes pour plus tard
+
+- **Feed qui attend un tiroir `pending`** : « Butine is reading the latest papers… » ne se met pas à jour tout seul ; il faut tirer pour rafraîchir. À faire : rafraîchir automatiquement le feed tant qu'un tiroir est `pending`. Remarqué au test de T29.
+- **Retour de `paid` à `free`** : un utilisateur qui se désabonne avec plusieurs tiroirs ne doit plus pouvoir les modifier. Règle exacte à décider (tiroirs gelés, ou seul le plus ancien reste actif). À traiter avec le paiement, hors M3.
