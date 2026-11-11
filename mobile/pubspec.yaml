@@ -16,6 +16,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   swagger_parser: ^2.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -33,3 +34,13 @@ flutter:
         - asset: assets/fonts/Literata-Regular.ttf
         - asset: assets/fonts/Literata-SemiBold.ttf
           weight: 600
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: ../design/logo/exports/app/butine-symbole-app-icon-1024.png
+  adaptive_icon_foreground: ../design/logo/exports/app/android-foreground-1024.png
+  adaptive_icon_background: ../design/logo/exports/app/android-background-1024.png
+  adaptive_icon_monochrome: ../design/logo/exports/app/android-monochrome-1024.png
+  # the exports already include the adaptive-icon safe-zone padding
+  adaptive_icon_foreground_inset: 0

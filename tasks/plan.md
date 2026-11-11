@@ -55,7 +55,7 @@ Détail (critères, vérifications, fichiers) dans [todo.md](todo.md).
 - [x] T23 : projet Flutter Android dans `mobile/` + job CI
 - [x] T24 : thème (tokens, polices, clair/sombre)
 - [x] T25 : client API généré par swagger_parser, vérifié en CI
-- [ ] T26 : jeu d'icônes des tiroirs + icône de l'app
+- [x] T26 : jeu d'icônes des tiroirs + icône de l'app
 
 ### Checkpoint 2
 - [ ] L'app se lance sur l'émulateur, aux couleurs et polices de Butine, avec son icône
