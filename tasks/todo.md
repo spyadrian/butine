@@ -282,11 +282,11 @@ Vérifié côté API le 2026-11-14 (reste l'émulateur) : critère 3 (403 en `fr
 **Description :** Écran Settings ouvert depuis le feed : thème (système, clair, sombre) gardé sur l'appareil, version de l'app, sources suivies (arXiv, bioRxiv).
 
 **Critères d'acceptation :**
-- [ ] Le thème choisi s'applique tout de suite et survit à un redémarrage
-- [ ] Par défaut, le thème suit le système
+- [x] Le thème choisi s'applique tout de suite et survit à un redémarrage
+- [x] Par défaut, le thème suit le système
 
 **Vérification :**
-- [ ] Analyse + tests
+- [x] Analyse + tests
 - [ ] Manuel : changer le thème, redémarrer l'app
 
 **Dépendances :** T24

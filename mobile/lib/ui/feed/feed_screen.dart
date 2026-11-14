@@ -17,7 +17,8 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
-  FeedViewModel get vm => widget.viewModel;
+  // The app rebuilds its screens when the theme changes: keep the one opened.
+  late final FeedViewModel vm = widget.viewModel;
 
   @override
   void initState() {
@@ -37,6 +38,11 @@ class _FeedScreenState extends State<FeedScreen> {
             builder: (context, _) => vm.showPills || vm.loading
                 ? const SizedBox.shrink()
                 : const NewDrawerButton(),
+          ),
+          IconButton(
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.of(context).pushNamed('/settings'),
           ),
         ],
       ),
