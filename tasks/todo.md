@@ -238,8 +238,10 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 
 ### Checkpoint 3
 - [ ] Critères de réussite 1, 2, 3 et 6 de la spec, à la main sur l'émulateur
-- [ ] Temps de réponse du feed global noté (avec la base locale)
+- [x] Temps de réponse du feed global noté (avec la base locale) : ~65 ms médian pour 50 papiers, 3 tiroirs, 26 498 papiers en base (2026-11-14)
 - [ ] Revue humaine
+
+Vérifié côté API le 2026-11-14 (reste l'émulateur) : critère 3 (403 en `free`, 201 après `set-plan paid`), 3 tiroirs `ready` en 27 s, feed global avec `prompt_ids`, feed d'un tiroir filtré.
 
 ---
 
@@ -249,12 +251,12 @@ Spec : [docs/SPEC.md](../docs/SPEC.md). Chaque tâche d'écran (T27 → T34) pas
 **Description :** Toucher une carte ouvre le détail : titre, tous les auteurs, source, date, abstract complet, tiroirs concernés, bouton « Read on arXiv » / « Read on bioRxiv » qui ouvre `link` dans le navigateur.
 
 **Critères d'acceptation :**
-- [ ] Données reprises de la carte, sans nouvel appel réseau
-- [ ] Le libellé du bouton suit la source ; le lien s'ouvre dans le navigateur
-- [ ] Abstract en Literata, lisible dans les deux thèmes
+- [x] Données reprises de la carte, sans nouvel appel réseau
+- [x] Le libellé du bouton suit la source ; le lien s'ouvre dans le navigateur
+- [x] Abstract en Literata, lisible dans les deux thèmes
 
 **Vérification :**
-- [ ] Analyse + tests
+- [x] Analyse + tests
 - [ ] Manuel : critère de réussite 4 de la spec
 
 **Dépendances :** T29

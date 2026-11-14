@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../data/api/butine_api.dart';
+import '../paper/paper_screen.dart';
 import 'drawer_pills.dart';
 import 'feed_view_model.dart';
 import 'paper_card.dart';
@@ -81,10 +83,19 @@ class _FeedScreenState extends State<FeedScreen> {
                     paper: vm.papers[i],
                     drawers: vm.drawersOf(vm.papers[i]),
                     isNew: vm.isNew(vm.papers[i]),
+                    onTap: () => _open(context, vm.papers[i]),
                   )
                 : _footer(context);
           },
         ),
+      ),
+    );
+  }
+
+  void _open(BuildContext context, GlobalFeedPaperOut paper) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PaperScreen(paper: paper, drawers: vm.drawersOf(paper)),
       ),
     );
   }
