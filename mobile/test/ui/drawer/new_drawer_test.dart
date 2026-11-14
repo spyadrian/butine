@@ -7,13 +7,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
-/// Records what it creates, or throws [failure]; [list] returns [drawers].
+/// Records what it creates and deletes, or throws [failure]; [list] returns [drawers].
 class FakeDrawerRepository implements DrawerRepository {
   FakeDrawerRepository({this.failure, this.drawers = const []});
 
   Object? failure;
   List<PromptOut> drawers;
   final created = <(String, String, String)>[];
+  final deleted = <int>[];
+
+  @override
+  Future<void> delete(int id) async {
+    if (failure != null) throw failure!;
+    deleted.add(id);
+    drawers = [...drawers]..removeWhere((d) => d.id == id);
+  }
 
   @override
   Future<List<PromptOut>> list() async {

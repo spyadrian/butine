@@ -4,17 +4,22 @@ import '../../data/api/butine_api.dart';
 import '../core/drawer_icons.dart';
 
 /// All, one pill per drawer, then + to create one. Scrolls sideways.
+/// A long press on a drawer's pill opens it.
 class DrawerPills extends StatelessWidget {
   const DrawerPills({
     super.key,
     required this.drawers,
     required this.selectedId,
     required this.onSelected,
+    required this.onLongPress,
   });
 
   final List<PromptOut> drawers;
   final int? selectedId; // null is All
   final ValueChanged<int?> onSelected;
+
+  /// Opens a drawer's own screen.
+  final ValueChanged<PromptOut> onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,11 @@ class DrawerPills extends StatelessWidget {
         children: [
           for (final w in [
             pill(null, 'All'),
-            for (final d in drawers) pill(d.id, d.name, drawerIcon(d.icon)),
+            for (final d in drawers)
+              GestureDetector(
+                onLongPress: () => onLongPress(d),
+                child: pill(d.id, d.name, drawerIcon(d.icon)),
+              ),
           ])
             Padding(
               padding: const EdgeInsets.only(right: 8),

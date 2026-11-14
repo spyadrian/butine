@@ -51,6 +51,21 @@ void main() {
     });
   });
 
+  test('delete removes the drawer as the device user', () async {
+    final calls = <http.Request>[];
+
+    await drawersAnswering(204, calls).delete(7);
+
+    final request = calls.single;
+    expect(request.method, 'DELETE');
+    expect(request.url.path, '/v1/prompts/7');
+    expect(request.headers['x-user-id'], 'u-1');
+  });
+
+  test('a failed delete throws', () async {
+    expect(drawersAnswering(500).delete(7), throwsA(anything));
+  });
+
   test('list reads the drawers as the device user', () async {
     final calls = <http.Request>[];
     final drawers = DrawerRepository(

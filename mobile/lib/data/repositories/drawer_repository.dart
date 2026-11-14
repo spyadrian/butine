@@ -34,4 +34,7 @@ class DrawerRepository {
       rethrow;
     }
   }
+
+  Future<void> delete(int id) =>
+      _api.deletePrompt(promptId: id, xUserId: _users.userId);
 }

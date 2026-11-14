@@ -267,11 +267,11 @@ Vérifié côté API le 2026-11-14 (reste l'émulateur) : critère 3 (403 en `fr
 **Description :** Appui long sur une pastille : nom, icône, texte, état (`pending`/`ready`) et « Delete » avec confirmation dans l'écran. Après suppression, retour à All sans ce tiroir.
 
 **Critères d'acceptation :**
-- [ ] La confirmation est dans l'écran, pas une boîte de dialogue système
-- [ ] Le tiroir disparaît des pastilles et du feed ; erreur réseau → message et « Retry »
+- [x] La confirmation est dans l'écran, pas une boîte de dialogue système
+- [x] Le tiroir disparaît des pastilles et du feed ; erreur réseau → message et « Retry »
 
 **Vérification :**
-- [ ] Analyse + tests
+- [x] Analyse + tests
 - [ ] Manuel : critère de réussite 5 de la spec
 
 **Dépendances :** T30

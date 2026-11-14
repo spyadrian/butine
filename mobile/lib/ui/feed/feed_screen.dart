@@ -49,6 +49,7 @@ class _FeedScreenState extends State<FeedScreen> {
                 drawers: vm.drawers,
                 selectedId: vm.selected?.id,
                 onSelected: vm.select,
+                onLongPress: (d) => _openDrawer(context, d),
               ),
             Expanded(child: _list(context)),
           ],
@@ -90,6 +91,13 @@ class _FeedScreenState extends State<FeedScreen> {
         ),
       ),
     );
+  }
+
+  /// Back to All once the drawer is deleted: its pill and papers are gone.
+  Future<void> _openDrawer(BuildContext context, PromptOut drawer) async {
+    final deleted = await Navigator.of(context)
+        .pushNamed('/drawer', arguments: drawer);
+    if (deleted == true) await vm.select(null);
   }
 
   void _open(BuildContext context, GlobalFeedPaperOut paper) {
