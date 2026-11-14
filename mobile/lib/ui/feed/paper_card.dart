@@ -10,6 +10,7 @@ class PaperCard extends StatelessWidget {
     required this.paper,
     this.drawers = const [],
     this.isNew = false,
+    this.onTap,
   });
 
   final GlobalFeedPaperOut paper;
@@ -20,6 +21,8 @@ class PaperCard extends StatelessWidget {
   /// Arrived since the last open: a honey dot before the source.
   final bool isNew;
 
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -28,68 +31,71 @@ class PaperCard extends StatelessWidget {
     );
     // Some bioRxiv items have no publication date: fall back to when Butine read them.
     final date = paper.publishedAt.asString ?? paper.fetchedAt;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            paper.title,
-            style: theme.textTheme.titleMedium!.copyWith(
-              fontFamily: paperFontFamily,
-              fontWeight: FontWeight.w600,
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              paper.title,
+              style: theme.textTheme.titleMedium!.copyWith(
+                fontFamily: paperFontFamily,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            paper.authors.join(', '),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: meta,
-          ),
-          Row(
-            children: [
-              if (isNew) ...[
-                Semantics(
-                  label: 'New',
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: newSignalColor(theme.colorScheme),
-                      shape: BoxShape.circle,
+            const SizedBox(height: 4),
+            Text(
+              paper.authors.join(', '),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: meta,
+            ),
+            Row(
+              children: [
+                if (isNew) ...[
+                  Semantics(
+                    label: 'New',
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: newSignalColor(theme.colorScheme),
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 6),
-              ],
-              Expanded(
-                child: Text(
-                  '${paper.source} · '
-                  '${MaterialLocalizations.of(context).formatMediumDate(date)}',
-                  style: meta,
-                ),
-              ),
-            ],
-          ),
-          if (drawers.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 12,
-              children: [
-                for (final d in drawers)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(drawerIcon(d.icon), size: 16, color: meta.color),
-                      const SizedBox(width: 4),
-                      Text(d.name, style: meta),
-                    ],
+                  const SizedBox(width: 6),
+                ],
+                Expanded(
+                  child: Text(
+                    '${paper.source} · '
+                    '${MaterialLocalizations.of(context).formatMediumDate(date)}',
+                    style: meta,
                   ),
+                ),
               ],
             ),
+            if (drawers.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 12,
+                children: [
+                  for (final d in drawers)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(drawerIcon(d.icon), size: 16, color: meta.color),
+                        const SizedBox(width: 4),
+                        Text(d.name, style: meta),
+                      ],
+                    ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
