@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:butine/data/api/butine_api.dart';
 import 'package:butine/data/device_store.dart';
 import 'package:butine/data/repositories/user_repository.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -27,6 +28,14 @@ class FakeDeviceStore implements DeviceStore {
     feedOpenSaves++;
     feedOpenedAt = at;
   }
+
+  ThemeMode? themeModeSaved;
+
+  @override
+  Future<ThemeMode> themeMode() async => themeModeSaved ?? ThemeMode.system;
+
+  @override
+  Future<void> saveThemeMode(ThemeMode mode) async => themeModeSaved = mode;
 }
 
 void main() {

@@ -15,6 +15,8 @@ import 'ui/feed/feed_screen.dart';
 import 'ui/feed/feed_view_model.dart';
 import 'ui/onboarding/onboarding_screen.dart';
 import 'ui/onboarding/onboarding_view_model.dart';
+import 'ui/settings/settings_screen.dart';
+import 'ui/settings/settings_view_model.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
@@ -28,12 +30,14 @@ Future<void> main() async {
   final store = DeviceStore();
   final users = UserRepository(api, store);
   await users.load();
+  final themeMode = ValueNotifier(await store.themeMode());
   runApp(
     ButineApp(
       users: users,
       drawers: DrawerRepository(api, users),
       feed: FeedRepository(api, users),
       store: store,
+      themeMode: themeMode,
     ),
   );
 }
@@ -45,40 +49,48 @@ class ButineApp extends StatelessWidget {
     required this.drawers,
     required this.feed,
     required this.store,
+    required this.themeMode,
   });
 
   final UserRepository users;
   final DrawerRepository drawers;
   final FeedRepository feed;
   final DeviceStore store;
+  final ValueNotifier<ThemeMode> themeMode;
 
   Widget _feedScreen(BuildContext _) =>
       FeedScreen(viewModel: FeedViewModel(feed, drawers, store));
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Butine',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      home: users.userId == null
-          ? OnboardingScreen(
-              viewModel: OnboardingViewModel(users),
-              drawers: drawers,
-            )
-          : _feedScreen(context),
-      // Named, so the drawer screens can reach it without carrying repositories.
-      routes: {
-        '/feed': _feedScreen,
-        '/new-drawer': (_) =>
-            NewDrawerScreen(viewModel: NewDrawerViewModel(drawers)),
-        '/drawer': (context) => DrawerScreen(
-          viewModel: DrawerViewModel(
-            drawers,
-            ModalRoute.of(context)!.settings.arguments! as PromptOut,
+    return ValueListenableBuilder(
+      valueListenable: themeMode,
+      builder: (context, mode, _) => MaterialApp(
+        title: 'Butine',
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        themeMode: mode,
+        home: users.userId == null
+            ? OnboardingScreen(
+                viewModel: OnboardingViewModel(users),
+                drawers: drawers,
+              )
+            : _feedScreen(context),
+        // Named, so the drawer screens can reach it without carrying repositories.
+        routes: {
+          '/feed': _feedScreen,
+          '/new-drawer': (_) =>
+              NewDrawerScreen(viewModel: NewDrawerViewModel(drawers)),
+          '/settings': (_) =>
+              SettingsScreen(viewModel: SettingsViewModel(store, themeMode)),
+          '/drawer': (context) => DrawerScreen(
+            viewModel: DrawerViewModel(
+              drawers,
+              ModalRoute.of(context)!.settings.arguments! as PromptOut,
+            ),
           ),
-        ),
-      },
+        },
+      ),
     );
   }
 }

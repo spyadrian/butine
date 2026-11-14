@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// What the app keeps on the device between launches.
@@ -8,6 +9,7 @@ class DeviceStore {
 
   static const _userIdKey = 'user_id';
   static const _feedOpenKey = 'feed_opened_at';
+  static const _themeKey = 'theme_mode';
 
   Future<String?> userId() => _secure.read(key: _userIdKey);
 
@@ -22,4 +24,13 @@ class DeviceStore {
 
   Future<void> saveLastFeedOpen(DateTime at) =>
       _secure.write(key: _feedOpenKey, value: at.toUtc().toIso8601String());
+
+  /// The theme picked in Settings; the system's until one is.
+  Future<ThemeMode> themeMode() async {
+    final name = await _secure.read(key: _themeKey);
+    return ThemeMode.values.asNameMap()[name] ?? ThemeMode.system;
+  }
+
+  Future<void> saveThemeMode(ThemeMode mode) =>
+      _secure.write(key: _themeKey, value: mode.name);
 }
