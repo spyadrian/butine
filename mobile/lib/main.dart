@@ -7,6 +7,8 @@ import 'data/repositories/drawer_repository.dart';
 import 'data/repositories/feed_repository.dart';
 import 'data/repositories/user_repository.dart';
 import 'ui/core/theme.dart';
+import 'ui/drawer/drawer_screen.dart';
+import 'ui/drawer/drawer_view_model.dart';
 import 'ui/drawer/new_drawer_screen.dart';
 import 'ui/drawer/new_drawer_view_model.dart';
 import 'ui/feed/feed_screen.dart';
@@ -70,6 +72,12 @@ class ButineApp extends StatelessWidget {
         '/feed': _feedScreen,
         '/new-drawer': (_) =>
             NewDrawerScreen(viewModel: NewDrawerViewModel(drawers)),
+        '/drawer': (context) => DrawerScreen(
+          viewModel: DrawerViewModel(
+            drawers,
+            ModalRoute.of(context)!.settings.arguments! as PromptOut,
+          ),
+        ),
       },
     );
   }

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:butine/data/api/butine_api.dart';
 import 'package:butine/data/repositories/feed_repository.dart';
+import 'package:butine/ui/drawer/drawer_screen.dart';
+import 'package:butine/ui/drawer/drawer_view_model.dart';
 import 'package:butine/ui/feed/feed_screen.dart';
 import 'package:butine/ui/feed/feed_view_model.dart';
 import 'package:butine/ui/feed/paper_card.dart';
@@ -86,15 +88,20 @@ Future<FeedViewModel> pumpFeed(
   List<PromptOut>? drawers,
   FakeDeviceStore? store,
 }) async {
-  final vm = FeedViewModel(
-    feed,
-    FakeDrawerRepository(drawers: drawers ?? [drawer(status)]),
-    store ?? FakeDeviceStore(),
-  );
+  final repo = FakeDrawerRepository(drawers: drawers ?? [drawer(status)]);
+  final vm = FeedViewModel(feed, repo, store ?? FakeDeviceStore());
   await tester.pumpWidget(
     MaterialApp(
       home: FeedScreen(viewModel: vm),
-      routes: {'/new-drawer': (_) => const Text('New drawer screen')},
+      routes: {
+        '/new-drawer': (_) => const Text('New drawer screen'),
+        '/drawer': (context) => DrawerScreen(
+          viewModel: DrawerViewModel(
+            repo,
+            ModalRoute.of(context)!.settings.arguments! as PromptOut,
+          ),
+        ),
+      },
     ),
   );
   await tester.pumpAndSettle();
@@ -330,6 +337,30 @@ void main() {
       expect(feed.drawerIds.last, isNull);
       expect(find.text('3 drawers'), findsOneWidget);
     });
+
+    testWidgets(
+      'a long press opens the drawer; Delete removes it, back to All',
+      (tester) async {
+        final feed = FakeFeedRepository(3);
+        await pumpFeed(tester, feed, drawers: threeDrawers);
+        await tester.tap(find.widgetWithText(ChoiceChip, 'Solar'));
+        await tester.pumpAndSettle();
+
+        await tester.longPress(find.widgetWithText(ChoiceChip, 'Solar'));
+        await tester.pumpAndSettle();
+        expect(find.text('Prompt of Solar'), findsOneWidget);
+
+        await tester.tap(find.widgetWithText(OutlinedButton, 'Delete'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FeedScreen), findsOneWidget);
+        expect(find.widgetWithText(ChoiceChip, 'Solar'), findsNothing);
+        expect(feed.drawerIds.last, isNull);
+        expect(find.text('2 drawers'), findsOneWidget);
+      },
+    );
 
     testWidgets('in All, a card names every drawer that kept it', (
       tester,
