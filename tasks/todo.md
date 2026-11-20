@@ -295,9 +295,11 @@ Vérifié côté API le 2026-11-14 (reste l'émulateur) : critère 3 (403 en `fr
 
 ### Checkpoint final
 - [ ] Tous les critères de réussite de docs/SPEC.md remplis (dont le 8 : backend arrêté → erreurs avec « Retry », sans plantage)
-- [ ] Décisions de la spec reportées dans DECISIONS.md
-- [ ] CI verte
+- [x] Décisions de la spec reportées dans DECISIONS.md
+- [x] CI verte
 - [ ] Revue humaine avant la suite (compte anonyme, paiement)
+
+Critère 9 vérifié le 2026-11-14 : 2 auteurs sur 26 498 gardent un antislash (`Fernando L. \Pelayo`, `Mirna D\vzamonja`), du LaTeX invalide déjà présent dans les données d'arXiv. Laissés tels quels : une règle de nettoyage plus large risquerait d'abîmer des noms valides.
 
 ---
 
